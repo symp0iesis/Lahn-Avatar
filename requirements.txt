@@ -1,0 +1,8 @@
+llama-index
+gdown
+openai
+rich
+PyMuPDF
+pypdf
+sentence-transformers
+llama-index-embeddings-huggingface
