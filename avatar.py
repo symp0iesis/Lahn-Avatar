@@ -1,6 +1,6 @@
 import os
 import subprocess
-import datetime
+import datetime, requests
 from rich.console import Console
 
 # Updated imports for latest LlamaIndex
@@ -30,6 +30,20 @@ def download_drive_folder(folder_id, output_dir="./data"):
     cmd = f"gdown --folder https://drive.google.com/drive/folders/{folder_id} -O {output_dir}"
     subprocess.run(cmd, shell=True)
 
+
+def fetch_system_prompt_from_gdoc(): # -> str:
+    print(' Updating system prompt...')
+    url = f"https://docs.google.com/document/d/1NYOOy8KkaLDBwvHvEVg1hVDY5yvHeLACUpCEkJVM8Kw/export?format=txt"
+    response = requests.get(url)
+    response.raise_for_status()
+    prompt = response.text.strip()
+    prompt = prompt[:prompt.find('General Internal Impressions')]
+    with open('system_prompt.txt','w') as f:
+        f.write(prompt)
+    print(' Done.')
+    # return
+
+
 # === LLM SETUP ===
 def select_model():
     print("Choose a model:")
@@ -44,11 +58,16 @@ def get_llm(model_name: str):
 
     # llm = GWDGLLM(model="llama-3.1-8b-instruct", api_key=API_KEY, base_url=API_BASE)
 
+    system_prompt = open('system_prompt.txt','r').read()
+
+    # print('System prompt: ', system_prompt)
+
     llm = GWDGChatLLM(
         model=model_name,
         api_base=API_BASE,
         api_key=API_KEY,
-        temperature=0.7
+        temperature=0.7,
+        system_prompt = system_prompt
     )
 
     return llm
@@ -94,7 +113,10 @@ def main():
     console = Console()
     console.print("[bold cyan]Lahn River AI Avatar[/bold cyan]\n")
 
-    refresh = input("Refresh knowledge base from Google Drive? (y/n): ").strip().lower() == "y"
+    refresh = input("Refresh Knowledge Base and System Prompt from Google Drive? (y/n): ").strip().lower() == "y"
+
+    if refresh==True:
+        fetch_system_prompt_from_gdoc()
 
     model_name = select_model()
     llm = get_llm(model_name)

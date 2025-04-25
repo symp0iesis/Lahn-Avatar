@@ -14,10 +14,12 @@ class GWDGChatLLM(CustomLLM):
     model: str = Field(default="llama-3.1-8b-instruct")
     api_base: str = Field(default="https://llm.hrz.uni-giessen.de/api/")
     api_key: str = Field(default="")
-    temperature: float = Field(default=0.7)
+    temperature: float = Field(default=0.1)
+    system_prompt: str = Field(default="")
 
     context_window: int = 4096
     num_output: int = 512
+
 
     @property
     def metadata(self) -> LLMMetadata:
@@ -36,7 +38,8 @@ class GWDGChatLLM(CustomLLM):
 
         payload = {
             "model": self.model,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": [{"role": "system", "content": self.system_prompt},
+                        {"role": "user", "content": prompt}],
             "temperature": self.temperature,
         }
 
