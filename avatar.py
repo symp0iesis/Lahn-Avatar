@@ -2,18 +2,25 @@ import os
 import subprocess
 import datetime, requests
 from rich.console import Console
+from docx import Document
+from urllib.parse import urlparse, parse_qs
+from pathlib import Path
+import hashlib
+import re
 
-# Updated imports for latest LlamaIndex
+from youtube_transcript_api import YouTubeTranscriptApi
+from llama_index.core.schema import Document as LlamaDocument
+
 from llama_index.core import StorageContext, load_index_from_storage
 from llama_index.core.readers import SimpleDirectoryReader
 from llama_index.core.indices.vector_store import VectorStoreIndex
-from llama_index.llms.openai import OpenAI
 from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.settings import Settings
+from llama_index.readers.web import SimpleWebPageReader
 
-from gwdg_llm import GWDGChatLLM #GWDGLLM
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
+from gwdg_llm import GWDGChatLLM, GWDGEmbedding
 
 # === CONFIG ===
 DRIVE_FOLDER_ID = "1vT4UTYHeFxS5Vy2u_OfQyQ6cQ-cP5Ywd"
@@ -24,64 +31,107 @@ LOG_DIR = "./chat_logs"
 STORAGE_DIR = "./lahn_index"
 
 
-# === DOWNLOAD DOCS ===
 def download_drive_folder(folder_id, output_dir="./data"):
+    print('Running download_drive_folder function...')
     os.makedirs(output_dir, exist_ok=True)
     cmd = f"gdown --folder https://drive.google.com/drive/folders/{folder_id} -O {output_dir}"
     subprocess.run(cmd, shell=True)
 
 
-def fetch_system_prompt_from_gdoc(): # -> str:
+def fetch_system_prompt_from_gdoc():
     print(' Updating system prompt...')
-    url = f"https://docs.google.com/document/d/1NYOOy8KkaLDBwvHvEVg1hVDY5yvHeLACUpCEkJVM8Kw/export?format=txt"
+    url = "https://docs.google.com/document/d/1NYOOy8KkaLDBwvHvEVg1hVDY5yvHeLACUpCEkJVM8Kw/export?format=txt"
     response = requests.get(url)
     response.raise_for_status()
     prompt = response.text.strip()
     prompt = prompt[:prompt.find('General Internal Impressions')]
-    with open('system_prompt.txt','w') as f:
+    with open('system_prompt.txt', 'w') as f:
         f.write(prompt)
     print(' Done.')
-    # return
 
 
-# === LLM SETUP ===
+def convert_docx_to_txt_and_cleanup(folder_path):
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if file.endswith('.docx') or '.' not in file:
+                try:
+                    doc = Document(file_path)
+                    text = "\n".join([para.text for para in doc.paragraphs])
+                    txt_filename = os.path.splitext(file)[0] + '.txt'
+                    txt_path = os.path.join(root, txt_filename)
+                    with open(txt_path, 'w', encoding='utf-8') as f:
+                        f.write(text)
+                    os.remove(file_path)
+                    print(f"✅ Converted and deleted: {file_path}")
+                except Exception as e:
+                    print(f"❌ Failed to convert {file_path}: {e}")
+
+
+def fetch_youtube_transcript(url, languages=["de"]):
+    print(f"🔗 Fetching: {url}")
+    try:
+        parsed = urlparse(url)
+
+        # Handle standard and short YouTube URL formats
+        if "youtube.com" in parsed.netloc:
+            video_id = parse_qs(parsed.query).get("v", [None])[0]
+        elif "youtu.be" in parsed.netloc:
+            video_id = parsed.path.lstrip("/")
+        else:
+            raise ValueError("Unrecognized YouTube URL format.")
+
+        if not video_id or len(video_id) != 11:
+            raise ValueError("Invalid YouTube video ID.")
+
+        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=languages)
+        full_text = " ".join([entry["text"] for entry in transcript])
+        return LlamaDocument(text=full_text, metadata={"source": url})
+
+    except Exception as e:
+        print(f"❌ Failed to fetch {url}: {e}")
+        return None
+
+
+def sanitize_filename(url):
+    domain = urlparse(url).netloc
+    hashed = hashlib.md5(url.encode()).hexdigest()[:8]
+    return f"{domain.replace('.', '_')}_{hashed}.txt"
+
+
 def select_model():
     print("Choose a model:")
     print("1. Mistral")
     print("2. SauerKrautLM (Llama finetuned on German data)")
     choice = input("Enter 1 or 2: ")
-    if choice == "2":
-        return "llama-3.1-sauerkrautlm-70b-instruct" 
-    return "mistral-large-instruct"
+    return "llama-3.1-sauerkrautlm-70b-instruct" if choice == "2" else "mistral-large-instruct"
+
 
 def get_llm(model_name: str):
-
-    # llm = GWDGLLM(model="llama-3.1-8b-instruct", api_key=API_KEY, base_url=API_BASE)
-
-    system_prompt = open('system_prompt.txt','r').read()
-
-    # print('System prompt: ', system_prompt)
-
-    llm = GWDGChatLLM(
+    system_prompt = open('system_prompt.txt', 'r').read()
+    return GWDGChatLLM(
         model=model_name,
         api_base=API_BASE,
         api_key=API_KEY,
         temperature=0.7,
-        system_prompt = system_prompt
+        system_prompt=system_prompt
     )
 
-    return llm
 
-# === LOGGING SETUP ===
 def create_session_log():
     os.makedirs(LOG_DIR, exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     return open(os.path.join(LOG_DIR, f"session_{timestamp}.txt"), "w")
 
-# === INDEX BUILDER / LOADER ===
+
 def build_or_load_index(llm, refresh=False):
     Settings.llm = llm
     Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+    # GWDGEmbedding(
+    #     api_key=API_KEY,
+    #     api_base=API_BASE,
+    #     model="e5-mistral-7b-instruct"
+    # )
 
     index_ready = (
         os.path.exists(STORAGE_DIR)
@@ -93,29 +143,56 @@ def build_or_load_index(llm, refresh=False):
         print('Loading index from storage...')
         storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
         return load_index_from_storage(storage_context)
-    else:
-        if refresh:
-            print('Refreshing from Google Drive...')
-            download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
 
-        print('Creating Vector store from data sources...')
-        documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
+    if refresh:
+        print('Refreshing from Google Drive...')
+        download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
+        convert_docx_to_txt_and_cleanup(DATA_DIR)
 
-        index = VectorStoreIndex.from_documents(
-            documents
-        )
-        index.storage_context.persist(persist_dir=STORAGE_DIR)
-        return index
+    print('Creating Vector store from data sources...')
+    documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
+
+    links_path = Path(DATA_DIR) / "General_News/Online News (Links).txt"
+    if links_path.exists():
+        with open(links_path, "r") as f:
+            urls = [line.strip() for line in f if line.strip()]
+
+        web_reader = SimpleWebPageReader()
+        for url in urls:
+            try:
+                print(f"🔗 Fetching: {url}")
+                if "youtube.com" in url or "youtu.be" in url:
+                    doc = fetch_youtube_transcript(url)
+                else:
+                    docs = web_reader.load_data([url])
+                    full_text = "\n\n".join(doc.text for doc in docs)
+                    doc = LlamaDocument(text=full_text, metadata={"source": url})
+
+                if doc:
+                    filename = sanitize_filename(url)
+                    filepath = Path(DATA_DIR) / "General_News/scraped_texts" / filename
+                    filepath.parent.mkdir(parents=True, exist_ok=True)
+                    with open(filepath, "w", encoding="utf-8") as f:
+                        f.write(doc.text)
+                    print(f"✅ Saved to {filepath}")
+            except Exception as e:
+                print(f"❌ Failed to fetch {url}: {e}")
+
+    scraped_documents = SimpleDirectoryReader(str(Path(DATA_DIR) / "General_News/scraped_texts")).load_data()
+    documents += scraped_documents
+
+    index = VectorStoreIndex.from_documents(documents)
+    index.storage_context.persist(persist_dir=STORAGE_DIR)
+    return index
 
 
-# === MAIN ===
 def main():
     console = Console()
     console.print("[bold cyan]Lahn River AI Avatar[/bold cyan]\n")
 
     refresh = input("Refresh Knowledge Base and System Prompt from Google Drive? (y/n): ").strip().lower() == "y"
 
-    if refresh==True:
+    if refresh:
         fetch_system_prompt_from_gdoc()
 
     model_name = select_model()
@@ -143,7 +220,8 @@ def main():
         log_file.write(f"You: {user_input}\nLahn River: {response.response}\n\n")
 
     log_file.close()
-    console.print("📁 Chat session saved.")
+    console.print("\U0001F4C1 Chat session saved.")
+
 
 if __name__ == "__main__":
     main()

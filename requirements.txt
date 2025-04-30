@@ -6,10 +6,27 @@ openai
 rich
 PyMuPDF
 pypdf
+python-docx
 sentence-transformers
 llama-index-embeddings-huggingface
+llama-index-readers-web
+llama-index-readers-youtube-transcript
+
 
 numpy==1.26.4
 
+#webserver
+
 flask
 flask-cors
+
+
+
+#speech-to-speech
+
+sounddevice 
+websockets 
+simpleaudio 
+#numpy 
+aiohttp
+
