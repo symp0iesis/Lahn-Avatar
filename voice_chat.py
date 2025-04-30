@@ -5,7 +5,7 @@ import simpleaudio as sa
 import numpy as np
 import json
 
-AZURE_KEY = "DIEw14wrWjY7hgE8Wo0yXJulKu4HxVo8EEp2LcqHHZdy13yMFoVGJQQJ99BBACfhMk5XJ3w3AAABACOGWcRP"
+AZURE_KEY = "KEY"
 DEPLOYMENT_ID = "gpt-4o-realtime-preview"
 API_VERSION = "2024-10-01-preview"
 ENDPOINT = f"wss://aditu-openai-resource-2.openai.azure.com/openai/realtime?api-version={API_VERSION}&deployment={DEPLOYMENT_ID}"
