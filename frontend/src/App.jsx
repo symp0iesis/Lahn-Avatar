@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,6 @@ export default function LahnAvatarChat() {
   const [isThinking, setIsThinking] = useState(true);
   const chatEndRef = useRef(null);
 
-  // Fetch initial system message from avatar on load
   useEffect(() => {
     const fetchInitialMessage = async () => {
       const response = await fetch("http://localhost:5000/api/chat", {
@@ -50,9 +50,9 @@ export default function LahnAvatarChat() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-stone-100 p-4 flex flex-col items-center">
       <motion.h1
-        className="text-3xl font-poetic text-blue-700 mb-6"
+        className="text-3xl font-poetic text-amber-700 mb-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -61,34 +61,32 @@ export default function LahnAvatarChat() {
       </motion.h1>
 
       <motion.div
-        className="w-full max-w-2xl"
+        className="w-full max-w-5xl px-4"
         animate={{
           scale: [1, 1.01, 1],
           boxShadow: [
             "0 0 0 rgba(0,0,0,0)",
-            "0 0 20px rgba(173, 216, 230, 0.3)",
+            "0 0 20px rgba(120, 120, 120, 0.2)",
             "0 0 0 rgba(0,0,0,0)",
           ],
         }}
         transition={{ repeat: Infinity, duration: 6 }}
       >
-        <Card className="rounded-2xl shadow-lg overflow-hidden">
-          <CardContent className="h-[60vh] overflow-y-auto px-6 py-4 space-y-4 scroll-smooth flex flex-col">
+        <Card className="rounded-2xl shadow-lg overflow-hidden bg-white/90">
+          <CardContent className="h-[60vh] overflow-y-auto px-8 py-6 space-y-4 scroll-smooth flex flex-col">
             {messages.map((msg, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`flex ${
-                  msg.sender === "avatar" ? "justify-start" : "justify-end"
-                }`}
+                className={`flex ${msg.sender === "avatar" ? "justify-start" : "justify-end"}`}
               >
                 <div
-                  className={`max-w-xs px-4 py-3 rounded-xl shadow ${
+                  className={`max-w-lg px-4 py-3 rounded-xl shadow text-base md:text-[17px] ${
                     msg.sender === "avatar"
-                      ? "bg-blue-200 text-blue-900 animate-pulse"
-                      : "bg-white text-gray-800"
+                      ? "bg-lime-100 text-stone-900 animate-pulse"
+                      : "bg-white text-stone-800"
                   }`}
                 >
                   {msg.text}
@@ -97,7 +95,7 @@ export default function LahnAvatarChat() {
             ))}
             {isThinking && (
               <motion.div
-                className="text-blue-400 italic self-start"
+                className="text-lime-700 italic self-start"
                 animate={{ opacity: [0.3, 1, 0.3], x: [0, 2, -2, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
               >
@@ -107,9 +105,9 @@ export default function LahnAvatarChat() {
             <div ref={chatEndRef} />
           </CardContent>
 
-          <div className="flex items-center gap-2 px-4 py-3 border-t bg-blue-50">
+          <div className="flex items-center gap-2 px-6 py-4 border-t bg-stone-50">
             <Input
-              className="flex-1 rounded-full font-poetic !text-gray-900"
+              className="flex-1 rounded-full font-poetic !text-stone-800 bg-white"
               placeholder="Speak with the river..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -117,13 +115,20 @@ export default function LahnAvatarChat() {
             />
             <Button
               onClick={handleSubmit}
-              className="rounded-full px-6 py-2 font-poetic"
+              className="rounded-full px-6 py-2 font-poetic bg-amber-600 text-white hover:bg-amber-700"
             >
               Flow
             </Button>
           </div>
         </Card>
       </motion.div>
+
+      <Link
+        to="/experience"
+        className="text-amber-700 underline text-sm mt-4 hover:text-amber-900"
+      >
+        ✍️ Share Your Experience with the Lahn
+      </Link>
     </div>
   );
 }

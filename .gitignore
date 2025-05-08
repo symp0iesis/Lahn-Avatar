@@ -5,3 +5,5 @@ lahn_env/
 .archive/
 
 data/*
+
+.env

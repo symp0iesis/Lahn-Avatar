@@ -3,9 +3,13 @@ import asyncio
 import sounddevice as sd
 import simpleaudio as sa
 import numpy as np
-import json
+import os, json
+from dotenv import load_dotenv
 
-AZURE_KEY = "KEY"
+load_dotenv()  # load variables from .env into environment
+
+AZURE_KEY = os.getenv("AZURE_KEY")
+
 DEPLOYMENT_ID = "gpt-4o-realtime-preview"
 API_VERSION = "2024-10-01-preview"
 ENDPOINT = f"wss://aditu-openai-resource-2.openai.azure.com/openai/realtime?api-version={API_VERSION}&deployment={DEPLOYMENT_ID}"
@@ -73,12 +77,19 @@ async def stream_audio():
             def callback(indata, frames, time, status):
                 if status:
                     print("⚠️ Input stream error:", status)
-                loop.call_soon_threadsafe(
-                    asyncio.create_task,
-                    ws.send_bytes(indata.tobytes())
-                )
+
+                volume = np.linalg.norm(indata)
+                print(f"🎧 Audio level: {volume:.2f}")
+
+                async def send_chunk():
+                    print("📡 Sending audio chunk...")
+                    await ws.send_bytes(indata.tobytes())
+
+                loop.call_soon_threadsafe(asyncio.create_task, send_chunk())
 
             print("🎤 Streaming... Speak now.")
+            print("⌛ Awaiting silence or server reply...")
+
             try:
                 with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16',
                                     blocksize=CHUNK_SIZE, callback=callback):
@@ -119,6 +130,7 @@ async def stream_audio():
                     if data.get("type") == "text":
                         print(f"🧠 Lahn River: {data['data']['content']}")
                     elif data.get("type") == "response.stopped":
+                        print("🛑 Server detected end of speech.")
                         stop_event.set()
                 elif msg.type == aiohttp.WSMsgType.BINARY:
                     print("🔊 AUDIO received")
@@ -131,7 +143,7 @@ async def stream_audio():
                     print("❌ WebSocket error:", msg)
                     break
                 else:
-                    print("📦 Unhandled message:", msg)
+                    print(f"📦 Unhandled message: type={msg.type}, data={msg.data}")
 
 if __name__ == "__main__":
     try:
