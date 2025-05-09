@@ -39,38 +39,51 @@ class GWDGChatLLM(CustomLLM):
 
         payload = {
             "model": self.model,
-            "messages": [{"role": "system", "content": self.system_prompt},
-                         {"role": "user", "content": prompt}],
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": prompt}
+            ],
             "temperature": self.temperature,
         }
 
-        # print("📤 Sending payload:", json.dumps(payload, indent=2))
-        # print("📡 POST to:", f"{self.api_base}/chat/completions")
+        url = f"{self.api_base}/chat/completions"
+        max_retries = 3
 
-        try:
-            response = requests.post(
-                f"{self.api_base}/chat/completions", headers=headers, json=payload
-            )
-            response.raise_for_status()
-            content = response.json()["choices"][0]["message"]["content"]
-            return CompletionResponse(text=content)
-
-        except requests.HTTPError as e:
-            print("❌ HTTPError:", e)
-            print("📨 Raw content:", response.text[:500])
-
-            # Try to extract usable content even from failed status
+        for attempt in range(1, max_retries + 1):
             try:
-                data = response.json()
-                if "choices" in data and data["choices"]:
-                    fallback_text = data["choices"][0]["message"]["content"]
-                    print("⚠️ Using fallback content despite HTTP error.")
-                    return CompletionResponse(text=f"{fallback_text}")
-            except Exception as parse_err:
-                print("❌ Failed to parse fallback content:", parse_err)
+                response = requests.post(url, headers=headers, json=payload)
+                response.raise_for_status()
 
-            # If completely unusable, re-raise
-            raise e
+                content = response.json()["choices"][0]["message"]["content"]
+                return CompletionResponse(text=content)
+
+            except requests.HTTPError as e:
+                raw_text = response.text[:500]
+                print(f"❌ HTTPError (attempt {attempt}):", e)
+                print("📨 Raw content:", raw_text)
+                print('Model used: ', self.model)
+
+                if "404: Model not found" in raw_text and attempt < max_retries:
+                    print(f"🔁 Retrying request (attempt {attempt + 1}/{max_retries})...")
+                    continue
+
+                try:
+                    data = response.json()
+                    if "choices" in data and data["choices"]:
+                        fallback_text = data["choices"][0]["message"]["content"]
+                        print("⚠️ Using fallback content despite HTTP error.")
+                        return CompletionResponse(text=fallback_text)
+                except Exception as parse_err:
+                    print("❌ Failed to parse fallback content:", parse_err)
+
+                if attempt == max_retries:
+                    return CompletionResponse(
+                        text="I'm currently experiencing technical issues. Please try again later."
+                    )
+
+                # Otherwise continue retrying
+                continue
+
 
 
     @llm_completion_callback()
