@@ -7,6 +7,7 @@ from urllib.parse import urlparse, parse_qs
 from pathlib import Path
 import hashlib
 import re
+from dotenv import load_dotenv
 
 from youtube_transcript_api import YouTubeTranscriptApi
 from llama_index.core.schema import Document as LlamaDocument
@@ -22,10 +23,14 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 from gwdg_llm import GWDGChatLLM, GWDGEmbedding
 
+
+load_dotenv()
+
+
 # === CONFIG ===
 DRIVE_FOLDER_ID = "1vT4UTYHeFxS5Vy2u_OfQyQ6cQ-cP5Ywd"
-API_KEY = "sk-db54dbb552054e77ada3334b9736cfb3"
-API_BASE = "https://llm.hrz.uni-giessen.de/api"
+API_KEY = os.getenv("GWDG_API_KEY") # "sk-db54dbb552054e77ada3334b9736cfb3"
+API_BASE = os.getenv("GWDG_API_BASE") #"https://llm.hrz.uni-giessen.de/api"
 DATA_DIR = "./data"
 LOG_DIR = "./chat_logs"
 STORAGE_DIR = "./lahn_index"
