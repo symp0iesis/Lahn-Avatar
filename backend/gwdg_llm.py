@@ -8,7 +8,7 @@ from llama_index.core.llms import (
 )
 from llama_index.core.llms.callbacks import llm_completion_callback
 from llama_index.core.base.embeddings.base import BaseEmbedding
-import requests
+import requests, json
 
 
 class GWDGChatLLM(CustomLLM):
