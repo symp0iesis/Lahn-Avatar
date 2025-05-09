@@ -9,4 +9,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    host: true, // allow external connections
+    port: 5173, // or whatever you're using
+    allowedHosts: ['lahn-server.eastus.cloudapp.azure.com'], // ✅ add this line
+  },
 })
