@@ -8,7 +8,7 @@ from llama_index.core.memory import ChatMemoryBuffer
 
 # === Initialize Flask ===
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 # === Create directory if it doesn't exist ===
 UPLOAD_DIR = "data/uploaded_experiences"
