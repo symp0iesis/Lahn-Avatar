@@ -13,7 +13,7 @@ export default function LahnAvatarChat() {
 
   useEffect(() => {
     const fetchInitialMessage = async () => {
-      const response = await fetch("http://localhost:5000/api/chat", {
+      const response = await fetch("https://lahn-server.eastus.cloudapp.azure.com:5001/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: "__INIT__" }),
@@ -33,7 +33,7 @@ export default function LahnAvatarChat() {
     setInput("");
     setIsThinking(true);
 
-    const response = await fetch("http://localhost:5000/api/chat", {
+    const response = await fetch("https://lahn-server.eastus.cloudapp.azure.com:5001/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: input }),
