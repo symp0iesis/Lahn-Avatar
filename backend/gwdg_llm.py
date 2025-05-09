@@ -43,6 +43,9 @@ class GWDGChatLLM(CustomLLM):
             "temperature": self.temperature,
         }
 
+        print("📤 Sending payload:", json.dumps(payload, indent=2))
+        print("📡 POST to:", f"{self.api_base}/chat/completions")
+
         response = requests.post(
             f"{self.api_base}/chat/completions", headers=headers, json=payload
         )
