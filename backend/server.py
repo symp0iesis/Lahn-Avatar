@@ -31,16 +31,25 @@ print("✅ Whisper model loaded.")
 
 import torchaudio
 import torch
+import subprocess
 
+def convert_to_wav(input_path, output_path):
+    command = [
+        "ffmpeg", "-y", "-i", input_path,
+        "-ar", "16000", "-ac", "1", output_path
+    ]
+    subprocess.run(command, check=True)
+
+    
 def transcribe_audio(file_path):
+    temp_wav_path = file_path.rsplit(".", 1)[0] + "_converted.wav"
+    convert_to_wav(file_path, temp_wav_path)
 
-    # Load and preprocess audio
-    speech, sr = torchaudio.load(file_path)
-    if sr != 16000:
-        speech = torchaudio.functional.resample(speech, sr, 16000)
-    input_features = whisper_processor(speech.squeeze(), sampling_rate=16000, return_tensors="pt").input_features.to(whisper_device)
+    speech, sr = torchaudio.load(temp_wav_path)
+    input_features = whisper_processor(
+        speech.squeeze(), sampling_rate=sr, return_tensors="pt"
+    ).input_features.to(whisper_device)
 
-    # Transcribe
     predicted_ids = whisper_model.generate(input_features)
     transcription = whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)[0]
     return transcription
