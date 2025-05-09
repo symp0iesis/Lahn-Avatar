@@ -49,7 +49,14 @@ class GWDGChatLLM(CustomLLM):
         response = requests.post(
             f"{self.api_base}/chat/completions", headers=headers, json=payload
         )
-        response.raise_for_status()
+        
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as e:
+            print("❌ LLM returned 400 but still had content:")
+            print("📨 Raw content:", response.text[:500])
+            raise e  # or return fallback content
+
         content = response.json()["choices"][0]["message"]["content"]
         return CompletionResponse(text=content)
 
