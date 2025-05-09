@@ -29,7 +29,8 @@ class GWDGChatLLM(CustomLLM):
             model_name=self.model,
         )
 
-        @llm_completion_callback()
+
+    @llm_completion_callback()
     def complete(self, prompt: str, **kwargs: Any) -> CompletionResponse:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
