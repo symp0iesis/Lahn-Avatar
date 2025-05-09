@@ -7,7 +7,7 @@ echo "📦 Installing base dependencies..."
 npm install
 
 echo "🎨 Installing Tailwind CSS and related packages..."
-npm install -D tailwindcss postcss autoprefixer
+npm install -D tailwindcss@3.4.17 postcss autoprefixer @tailwindcss/postcss
 
 echo "💫 Installing animations and routing..."
 npm install framer-motion react-router-dom

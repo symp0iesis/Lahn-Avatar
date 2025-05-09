@@ -7,3 +7,5 @@ lahn_env/
 data/*
 
 .env
+
+test/
