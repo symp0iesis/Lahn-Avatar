@@ -186,6 +186,9 @@ def build_or_load_index(llm, refresh=False):
     scraped_documents = SimpleDirectoryReader(str(Path(DATA_DIR) / "General_News/scraped_texts")).load_data()
     documents += scraped_documents
 
+    user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
+    documents += user_experiences
+
     index = VectorStoreIndex.from_documents(documents)
     index.storage_context.persist(persist_dir=STORAGE_DIR)
     return index
