@@ -107,7 +107,8 @@ export default function LahnAvatarChat() {
 
           <div className="flex items-center gap-2 px-6 py-4 border-t bg-stone-50">
             <Input
-              className="flex-1 rounded-full font-poetic !text-stone-800 bg-white"
+              className="flex-1 rounded-full font-poetic bg-white"
+              style={{ color: '#1c1917' }}  // stone-800 hex
               placeholder="Speak with the river..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
