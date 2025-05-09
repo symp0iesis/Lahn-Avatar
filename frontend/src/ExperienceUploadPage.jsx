@@ -105,7 +105,7 @@ export default function ExperienceUploadPage() {
       formData.append('audio', audioBlob, 'recording.webm');
     }
 
-    const response = await fetch('/api/experience-upload', {
+    const response = await fetch(':5001/api/experience-upload', {
       method: 'POST',
       body: formData,
     });
