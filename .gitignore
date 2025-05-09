@@ -4,7 +4,7 @@ lahn_env/
 
 .archive/
 
-data/*
+backend/data/*
 
 .env
 
