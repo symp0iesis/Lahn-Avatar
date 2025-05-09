@@ -29,7 +29,7 @@ class GWDGChatLLM(CustomLLM):
             model_name=self.model,
         )
 
-    @llm_completion_callback()
+        @llm_completion_callback()
     def complete(self, prompt: str, **kwargs: Any) -> CompletionResponse:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -46,19 +46,31 @@ class GWDGChatLLM(CustomLLM):
         print("📤 Sending payload:", json.dumps(payload, indent=2))
         print("📡 POST to:", f"{self.api_base}/chat/completions")
 
-        response = requests.post(
-            f"{self.api_base}/chat/completions", headers=headers, json=payload
-        )
-        
         try:
+            response = requests.post(
+                f"{self.api_base}/chat/completions", headers=headers, json=payload
+            )
             response.raise_for_status()
-        except requests.HTTPError as e:
-            print("❌ LLM returned 400 but still had content:")
-            print("📨 Raw content:", response.text[:500])
-            raise e  # or return fallback content
+            content = response.json()["choices"][0]["message"]["content"]
+            return CompletionResponse(text=content)
 
-        content = response.json()["choices"][0]["message"]["content"]
-        return CompletionResponse(text=content)
+        except requests.HTTPError as e:
+            print("❌ HTTPError:", e)
+            print("📨 Raw content:", response.text[:500])
+
+            # Try to extract usable content even from failed status
+            try:
+                data = response.json()
+                if "choices" in data and data["choices"]:
+                    fallback_text = data["choices"][0]["message"]["content"]
+                    print("⚠️ Using fallback content despite HTTP error.")
+                    return CompletionResponse(text=f"{fallback_text}")
+            except Exception as parse_err:
+                print("❌ Failed to parse fallback content:", parse_err)
+
+            # If completely unusable, re-raise
+            raise e
+
 
     @llm_completion_callback()
     def stream_complete(self, prompt: str, **kwargs: Any) -> CompletionResponseGen:
