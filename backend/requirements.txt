@@ -30,3 +30,5 @@ simpleaudio
 #numpy 
 aiohttp
 
+
+torchaudio

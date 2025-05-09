@@ -20,26 +20,19 @@ memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
 print('LLM initialized.')
 
-# === Lazy Whisper model loading ===
-whisper_model = None
-whisper_processor = None
-whisper_device = None
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
+import torch
+
+whisper_device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"🔄 Loading Whisper model on {whisper_device}...")
+whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-small")
+whisper_model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(whisper_device)
+print("✅ Whisper model loaded.")
+
+import torchaudio
+import torch
 
 def transcribe_audio(file_path):
-    global whisper_model, whisper_processor, whisper_device
-
-    if whisper_model is None or whisper_processor is None:
-        from transformers import WhisperProcessor, WhisperForConditionalGeneration
-        import torch
-
-        whisper_device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"🔄 Loading Whisper model on {whisper_device}...")
-        whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-small")
-        whisper_model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(whisper_device)
-        print("✅ Whisper model loaded.")
-
-    import torchaudio
-    import torch
 
     # Load and preprocess audio
     speech, sr = torchaudio.load(file_path)
