@@ -21,6 +21,17 @@ export default function Layout() {
         </Link>
 
         <Link
+          to="/voice-chat"
+          className={`px-4 py-2 rounded-md font-medium transition-colors ${
+            pathname === "/voice-chat"
+              ? "bg-amber-300 text-amber-900"
+              : "text-stone-700 hover:bg-amber-100 hover:text-amber-900"
+          }`}
+        >
+          🗣 Voice Chat
+        </Link>
+
+        <Link
           to="/experience"
           className={`px-4 py-2 rounded-md font-medium transition-colors ${
             pathname === "/experience"
