@@ -15,8 +15,8 @@ from dotenv import load_dotenv
 
 whisper_device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🔄 Loading Whisper model on {whisper_device}...")
-whisper_processor = None #WhisperProcessor.from_pretrained("openai/whisper-small")
-whisper_model = None #WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(whisper_device)
+whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-small")
+whisper_model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(whisper_device)
 print("✅ Whisper model loaded.")
 
 
