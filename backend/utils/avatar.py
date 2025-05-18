@@ -21,7 +21,7 @@ from llama_index.readers.web import SimpleWebPageReader
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-from gwdg_llm import GWDGChatLLM, GWDGEmbedding
+from .gwdg_llm import GWDGChatLLM, GWDGEmbedding
 
 
 load_dotenv()
@@ -50,7 +50,10 @@ def fetch_system_prompt_from_gdoc():
     response.raise_for_status()
     prompt = response.text.strip()
     prompt = prompt[:prompt.find('General Internal Impressions')]
-    with open('system_prompt.txt', 'w') as f:
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, 'system_prompt.txt')
+    with open(file_path, 'w') as f:
         f.write(prompt)
     print(' Done.')
 
@@ -113,7 +116,9 @@ def select_model():
 
 
 def get_llm(model_name: str):
-    system_prompt = open('system_prompt.txt', 'r').read()
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, 'system_prompt.txt')
+    system_prompt = open(file_path, 'r').read()
     return GWDGChatLLM(
         model=model_name,
         api_base=API_BASE,

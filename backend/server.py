@@ -1,10 +1,14 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, make_response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-import os
+import os, io, asyncio
 from datetime import datetime
-from avatar import get_llm, build_or_load_index
+
 from llama_index.core.memory import ChatMemoryBuffer
+
+from utils.avatar import get_llm, build_or_load_index
+from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func
+
 
 # === Initialize Flask ===
 app = Flask(__name__)
@@ -20,39 +24,8 @@ memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
 print('LLM initialized.')
 
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
-import torch
 
-whisper_device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"🔄 Loading Whisper model on {whisper_device}...")
-whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-small")
-whisper_model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(whisper_device)
-print("✅ Whisper model loaded.")
 
-import torchaudio
-import torch
-import subprocess
-
-def convert_to_wav(input_path, output_path):
-    command = [
-        "ffmpeg", "-y", "-i", input_path,
-        "-ar", "16000", "-ac", "1", output_path
-    ]
-    subprocess.run(command, check=True)
-
-    
-def transcribe_audio(file_path):
-    temp_wav_path = file_path.rsplit(".", 1)[0] + "_converted.wav"
-    convert_to_wav(file_path, temp_wav_path)
-
-    speech, sr = torchaudio.load(temp_wav_path)
-    input_features = whisper_processor(
-        speech.squeeze(), sampling_rate=sr, return_tensors="pt"
-    ).input_features.to(whisper_device)
-
-    predicted_ids = whisper_model.generate(input_features)
-    transcription = whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)[0]
-    return transcription
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -71,6 +44,53 @@ def chat():
     print('Avatar response:', response.response)
 
     return jsonify({"reply": response.response})
+
+
+
+@app.route("/api/voice-chat", methods=["POST"])
+def voice_chat():
+    if "audio" not in request.files:
+        return jsonify({"error": "No audio uploaded"}), 400
+
+    audio_file = request.files["audio"]
+    ext = audio_file.mimetype.split("/")[-1] 
+    audio_path = 'data/temp.'+ext
+    audio_file.save(audio_path)
+
+    # audio_b64 = base64.b64encode(request.files["audio"].read()).decode()
+
+    try:
+        # run async function to get reply
+        reply_text, reply_wav = asyncio.run(azure_speech_response_func(audio_path))
+        # save reply to disk
+        out_path = os.path.join("data", "reply.wav")
+        with open(out_path, "wb") as f:
+            f.write(reply_wav)
+        return jsonify({
+            "reply_text": reply_text,
+            "reply_audio_url": "https://lahn-server.eastus.cloudapp.azure.com:5001/api/reply-audio"
+        })
+    except Exception as e:
+        print("❌ Voice chat error:", e)
+        return jsonify({"error": "Voice chat failed"}), 500
+    finally:
+        os.remove(audio_path)
+
+
+
+@app.route("/api/reply-audio")
+def reply_audio():
+    # Serve the latest reply audio file
+    audio_path = os.path.join("data", "reply.wav")
+    if not os.path.exists(audio_path):
+        return "", 404
+    # Create response with CORS headers
+    response = make_response(send_file(audio_path, mimetype="audio/wav"))
+    response.headers["Access-Control-Allow-Origin"] = "*"  # or specify frontend origin
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
+
+
 
 @app.route("/api/experience-upload", methods=["POST"])
 def experience_upload():
