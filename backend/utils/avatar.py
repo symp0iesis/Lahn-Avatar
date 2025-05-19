@@ -32,12 +32,12 @@ DRIVE_FOLDER_ID = "1vT4UTYHeFxS5Vy2u_OfQyQ6cQ-cP5Ywd"
 API_KEY = os.getenv("GWDG_API_KEY") # "sk-db54dbb552054e77ada3334b9736cfb3"
 API_BASE = os.getenv("GWDG_API_BASE") #"https://llm.hrz.uni-giessen.de/api"
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(base_dir, "/data")
+# base_dir = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = "./data" #os.path.join(base_dir, "/data")
 
-print('Base dir: ', base_dir, 'Data dir: ', DATA_DIR)
-LOG_DIR = os.path.join(base_dir, "/chat_logs")
-STORAGE_DIR = os.path.join(base_dir, "/lahn_index")
+# print('Base dir: ', base_dir, 'Data dir: ', DATA_DIR)
+LOG_DIR = "./chat_logs" #os.path.join(base_dir, "/chat_logs")
+STORAGE_DIR = "./lahn_index"#os.path.join(base_dir, "/lahn_index")
 
 
 def download_drive_folder(folder_id, output_dir="./data"):
