@@ -20,7 +20,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # === Load LLM once at startup ===
 llm = get_llm("mistral-large-instruct")
 index = build_or_load_index(llm)
-memory = ChatMemoryBuffer.from_defaults(token_limit=4000)
+memory = ChatMemoryBuffer.from_defaults(token_limit=10000)
 chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
 print('LLM initialized.')
 
@@ -39,7 +39,7 @@ def refresh_embeddings():
     global chat_engine
     print('Refresh embeddings request received.')
     index = build_index()
-    memory = ChatMemoryBuffer.from_defaults(token_limit=4000) #Do I need to define this afresh here?
+    memory = ChatMemoryBuffer.from_defaults(token_limit=10000) #Do I need to define this afresh here?
     chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
     return 'Done'
 

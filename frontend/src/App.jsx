@@ -85,8 +85,17 @@ export default function LahnAvatarChat() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        Lahn River: A Deliberative Stream
+        Lahn River: Listening to the Ecosystem.
       </motion.h1>
+
+      <motion.h3
+        className="text-1xl font-poetic text-amber-700 italic mb-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+      Ever heard a river speak? Meet the Lahn, it has a lot to say.
+      </motion.h3>
 
       <div className="flex space-x-4 mb-4">
         <Button
