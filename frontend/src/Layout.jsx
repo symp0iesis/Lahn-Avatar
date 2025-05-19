@@ -45,7 +45,7 @@ export default function Layout() {
         <Link
           to="/mirror"
           className={`px-4 py-2 rounded-md font-medium transition-colors ${
-            pathname === "/experience"
+            pathname === "/mirror"
               ? "bg-amber-300 text-amber-900"
               : "text-stone-700 hover:bg-amber-100 hover:text-amber-900"
           }`}
