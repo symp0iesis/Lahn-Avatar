@@ -131,11 +131,11 @@ export default function ExperienceUploadPage() {
           <h1 className="text-2xl font-semibold mb-4 text-stone-800">
             🌊 Do you have a personal story about the Lahn river? Share it here anonymously.
           </h1>
-          <p className="mb-4 text-sm text-stone-600">
-            Share a story or moment you’ll never forget that happened near the Lahn. <br />
-            Describe a time the river made you feel something. <br />
-            What does the Lahn mean to you? <br />
-          </p>
+          <ul className="mb-4 text-sm text-stone-600 list-disc pl-6">
+            <li>Share a story or moment you’ll never forget that happened near the Lahn.</li>
+            <li>Describe a time the river made you feel something.</li>
+            <li>What does the Lahn mean to you?</li>
+          </ul>
 
           {!submitted ? (
             <>
