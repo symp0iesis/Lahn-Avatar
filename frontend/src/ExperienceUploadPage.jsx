@@ -132,9 +132,9 @@ export default function ExperienceUploadPage() {
             🌊 Do you have a personal story about the Lahn river? Share it here anonymously.
           </h1>
           <p className="mb-4 text-sm text-stone-600">
-            Share a story or moment you’ll never forget that happened near the Lahn. <br>
-            Describe a time the river made you feel something. <br>
-            What does the Lahn mean to you? <br>
+            Share a story or moment you’ll never forget that happened near the Lahn. <br />
+            Describe a time the river made you feel something. <br />
+            What does the Lahn mean to you? <br />
           </p>
 
           {!submitted ? (
