@@ -7,7 +7,7 @@ export default function Layout() {
     <div className="flex min-h-screen font-sans">
       {/* Sidebar */}
       <nav className="w-64 bg-gradient-to-b from-green-100 to-stone-100 p-5 shadow-md flex flex-col gap-4">
-        <h2 className="text-2xl font-semibold text-stone-700 mb-6">🌿 Lahn Avatar</h2>
+        <h2 className="text-2xl font-semibold text-stone-700 mb-6">🌊 Lahn Avatar</h2>
 
         <Link
           to="/chat"

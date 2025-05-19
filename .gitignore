@@ -6,6 +6,8 @@ lahn_env/
 
 backend/data/*
 
+frontend/public/video.mp4
+
 .env
 
 test/
