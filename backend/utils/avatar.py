@@ -138,6 +138,11 @@ def create_session_log():
     return open(os.path.join(LOG_DIR, f"session_{timestamp}.txt"), "w")
 
 def build_index():
+
+    print('Refreshing from Google Drive...')
+    download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
+    convert_docx_to_txt_and_cleanup(DATA_DIR)
+
     print('Creating Vector store from data sources...')
     documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
 
@@ -201,11 +206,7 @@ def build_or_load_index(llm, refresh=False):
         storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
         return load_index_from_storage(storage_context)
 
-    if refresh:
-        print('Refreshing from Google Drive...')
-        download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
-        convert_docx_to_txt_and_cleanup(DATA_DIR)
-
+    #Index needs to be built and loaded
     index = build_index()
     
     return index
