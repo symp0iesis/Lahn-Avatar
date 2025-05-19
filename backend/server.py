@@ -6,7 +6,7 @@ from datetime import datetime
 
 from llama_index.core.memory import ChatMemoryBuffer
 
-from utils.avatar import get_llm, build_or_load_index
+from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func
 
 
@@ -24,6 +24,21 @@ memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
 print('LLM initialized.')
 
+
+
+@app.route("/api/refresh-prompt", methods=["POST"])
+def refresh_prompt():
+    print('Refresh prompt request received.')
+    fetch_system_prompt_from_gdoc()
+    return 'Done.'
+
+
+
+@app.route("/api/refresh-embeddings", methods=["POST"])
+def refresh_embeddings():
+    print('Refresh embeddings request received.')
+    build_index()
+    return 'Done'
 
 
 

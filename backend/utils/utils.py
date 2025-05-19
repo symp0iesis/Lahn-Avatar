@@ -82,7 +82,7 @@ async def azure_speech_response_func(input_path: str) -> tuple[str, bytes]:
 
 	# Get the directory where the current script is located
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    print('Base directory: ', base_dir)
+    # print('Base directory: ', base_dir)
 
 	# Build a path to the target file
     file_path = os.path.join(base_dir, 'system_prompt.txt')

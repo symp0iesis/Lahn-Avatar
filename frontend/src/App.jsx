@@ -6,10 +6,38 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 export default function LahnAvatarChat() {
+  const [refreshPromptState, setRefreshPromptState] = useState("idle");
+  const [refreshEmbeddingsState, setRefreshEmbeddingsState] = useState("idle");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(true);
   const chatEndRef = useRef(null);
+
+
+  const handleRefreshPrompt = async () => {
+    setRefreshPromptState("loading");
+    try {
+      await fetch("http://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-prompt", { method: "POST" });
+      setRefreshPromptState("done");
+      setTimeout(() => setRefreshPromptState("idle"), 1500);
+    } catch (err) {
+      console.error("Refresh prompt failed:", err);
+      setRefreshPromptState("idle");
+    }
+  };
+
+  const handleRefreshEmbeddings = async () => {
+    setRefreshEmbeddingsState("loading");
+    try {
+      await fetch("http://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-embeddings", { method: "POST" });
+      setRefreshEmbeddingsState("done");
+      setTimeout(() => setRefreshEmbeddingsState("idle"), 1500);
+    } catch (err) {
+      console.error("Refresh embeddings failed:", err);
+      setRefreshEmbeddingsState("idle");
+    }
+  };
+
 
   useEffect(() => {
     const fetchInitialMessage = async () => {
@@ -59,6 +87,28 @@ export default function LahnAvatarChat() {
       >
         Lahn River: A Deliberative Stream
       </motion.h1>
+
+      <div className="flex space-x-4 mb-4">
+        <Button
+          onClick={handleRefreshPrompt}
+          disabled={refreshPromptState === "loading"}
+          variant="outline"
+        >
+          {refreshPromptState === "idle" && "Refresh Prompt"}
+          {refreshPromptState === "loading" && "Refreshing..."}
+          {refreshPromptState === "done" && "✓ Done"}
+        </Button>
+        <Button
+          onClick={handleRefreshEmbeddings}
+          disabled={refreshEmbeddingsState === "loading"}
+          variant="outline"
+        >
+          {refreshEmbeddingsState === "idle" && "Refresh Embeddings"}
+          {refreshEmbeddingsState === "loading" && "Refreshing..."}
+          {refreshEmbeddingsState === "done" && "✓ Done"}
+        </Button>
+      </div>
+
 
       <motion.div
         className="w-full max-w-5xl px-4"

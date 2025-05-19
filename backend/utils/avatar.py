@@ -31,9 +31,11 @@ load_dotenv()
 DRIVE_FOLDER_ID = "1vT4UTYHeFxS5Vy2u_OfQyQ6cQ-cP5Ywd"
 API_KEY = os.getenv("GWDG_API_KEY") # "sk-db54dbb552054e77ada3334b9736cfb3"
 API_BASE = os.getenv("GWDG_API_BASE") #"https://llm.hrz.uni-giessen.de/api"
-DATA_DIR = "./data"
-LOG_DIR = "./chat_logs"
-STORAGE_DIR = "./lahn_index"
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(base_dir, "/data")
+LOG_DIR = os.path.join(base_dir, "/chat_logs")
+STORAGE_DIR = os.path.join(base_dir, "/lahn_index")
 
 
 def download_drive_folder(folder_id, output_dir="./data"):
@@ -133,32 +135,7 @@ def create_session_log():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     return open(os.path.join(LOG_DIR, f"session_{timestamp}.txt"), "w")
 
-
-def build_or_load_index(llm, refresh=False):
-    Settings.llm = llm
-    Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-    # GWDGEmbedding(
-    #     api_key=API_KEY,
-    #     api_base=API_BASE,
-    #     model="e5-mistral-7b-instruct"
-    # )
-
-    index_ready = (
-        os.path.exists(STORAGE_DIR)
-        and os.path.exists(os.path.join(STORAGE_DIR, "docstore.json"))
-        and os.path.exists(os.path.join(STORAGE_DIR, "index_store.json"))
-    )
-
-    if index_ready and not refresh:
-        print('Loading index from storage...')
-        storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
-        return load_index_from_storage(storage_context)
-
-    if refresh:
-        print('Refreshing from Google Drive...')
-        download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
-        convert_docx_to_txt_and_cleanup(DATA_DIR)
-
+def build_index():
     print('Creating Vector store from data sources...')
     documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
 
@@ -196,6 +173,39 @@ def build_or_load_index(llm, refresh=False):
 
     index = VectorStoreIndex.from_documents(documents)
     index.storage_context.persist(persist_dir=STORAGE_DIR)
+    print('Done')
+
+    return index
+
+
+
+def build_or_load_index(llm, refresh=False):
+    Settings.llm = llm #Why is this declared here specifically?
+    Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+    # GWDGEmbedding(
+    #     api_key=API_KEY,
+    #     api_base=API_BASE,
+    #     model="e5-mistral-7b-instruct"
+    # )
+
+    index_ready = (
+        os.path.exists(STORAGE_DIR)
+        and os.path.exists(os.path.join(STORAGE_DIR, "docstore.json"))
+        and os.path.exists(os.path.join(STORAGE_DIR, "index_store.json"))
+    )
+
+    if index_ready and not refresh:
+        print('Loading index from storage...')
+        storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
+        return load_index_from_storage(storage_context)
+
+    if refresh:
+        print('Refreshing from Google Drive...')
+        download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
+        convert_docx_to_txt_and_cleanup(DATA_DIR)
+
+    index = build_index()
+    
     return index
 
 

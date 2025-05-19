@@ -24,9 +24,10 @@ flask-cors
 
 #speech-to-speech
 
-sounddevice 
-websockets 
-simpleaudio 
+soundfile
+#sounddevice 
+#websockets 
+#simpleaudio 
 #numpy 
 aiohttp
 
