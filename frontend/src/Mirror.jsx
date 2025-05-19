@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import * as tf from "@tensorflow/tfjs";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import "@tensorflow/tfjs-backend-webgl";
 
@@ -9,6 +10,8 @@ export default function Mirror() {
 
   useEffect(() => {
     const loadModelAndStart = async () => {
+      await tf.setBackend("webgl");
+      await tf.ready();
       const net = await bodyPix.load();
 
       const webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -16,29 +19,32 @@ export default function Mirror() {
 
       const drawLoop = async () => {
         if (webcamRef.current.readyState === 4) {
-          const segmentation = await net.segmentPerson(webcamRef.current, {
+          const video = webcamRef.current;
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext("2d");
+
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+
+          const segmentation = await net.segmentPerson(video, {
             internalResolution: "medium",
             segmentationThreshold: 0.7,
           });
 
-          const ctx = canvasRef.current.getContext("2d");
-          const imageData = ctx.createImageData(webcamRef.current.videoWidth, webcamRef.current.videoHeight);
-
           const mask = bodyPix.toMask(segmentation);
 
-          // Draw webcam image first
-          ctx.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-          ctx.drawImage(webcamRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+          // Draw webcam frame first
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          // Then erase background using the mask
-          const { data: imgData } = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
-          for (let i = 0; i < imgData.length; i += 4) {
-            const maskVal = mask.data[i];
-            if (maskVal === 0) {
-              imgData[i + 3] = 0; // Set alpha to 0
+          // Read pixels and apply mask
+          const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          for (let i = 0; i < frame.data.length; i += 4) {
+            const alpha = mask.data[i + 3]; // mask alpha
+            if (alpha < 128) {
+              frame.data[i + 3] = 0; // transparent background
             }
           }
-          ctx.putImageData(new ImageData(imgData, canvasRef.current.width, canvasRef.current.height), 0, 0);
+          ctx.putImageData(frame, 0, 0);
         }
 
         requestAnimationFrame(drawLoop);
