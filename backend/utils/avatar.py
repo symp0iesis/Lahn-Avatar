@@ -34,6 +34,8 @@ API_BASE = os.getenv("GWDG_API_BASE") #"https://llm.hrz.uni-giessen.de/api"
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(base_dir, "/data")
+
+print('Base dir: ', base_dir, 'Data dir: ', DATA_DIR)
 LOG_DIR = os.path.join(base_dir, "/chat_logs")
 STORAGE_DIR = os.path.join(base_dir, "/lahn_index")
 
