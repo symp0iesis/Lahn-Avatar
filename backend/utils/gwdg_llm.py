@@ -46,8 +46,10 @@ class GWDGChatLLM(CustomLLM):
             "temperature": self.temperature,
         }
 
+        print('Payload: ', payload)
+
         url = f"{self.api_base}/chat/completions"
-        max_retries = 3
+        max_retries = 5
 
         for attempt in range(1, max_retries + 1):
             try:
