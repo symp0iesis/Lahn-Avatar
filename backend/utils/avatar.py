@@ -175,8 +175,10 @@ def build_index():
     scraped_documents = SimpleDirectoryReader(str(Path(DATA_DIR) / "General_News/scraped_texts")).load_data()
     documents += scraped_documents
 
-    user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
-    documents += user_experiences
+    experiences_folder_is_empty = not os.listdir(str(Path(DATA_DIR) / "uploaded_experiences/text"))
+    if not experiences_folder_is_empty:
+        user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
+        documents += user_experiences
 
     index = VectorStoreIndex.from_documents(documents)
     index.storage_context.persist(persist_dir=STORAGE_DIR)
