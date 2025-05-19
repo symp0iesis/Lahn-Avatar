@@ -17,7 +17,7 @@ export default function LahnAvatarChat() {
   const handleRefreshPrompt = async () => {
     setRefreshPromptState("loading");
     try {
-      await fetch("http://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-prompt", { method: "POST" });
+      await fetch("https://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-prompt", { method: "POST" });
       setRefreshPromptState("done");
       setTimeout(() => setRefreshPromptState("idle"), 1500);
     } catch (err) {
@@ -29,7 +29,7 @@ export default function LahnAvatarChat() {
   const handleRefreshEmbeddings = async () => {
     setRefreshEmbeddingsState("loading");
     try {
-      await fetch("http://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-embeddings", { method: "POST" });
+      await fetch("https://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-embeddings", { method: "POST" });
       setRefreshEmbeddingsState("done");
       setTimeout(() => setRefreshEmbeddingsState("idle"), 1500);
     } catch (err) {
