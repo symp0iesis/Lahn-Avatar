@@ -123,16 +123,18 @@ export default function ExperienceUploadPage() {
         to="/chat"
         className="text-amber-700 underline text-sm mb-4 hover:text-amber-900 self-start max-w-2xl"
       >
-        🌊 Return to the River
+        🌊 Return to the River Chat
       </Link>
 
       <Card className="w-full max-w-2xl bg-white/90 shadow-xl rounded-2xl">
         <CardContent className="p-6">
           <h1 className="text-2xl font-semibold mb-4 text-stone-800">
-            🌿 Share Your Lahn River Experience
+            🌊 Do you have a personal story about the Lahn river? Share it here anonymously.
           </h1>
           <p className="mb-4 text-sm text-stone-600">
-            Your voice helps shape the Lahn's avatar. Speak, write, or both — and help us understand how the river is experienced.
+            Share a story or moment you’ll never forget that happened near the Lahn. <br>
+            Describe a time the river made you feel something. <br>
+            What does the Lahn mean to you? <br>
           </p>
 
           {!submitted ? (
