@@ -81,7 +81,7 @@ def chat():
 
 
 @app.route("/api/debate-summary", methods=["POST"])
-def chat():
+def debate_summary():
     print('Chat request received.')
     data = request.get_json()
     conversation = data.get("history", "")
