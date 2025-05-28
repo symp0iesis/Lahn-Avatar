@@ -71,7 +71,7 @@ def chat():
             ]
 
         # print('User message:', prompt)
-        response = chat_engine.chat(messages=chat_history)
+        response = chat_engine.chat(message=chat_history)
 
     
     print('Avatar response:', response.response)
@@ -82,7 +82,7 @@ def chat():
 
 @app.route("/api/debate-summary", methods=["POST"])
 def debate_summary():
-    print('Chat request received.')
+    print('Debate Summary request received.')
     data = request.get_json()
     conversation = data.get("history", "")
     summary = data.get("summary", "")
