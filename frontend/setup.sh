@@ -7,7 +7,8 @@ echo "📦 Installing base dependencies..."
 npm install
 
 echo "🎨 Installing Tailwind CSS and related packages..."
-npm install -D tailwindcss@3.4.17 postcss autoprefixer @tailwindcss/postcss
+npm install -D tailwindcss@3.4.17 postcss autoprefixer @tailwindcss/postcss @radix-ui/react-switch
+
 
 echo "💫 Installing animations and routing..."
 npm install framer-motion react-router-dom
@@ -25,7 +26,7 @@ if [ ! -f components.json ]; then
 fi
 
 echo "🧩 Adding common UI components (label, textarea)..."
-npx shadcn@latest add label textarea
+npx shadcn@latest add label textarea switch
 
 echo "✅ Tailwind & shadcn-ui configured."
 echo "🚀 You're ready! Run the dev server with:"

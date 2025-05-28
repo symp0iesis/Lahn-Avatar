@@ -17,7 +17,7 @@ export default function LahnAvatarChat() {
   const [isDebateMode, setIsDebateMode] = useState(false);
   const [topics] = useState(['Clean up Lahn', 'Reforest headwater']);
   const [selectedTopic, setSelectedTopic] = useState("");
-  const [debateSummary, setDebateSummary] = useState(`Lahn:\nPro:\nCon:\n\nYou:\nPro:\nCon:`);
+  const [debateSummary, setDebateSummary] = useState("");
   const [hasFetchedDebateInit, setHasFetchedDebateInit] = useState(false);
   const chatEndRef = useRef(null);
   const initialFetchRef = useRef(false);
@@ -27,9 +27,12 @@ export default function LahnAvatarChat() {
   const isThinking = isDebateMode ? debateThinking : defaultThinking;
   const setIsThinking = isDebateMode ? setDebateThinking : setDefaultThinking;
 
-  // Unified fetch helper, now appends avatar replies
-  const fetchMessage = async (payload) => {
-    console.log("fetchMessage called with prompt:", payload.prompt, "history:", payload.history);
+  const fetchMessage = async (prompt) => {
+    if (!prompt?.trim()) {
+      console.log("fetchMessage skipped due to empty prompt");
+      return;
+    }
+    console.log("fetchMessage called with prompt:", prompt);
     setIsThinking(true);
     try {
       const resp = await fetch(
@@ -37,60 +40,35 @@ export default function LahnAvatarChat() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ prompt }),
         }
       );
       const { reply } = await resp.json();
-      setMessages(prev => [...prev, { sender: "avatar", text: reply }]);
+      console.log("Received reply:", reply);
+      setMessages([{ sender: "avatar", text: reply }]);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to fetch message:", error);
     } finally {
       setIsThinking(false);
     }
   };
 
-  // Initial chat on mount
   useEffect(() => {
     console.log("Initial useEffect: isDebateMode=", isDebateMode);
     if (!isDebateMode && !initialFetchRef.current) {
       initialFetchRef.current = true;
-      fetchMessage({ prompt: "__INIT__" });
+      fetchMessage("__INIT__");
     }
   }, []);
 
-  // Debate intro after topic selection
   useEffect(() => {
     console.log("Debate useEffect: isDebateMode=", isDebateMode, "selectedTopic=", selectedTopic);
     if (isDebateMode && selectedTopic && !hasFetchedDebateInit) {
+      fetchMessage(`Let's talk about ${selectedTopic}`);
       setHasFetchedDebateInit(true);
-      setDebateMessages([]);
-      fetchMessage({ history: debateMessages, prompt: `Let's talk about ${selectedTopic}` });
     }
-  }, [isDebateMode, selectedTopic]);
+  }, [isDebateMode, selectedTopic, hasFetchedDebateInit]);
 
-  useEffect(() => {
-    const last = debateMessages[debateMessages.length - 1];
-    if (isDebateMode && selectedTopic && last?.sender === 'avatar') {
-      (async () => {
-        try {
-          const resp = await fetch(
-            "https://lahn-server.eastus.cloudapp.azure.com:5001/api/debate-summary",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ history: debateMessages, topic: selectedTopic, summary: debateSummary }),
-            }
-          );
-          const { summary } = await resp.json();
-          setDebateSummary(summary);
-        } catch (error) {
-          console.error(error);
-        }
-      })();
-    }
-  }, [debateMessages]);
-
-  // Refresh prompt button handler
   const handleRefreshPrompt = async () => {
     setRefreshPromptState("loading");
     try {
@@ -102,7 +80,6 @@ export default function LahnAvatarChat() {
     }
   };
 
-  // Refresh embeddings button handler
   const handleRefreshEmbeddings = async () => {
     setRefreshEmbeddingsState("loading");
     try {
@@ -114,19 +91,54 @@ export default function LahnAvatarChat() {
     }
   };
 
-  // Submit user message
   const handleSubmit = async () => {
     if (!input.trim()) return;
-    // append user message
+    console.log("handleSubmit: input=", input);
     setMessages(prev => [...prev, { sender: "user", text: input }]);
-    const userInput = input;
     setInput("");
     setIsThinking(true);
-    // send to server
-    await fetchMessage({ history: messages, prompt: userInput });
+    try {
+      const resp = await fetch(
+        "https://lahn-server.eastus.cloudapp.azure.com:5001/api/chat",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ history: messages, prompt: input }),
+        }
+      );
+      const { reply } = await resp.json();
+      console.log("submission reply=", reply);
+      setMessages(prev => [...prev, { sender: "avatar", text: reply }]);
+    } catch (error) {
+      console.error("Chat submission failed:", error);
+    } finally {
+      setIsThinking(false);
+    }
   };
 
-
+  useEffect(() => {
+    const last = debateMessages[debateMessages.length - 1];
+    console.log("Summary effect: last=", last);
+    if (isDebateMode && selectedTopic && last?.sender === 'avatar') {
+      (async () => {
+        try {
+          const resp = await fetch(
+            "https://lahn-server.eastus.cloudapp.azure.com:5001/api/debate-summary",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ history: debateMessages, topic: selectedTopic }),
+            }
+          );
+          const { summary } = await resp.json();
+          console.log("Debate summary=", summary);
+          setDebateSummary(summary);
+        } catch (error) {
+          console.error("Debate summary failed:", error);
+        }
+      })();
+    }
+  }, [debateMessages, isDebateMode, selectedTopic]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -142,46 +154,24 @@ export default function LahnAvatarChat() {
       </motion.h3>
 
       <div className="flex items-center space-x-6 mb-4">
-  <div className="flex items-center space-x-2">
-    <Switch checked={isDebateMode} onCheckedChange={setIsDebateMode} />
-    <span className="font-poetic text-stone-700">Debate Mode</span>
-  </div>
-  <Button
-    onClick={handleRefreshPrompt}
-    disabled={refreshPromptState === "loading"}
-    variant="outline"
-  >
-    {refreshPromptState === "idle"
-      ? "Refresh Prompt"
-      : refreshPromptState === "loading"
-      ? "Refreshing..."
-      : "✓ Done"}
-  </Button>
-  <Button
-    onClick={handleRefreshEmbeddings}
-    disabled={refreshEmbeddingsState === "loading"}
-    variant="outline"
-  >
-    {refreshEmbeddingsState === "idle"
-      ? "Refresh Embeddings"
-      : refreshEmbeddingsState === "loading"
-      ? "Refreshing..."
-      : "✓ Done"}
-  </Button>
-</div>
+        <div className="flex items-center space-x-2">
+          <Switch checked={isDebateMode} onCheckedChange={val => { console.log("Debate toggled=", val); setIsDebateMode(val); }} />
+          <span className="font-poetic text-stone-700">Debate Mode</span>
+        </div>
+        <Button onClick={handleRefreshPrompt} disabled={refreshPromptState === "loading"} variant="outline">
+          {refreshPromptState === "idle" ? "Refresh Prompt" : refreshPromptState === "loading" ? "Refreshing..." : "✓ Done"}
+        </Button>
+        <Button onClick={handleRefreshEmbeddings} disabled={refreshEmbeddingsState === "loading"} variant="outline">
+          {refreshEmbeddingsState === "idle" ? "Refresh Embeddings" : refreshEmbeddingsState === "loading" ? "Refreshing..." : "✓ Done"}
+        </Button>
+      </div>
 
       {isDebateMode && (
         <div className="w-3/4 max-w-5xl mb-4 px-4">
           <label className="block mb-1 font-poetic text-stone-800">Choose a topic:</label>
-          <select
-            className="w-full p-2 rounded-md border bg-white font-poetic"
-            value={selectedTopic}
-            onChange={e => { setSelectedTopic(e.target.value); setHasFetchedDebateInit(false); }}
-          >
+          <select className="w-full p-2 rounded-md border bg-white font-poetic" value={selectedTopic} onChange={e => { console.log("Topic=", e.target.value); setSelectedTopic(e.target.value); setHasFetchedDebateInit(false); }}>
             <option value="">-- select --</option>
-            {topics.map((t, i) => (
-              <option key={i} value={t}>{t}</option>
-            ))}
+            {topics.map((t, i) => (<option key={i} value={t}>{t}</option>))}
           </select>
         </div>
       )}
@@ -192,13 +182,7 @@ export default function LahnAvatarChat() {
             <Card className="shadow-lg overflow-hidden bg-white/90">
               <CardContent className="h-[60vh] overflow-y-auto px-8 py-6 space-y-4 flex flex-col">
                 {messages.map((msg, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className={`flex ${msg.sender === 'avatar' ? 'justify-start' : 'justify-end'}`}
-                  >
+                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className={`flex ${msg.sender === 'avatar' ? 'justify-start' : 'justify-end'}`}>
                     <div className={`max-w-lg px-4 py-3 rounded-xl shadow text-base md:text-lg ${msg.sender === 'avatar' ? 'bg-lime-100 text-stone-900' : 'bg-white text-stone-800'}`}>{msg.text}</div>
                   </motion.div>
                 ))}
@@ -211,14 +195,7 @@ export default function LahnAvatarChat() {
               </CardContent>
               <div className="flex items-center gap-2 px-6 py-4 border-t bg-stone-50">
                 <motion.div key={input} className="flex-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
-                  <Input
-                    className="w-full rounded-full font-poetic bg-white"
-                    style={{ color: '#1c1917' }}
-                    placeholder="Speak with the river..."
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-                  />
+                  <Input className="w-full rounded-full font-poetic bg-white" style={{ color: '#1c1917' }} placeholder="Speak with the river..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
                 </motion.div>
                 <motion.div key={messages.length} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
                   <Button onClick={handleSubmit} className="rounded-full px-6 py-2 font-poetic bg-amber-600 text-white hover:bg-amber-700">
@@ -232,15 +209,7 @@ export default function LahnAvatarChat() {
           {isDebateMode && (
             <div className="w-1/3 bg-white rounded-2xl shadow p-4 h-[60vh] overflow-y-auto">
               <h4 className="font-poetic text-lg font-bold mb-2">Debate Summary</h4>
-              <div className="text-sm text-stone-700 whitespace-pre-wrap">
-                {debateSummary.split('\n').map((line, i) => {
-                  const trimmed = line.trim();
-                  const isHeader = /^(Lahn:|You:|Pro:|Con:)$/i.test(trimmed);
-                  return (
-                    <div key={i} className={`${isHeader ? 'font-bold' : ''}${trimmed === 'You:' ? ' mt-4' : ''}`}>{line}</div>
-                  );
-                })}
-              </div>
+              <p className="text-sm text-stone-700 whitespace-pre-wrap">{debateSummary}</p>
             </div>
           )}
         </div>
