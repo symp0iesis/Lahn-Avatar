@@ -74,7 +74,7 @@ def chat():
         # print('User message:', prompt)
         # response = chat_engine.chat(message=chat_history)
         prompt = chat_history
-        
+
 
     print('User message:', prompt)
     response = chat_engine.chat(prompt)
@@ -89,6 +89,7 @@ def debate_summary():
     print('Debate Summary request received.')
     data = request.get_json()
     conversation = data.get("history", "")
+    topic = data.get("topic", "")
     summary = data.get("summary", "")
 
     formatted_history = format_history_as_string(conversation)
