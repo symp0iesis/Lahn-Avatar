@@ -21,6 +21,8 @@ print("✅ Whisper model loaded.")
 
 
 def format_history_as_string(history):
+    print('To convert to string. Input: ', history)
+
     role_map = {
         "user": "User",
         "avatar": "River"
