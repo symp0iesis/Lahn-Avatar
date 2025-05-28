@@ -25,7 +25,12 @@ def format_history_as_string(history):
         "user": "User",
         "avatar": "River"
     }
-    return "\n".join(f"{role_map.get(m['sender'], m['sender'])}: {m['text']}" for m in history)
+
+    result = "\n".join(f"{role_map.get(m['sender'], m['sender'])}: {m['text']}" for m in history)
+
+    print('Converted conversation history into string: ', result)
+
+    return result
 
 
 def convert_to_wav(input_path, output_path):
