@@ -7,6 +7,8 @@ lahn_env/
 backend/data/*
 
 frontend/public/video.mp4
+frontend/package.json
+frontend/package_lock.json
 
 .env
 
