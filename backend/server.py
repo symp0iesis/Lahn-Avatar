@@ -65,10 +65,11 @@ def chat():
         return jsonify({"reply": "Please say something."}), 400
 
     else:
-        chat_history = [
-            ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
-            for m in conversation
-            ]
+        chat_history = format_history_as_string(conversation)
+        # [
+        #     ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+        #     for m in conversation
+        #     ]
 
         # print('User message:', prompt)
         response = chat_engine.chat(message=chat_history)
