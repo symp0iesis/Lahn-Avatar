@@ -5,9 +5,10 @@ import os, io, asyncio
 from datetime import datetime
 
 from llama_index.core.memory import ChatMemoryBuffer
+from llama_index.llms import ChatMessage
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
-from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func
+from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string
 
 
 # === Initialize Flask ===
@@ -20,8 +21,10 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # === Load LLM once at startup ===
 llm = get_llm("mistral-large-instruct")
 index = build_or_load_index(llm)
-memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
-chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
+# memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
+chat_engine = index.as_chat_engine(chat_mode="context") #, memory=memory)
+
+debate_summary_llm = get_llm("mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
 
 
@@ -50,16 +53,66 @@ def chat():
     print('Chat request received.')
     data = request.get_json()
     prompt = data.get("prompt", "")
+    conversation = data.get("history", "")
 
     if prompt == "__INIT__":
         prompt = "Hallo"
 
-    if not prompt:
+        print('User message:', prompt)
+        response = chat_engine.chat(prompt)
+
+    elif not prompt:
         return jsonify({"reply": "Please say something."}), 400
 
-    print('User message:', prompt)
-    response = chat_engine.chat(prompt)
+    else:
+        chat_history = [
+            ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+            for m in conversation
+            ]
+
+        # print('User message:', prompt)
+        response = chat_engine.chat(messages=chat_history)
+
+    
     print('Avatar response:', response.response)
+
+    return jsonify({"reply": response.response})
+
+
+
+@app.route("/api/debate-summary", methods=["POST"])
+def chat():
+    print('Chat request received.')
+    data = request.get_json()
+    conversation = data.get("history", "")
+    summary = data.get("summary", "")
+
+    formatted_history = format_history_as_string(conversation)
+
+    prompt = f"""This is a debate between a human and an AI avatar for the Lahn river. Your job is to provide a summary outline in the format
+            "Lahn:\nPro:\nCon:\n\nYou:\nPro:\nCon:", briefly outlining the Lahn's primary perspective, a pro and con of that perspective, the user's perspective
+            and a pro and con of that as well. You are provided with the most recent debate summary. If it already contains content, iterate on that content to reflect recent updates to the conversation.
+            Topic being debated: {topic}
+
+            Conversation:
+            {formatted_history}
+
+            Existing summary:
+            {summary}
+
+            Respond with an updated version of the summary in the described format. Make sure to preserve the specified formatting."""
+
+    response = chat_engine.chat(prompt)
+    # summary = response.response
+
+    # chat_history = [
+    #     ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+    #     for m in conversation
+    #     ]
+
+    # print('User message:', prompt)
+    # response = chat_engine.chat(messages=chat_history)
+    print('Summary:', response.response)
 
     return jsonify({"reply": response.response})
 

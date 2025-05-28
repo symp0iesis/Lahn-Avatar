@@ -119,10 +119,11 @@ def select_model():
     return "llama-3.1-sauerkrautlm-70b-instruct" if choice == "2" else "mistral-large-instruct"
 
 
-def get_llm(model_name: str):
+def get_llm(model_name, system_prompt=None):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, 'system_prompt.txt')
-    system_prompt = open(file_path, 'r').read()
+    if system_prompt == None:
+        system_prompt = open(file_path, 'r').read()
     return GWDGChatLLM(
         model=model_name,
         api_base=API_BASE,

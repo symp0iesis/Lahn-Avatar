@@ -20,6 +20,14 @@ whisper_model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-
 print("✅ Whisper model loaded.")
 
 
+def format_history_as_string(history):
+    role_map = {
+        "user": "User",
+        "avatar": "River"
+    }
+    return "\n".join(f"{role_map.get(m['sender'], m['sender'])}: {m['text']}" for m in history)
+
+
 def convert_to_wav(input_path, output_path):
     command = [
         "ffmpeg", "-y", "-i", input_path,
