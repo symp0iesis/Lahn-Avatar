@@ -6,7 +6,7 @@ import "./index.css";
 import LahnAvatarChat from "./App.jsx";
 import VoiceChat from "./VoiceChat.jsx";
 import ExperienceUploadPage from "./ExperienceUploadPage.jsx";
-// import Mirror from "./Mirror.jsx"
+import Mirror from "./Mirror.jsx"
 import Layout from "./Layout.jsx"; // <-- new layout component with sidebar
 
 createRoot(document.getElementById("root")).render(
@@ -18,7 +18,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="chat" element={<LahnAvatarChat />} />
           <Route path="experience" element={<ExperienceUploadPage />} />
           <Route path="voice-chat" element={<VoiceChat />} />
-          {/*<Route path="/mirror" element={<Mirror />} />*/}
+          <Route path="/mirror" element={<Mirror />} />
           <Route path="*" element={<LahnAvatarChat />} />
         </Route>
       </Routes>
