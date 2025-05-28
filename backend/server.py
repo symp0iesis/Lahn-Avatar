@@ -5,7 +5,7 @@ import os, io, asyncio
 from datetime import datetime
 
 from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.llms import ChatMessage
+from llama_index.core.llms import ChatMessage
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string
