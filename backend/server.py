@@ -58,10 +58,10 @@ def chat():
     if prompt == "__INIT__":
         prompt = "Hallo"
 
-        print('User message:', prompt)
-        response = chat_engine.chat(prompt)
+    elif len(conversation) == 0:
+        pass
 
-    elif not prompt:
+    elif not prompt: #Needed?
         return jsonify({"reply": "Please say something."}), 400
 
     else:
@@ -72,9 +72,12 @@ def chat():
         #     ]
 
         # print('User message:', prompt)
-        response = chat_engine.chat(message=chat_history)
+        # response = chat_engine.chat(message=chat_history)
+        prompt = chat_history
+        
 
-    
+    print('User message:', prompt)
+    response = chat_engine.chat(prompt)
     print('Avatar response:', response.response)
 
     return jsonify({"reply": response.response})
