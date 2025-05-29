@@ -22,7 +22,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 llm = get_llm("mistral-large-instruct")
 index = build_or_load_index(llm)
 # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
-chat_engine = index.as_chat_engine(chat_mode="context") #, memory=memory)
+chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
 
 debate_summary_llm = get_llm("mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
