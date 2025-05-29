@@ -109,6 +109,7 @@ def debate_summary():
             Summaries for 'Lahn' and 'User'should be based purely on what they said. If any party is yet to contribute to the conversation, leave their summary blank, as in the template."""
 
     response = debate_summary_llm.complete(prompt) #chat_engine.chat(prompt)
+    print('Summary model response: ', response)
     summary = response.choices[0].message.content
 
     # chat_history = [
