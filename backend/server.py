@@ -95,7 +95,7 @@ def debate_summary():
     formatted_history = format_history_as_string(conversation)
 
     prompt = f"""This is a debate between a human and an AI avatar for the Lahn river. Your job is to provide a summary outline in the format
-            "Lahn:<Lahn's Central Perspective>\nPro:<Central Pro>\nCon:<Central Con>\n\nYou:<User's Central Perspective>\nPro:<Central Pro>\nCon:<Central Con>", briefly outlining the Lahn's primary perspective, a pro and con of that perspective, the user's perspective
+            "Lahn:<Lahn's Central Perspective>\nPro:<Central Pro>\nCon:<Central Con of Lahn's perspective (deduced by you)>\n\nYou:<User's Central Perspective>\nPro:<Central Pro>\nCon:<Central Con of User's perspective (deduced by you)>", briefly outlining the Lahn's primary perspective, a pro and con of that perspective, the user's perspective
             and a pro and con of that as well. Keep all content very brief. You're summarizing, not re-iterating. You are provided with the most recent debate summary. If it already contains content, iterate on that content to reflect recent updates to the conversation.
             Topic being debated: {topic}
 
@@ -109,8 +109,8 @@ def debate_summary():
             Summaries for 'Lahn' and 'User'should be based purely on what they said. If any party is yet to contribute to the conversation, leave their summary blank, as in the template."""
 
     response = debate_summary_llm.complete(prompt) #chat_engine.chat(prompt)
-    print('Summary model response: ', response)
-    summary = response.choices[0].message.content
+    # print('Summary model response: ', response)
+    summary = response #.choices[0].message.content
 
     # chat_history = [
     #     ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
