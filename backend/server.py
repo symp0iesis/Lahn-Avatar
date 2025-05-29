@@ -95,7 +95,7 @@ def debate_summary():
     formatted_history = format_history_as_string(conversation)
 
     prompt = f"""This is a debate between a human and an AI avatar for the Lahn river. Your job is to provide a summary outline in the format
-            "Lahn:\nPro:\nCon:\n\nYou:\nPro:\nCon:", briefly outlining the Lahn's primary perspective, a pro and con of that perspective, the user's perspective
+            "Lahn:<Lahn's Central Perspective>\nPro:<Central Pro>\nCon:<Central Con>\n\nYou:<User's Central Perspective>\nPro:<Central Pro>\nCon:<Central Con>", briefly outlining the Lahn's primary perspective, a pro and con of that perspective, the user's perspective
             and a pro and con of that as well. You are provided with the most recent debate summary. If it already contains content, iterate on that content to reflect recent updates to the conversation.
             Topic being debated: {topic}
 
