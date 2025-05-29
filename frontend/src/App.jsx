@@ -83,6 +83,7 @@ export default function LahnAvatarChat() {
           );
           const { summary } = await resp.json();
           setDebateSummary(summary);
+          console.log("Summary recieved from API: ", summary);
         } catch (error) {
           console.error(error);
         }

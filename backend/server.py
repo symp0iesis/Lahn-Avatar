@@ -105,7 +105,8 @@ def debate_summary():
             Existing summary:
             {summary}
 
-            Respond with an updated version of the summary in the described format. Make sure to preserve the specified formatting."""
+            Respond with an updated version of the summary in the described format. Make sure to preserve the specified formatting in the template "Lahn:\nPro:\nCon:\n\nYou:\nPro:\nCon:". No extra characters. The contents of your response should ba based purely on the given summary. 
+            Summaries for 'Lahn' and 'User'should be based purely on what they said. If any party is yet to contribute to the conversation, leave their summary blank, as in the template."""
 
     response = chat_engine.chat(prompt)
     # summary = response.response

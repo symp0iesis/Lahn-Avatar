@@ -21,16 +21,16 @@ print("✅ Whisper model loaded.")
 
 
 def format_history_as_string(history):
-    print('To convert to string. Input: ', history)
+    # print('To convert to string. Input: ', history)
 
     role_map = {
         "user": "User",
-        "avatar": "River"
+        "avatar": "Lahn"
     }
 
     result = "\n".join(f"{role_map.get(m['sender'], m['sender'])}: {m['text']}" for m in history)
 
-    print('Converted conversation history into string: ', result)
+    # print('Converted conversation history into string: ', result)
 
     return result
 
