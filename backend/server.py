@@ -96,7 +96,7 @@ def debate_summary():
 
     prompt = f"""This is a debate between a human and an AI avatar for the Lahn river. Your job is to provide a summary outline in the format
             "Lahn:<Lahn's Central Perspective>\nPro:<Central Pro>\nCon:<Central Con>\n\nYou:<User's Central Perspective>\nPro:<Central Pro>\nCon:<Central Con>", briefly outlining the Lahn's primary perspective, a pro and con of that perspective, the user's perspective
-            and a pro and con of that as well. You are provided with the most recent debate summary. If it already contains content, iterate on that content to reflect recent updates to the conversation.
+            and a pro and con of that as well. Keep all content very brief. You're summarizing, not re-iterating. You are provided with the most recent debate summary. If it already contains content, iterate on that content to reflect recent updates to the conversation.
             Topic being debated: {topic}
 
             Conversation:
@@ -108,7 +108,7 @@ def debate_summary():
             Respond with an updated version of the summary in the described format. Make sure to preserve the specified formatting in the template "Lahn:\nPro:\nCon:\n\nYou:\nPro:\nCon:". No extra characters. The contents of your response should ba based purely on the given summary. 
             Summaries for 'Lahn' and 'User'should be based purely on what they said. If any party is yet to contribute to the conversation, leave their summary blank, as in the template."""
 
-    response = chat_engine.chat(prompt)
+    response = llm.complete(prompt) #chat_engine.chat(prompt)
     # summary = response.response
 
     # chat_history = [
