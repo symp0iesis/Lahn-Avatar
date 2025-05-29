@@ -211,7 +211,8 @@ export default function LahnAvatarChat() {
                 <div ref={chatEndRef} />
               </CardContent>
               <div className="flex items-center gap-2 px-6 py-4 border-t bg-stone-50">
-                <motion.div key={input} className="flex-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+                <motion.div className="flex-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+                {/*key={input}*/}
                   <Input
                     className="w-full rounded-full font-poetic bg-white"
                     style={{ color: '#1c1917' }}
@@ -221,7 +222,8 @@ export default function LahnAvatarChat() {
                     onKeyDown={e => e.key === 'Enter' && handleSubmit()}
                   />
                 </motion.div>
-                <motion.div key={messages.length} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}> 
+                {/*key={messages.length}*/}
                   <Button onClick={handleSubmit} className="rounded-full px-6 py-2 font-poetic bg-amber-600 text-white hover:bg-amber-700">
                     Flow
                   </Button>
