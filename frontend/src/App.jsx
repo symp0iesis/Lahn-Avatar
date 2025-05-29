@@ -233,7 +233,7 @@ export default function LahnAvatarChat() {
             <div className="w-1/3 bg-white rounded-2xl shadow p-4 h-[60vh] overflow-y-auto">
               <h4 className="font-poetic text-lg font-bold mb-2">Debate Summary</h4>
               <div className="text-sm text-stone-700 whitespace-pre-wrap">
-                {debateSummary.split('\n').map((line, i) => {
+                {(debateSummary || '').split('\n').map((line, i) => {
                   const trimmed = line.trim();
                   const isHeader = /^(Lahn:|You:|Pro:|Con:)$/i.test(trimmed);
                   return (
