@@ -120,7 +120,7 @@ def debate_summary():
     # response = chat_engine.chat(messages=chat_history)
     print('Summary:', response.response)
 
-    return jsonify({"reply": response.response})
+    return jsonify({"summary": response.response})
 
 
 
