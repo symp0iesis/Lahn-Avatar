@@ -108,8 +108,8 @@ def debate_summary():
             Respond with an updated version of the summary in the described format. Make sure to preserve the specified formatting in the template "Lahn:\nPro:\nCon:\n\nYou:\nPro:\nCon:". No extra characters. The contents of your response should ba based purely on the given summary. 
             Summaries for 'Lahn' and 'User'should be based purely on what they said. If any party is yet to contribute to the conversation, leave their summary blank, as in the template."""
 
-    response = llm.complete(prompt) #chat_engine.chat(prompt)
-    # summary = response.response
+    response = debate_summary_llm.complete(prompt) #chat_engine.chat(prompt)
+    summary = response.choices[0].message.content
 
     # chat_history = [
     #     ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
@@ -118,9 +118,9 @@ def debate_summary():
 
     # print('User message:', prompt)
     # response = chat_engine.chat(messages=chat_history)
-    print('Summary:', response.response)
+    print('Summary:', summary)
 
-    return jsonify({"summary": response.response})
+    return jsonify({"summary": summary})
 
 
 
