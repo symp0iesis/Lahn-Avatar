@@ -8,13 +8,15 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen font-sans">
-      {/* Hamburger button */}
-      <button
-        className="p-2 m-2 bg-white rounded-md shadow-md z-10"
-        onClick={() => setIsOpen(o => !o)}
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      {/* Hamburger button */
+      {!isOpen && (
+        <button
+          className="p-2 m-2 bg-white rounded-md shadow-md z-10"
+          onClick={() => setIsOpen(true)}
+        >
+          <Menu size={24} />
+        </button>
+      )}
 
       {/* Sidebar navigation */}
       <nav
