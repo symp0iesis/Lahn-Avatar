@@ -10,7 +10,7 @@ export default function Layout() {
     <div className="flex min-h-screen font-sans">
       {/* Hamburger button */}
       <button
-        className="p-2 m-2 bg-white rounded-md shadow-md"
+        className="p-2 m-2 bg-white rounded-md shadow-md z-10"
         onClick={() => setIsOpen(o => !o)}
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -18,13 +18,22 @@ export default function Layout() {
 
       {/* Sidebar navigation */}
       <nav
-        className={`
-          fixed top-0 left-0 h-full bg-gradient-to-b from-green-100 to-stone-100 p-5 shadow-md
-          transform transition-transform duration-200 ease-in-out
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          flex flex-col gap-4
-        `}
+        className={
+          `
+            fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-green-100 to-stone-100 p-5 shadow-md
+            transform transition-transform duration-200 ease-in-out
+            ${isOpen ? "translate-x-0" : "-translate-x-full"}
+            flex flex-col gap-4
+          `
+        }
       >
+        {/* Close icon inside sidebar */}
+        <button
+          className="self-end mb-4 p-2 text-stone-700 hover:text-stone-900"
+          onClick={() => setIsOpen(false)}
+        >
+          <X size={20} />
+        </button>
         <h2 className="text-2xl font-semibold text-stone-700 mb-6">🌊 Lahn Avatar</h2>
 
         <Link
@@ -74,7 +83,7 @@ export default function Layout() {
       </nav>
 
       {/* Main content */}
-      <main className="flex-1 p-8 bg-gradient-to-br from-stone-50 to-green-50">
+      <main className={`flex-1 p-8 bg-gradient-to-br from-stone-50 to-green-50 transition-margin duration-200 ${isOpen ? 'ml-64' : 'ml-0'}`}>
         <Outlet />
       </main>
     </div>
