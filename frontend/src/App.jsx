@@ -118,14 +118,20 @@ export default function LahnAvatarChat() {
   // Submit user message
   const handleSubmit = async () => {
     if (!input.trim()) return;
-    // append user message
-    setMessages(prev => [...prev, { sender: "user", text: input }]);
     const userInput = input;
+
+    // Build the new list first
+    const updated = [...messages, { sender: "user", text: userInput }];
+
+    // Update state immediately (so the UI shows your message)
+    setMessages(updated);
     setInput("");
     setIsThinking(true);
-    // send to server
-    await fetchMessage({ history: messages, prompt: userInput });
+
+    // Now send the full history (including that new message)
+    await fetchMessage({ history: updated, prompt: userInput });
   };
+
 
 
 
