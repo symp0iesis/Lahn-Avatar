@@ -206,7 +206,7 @@ export default function LahnAvatarChat() {
                     transition={{ duration: 0.3 }}
                     className={`flex ${msg.sender === 'avatar' ? 'justify-start' : 'justify-end'}`}
                   >
-                    <div className={`max-w-lg px-4 py-3 rounded-xl shadow text-base md:text-lg ${msg.sender === 'avatar' ? 'bg-lime-100 text-stone-900' : 'bg-white text-stone-800'}`}>{msg.text}</div>
+                    <div className={`max-w-lg px-4 py-3 rounded-xl shadow text-base md:text-lg whitespace-pre-wrap ${msg.sender === 'avatar' ? 'bg-lime-100 text-stone-900' : 'bg-white text-stone-800'}`}>{msg.text}</div>
                   </motion.div>
                 ))}
                 {isThinking && (
