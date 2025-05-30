@@ -110,7 +110,7 @@ def debate_summary():
 
     response = debate_summary_llm.complete(prompt) #chat_engine.chat(prompt)
     # print('Summary model response: ', response)
-    summary = response #.choices[0].message.content
+    summary = str(response) #.choices[0].message.content
 
     # chat_history = [
     #     ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
