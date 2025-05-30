@@ -8,7 +8,7 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen font-sans">
-      {/* Hamburger button */
+      {/* Hamburger button */}
       {!isOpen && (
         <button
           className="p-2 m-2 bg-white rounded-md shadow-md z-10"
