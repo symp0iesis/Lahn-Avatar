@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 export default function Layout() {
   const { pathname } = useLocation();
@@ -8,12 +8,12 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen font-sans">
-      {/* Hamburger button for mobile */}
+      {/* Hamburger button */}
       <button
-        className="p-2 m-2 bg-white rounded-md shadow-md "
+        className="p-2 m-2 bg-white rounded-md shadow-md"
         onClick={() => setIsOpen(o => !o)}
       >
-        <Menu size={24} />
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
       {/* Sidebar navigation */}
@@ -22,13 +22,14 @@ export default function Layout() {
           fixed top-0 left-0 h-full bg-gradient-to-b from-green-100 to-stone-100 p-5 shadow-md
           transform transition-transform duration-200 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          
+          flex flex-col gap-4
         `}
       >
         <h2 className="text-2xl font-semibold text-stone-700 mb-6">🌊 Lahn Avatar</h2>
 
         <Link
           to="/chat"
+          onClick={() => setIsOpen(false)}
           className={`px-4 py-2 rounded-md font-medium transition-colors ${
             pathname === "/chat"
               ? "bg-amber-300 text-amber-900"
@@ -37,9 +38,9 @@ export default function Layout() {
         >
           🧠 Chat with the River
         </Link>
-
         <Link
           to="/voice-chat"
+          onClick={() => setIsOpen(false)}
           className={`px-4 py-2 rounded-md font-medium transition-colors ${
             pathname === "/voice-chat"
               ? "bg-amber-300 text-amber-900"
@@ -48,9 +49,9 @@ export default function Layout() {
         >
           🗣 Voice Chat
         </Link>
-
         <Link
           to="/experience"
+          onClick={() => setIsOpen(false)}
           className={`px-4 py-2 rounded-md font-medium transition-colors ${
             pathname === "/experience"
               ? "bg-amber-300 text-amber-900"
@@ -59,9 +60,9 @@ export default function Layout() {
         >
           ✍️ Share Experience
         </Link>
-
         <Link
           to="/mirror"
+          onClick={() => setIsOpen(false)}
           className={`px-4 py-2 rounded-md font-medium transition-colors ${
             pathname === "/mirror"
               ? "bg-amber-300 text-amber-900"
@@ -73,7 +74,7 @@ export default function Layout() {
       </nav>
 
       {/* Main content */}
-      <main className="flex-1 p-8 bg-gradient-to-br from-stone-50 to-green-50 ">
+      <main className="flex-1 p-8 bg-gradient-to-br from-stone-50 to-green-50">
         <Outlet />
       </main>
     </div>
