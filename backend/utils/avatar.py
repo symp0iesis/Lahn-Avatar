@@ -19,6 +19,8 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
 
+from llama_index.llms.openai import AzureOpenAI
+
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 from .gwdg_llm import GWDGChatLLM, GWDGEmbedding
@@ -29,8 +31,12 @@ load_dotenv()
 
 # === CONFIG ===
 DRIVE_FOLDER_ID = "1vT4UTYHeFxS5Vy2u_OfQyQ6cQ-cP5Ywd"
-API_KEY = os.getenv("GWDG_API_KEY") # "sk-db54dbb552054e77ada3334b9736cfb3"
-API_BASE = os.getenv("GWDG_API_BASE") #"https://llm.hrz.uni-giessen.de/api"
+API_KEY = os.getenv("GWDG_API_KEY") 
+API_BASE = os.getenv("GWDG_API_BASE")
+
+AZURE_VERSION = os.getenv("AZURE_API_VERSION")
+AZURE_KEY = os.getenv("AZURE_CHAT_KEY")
+AZURE_BASE = os.getenv("AZURE_API_BASE")
 
 # base_dir = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = "./data" #os.path.join(base_dir, "/data")
@@ -119,18 +125,29 @@ def select_model():
     return "llama-3.1-sauerkrautlm-70b-instruct" if choice == "2" else "mistral-large-instruct"
 
 
-def get_llm(model_name, system_prompt=None):
+def get_llm(model_name=None, system_prompt=None):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, 'system_prompt.txt')
     if system_prompt == None:
         system_prompt = open(file_path, 'r').read()
-    return GWDGChatLLM(
-        model=model_name,
-        api_base=API_BASE,
-        api_key=API_KEY,
-        temperature=0.7,
-        system_prompt=system_prompt
-    )
+
+    if model_name != None:
+        return GWDGChatLLM(
+            model=model_name,
+            api_base=API_BASE,
+            api_key=API_KEY,
+            temperature=0.7,
+            system_prompt=system_prompt
+        )
+
+    else:
+        return AzureOpenAI(
+            deployment_name="gpt-4o",
+            api_version=AZURE_VERSION,  
+            api_key= AZURE_KEY, 
+            azure_endpoint= AZURE_BASE,
+            system_prompt=system_prompt
+        )
 
 
 def create_session_log():

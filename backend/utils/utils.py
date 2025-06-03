@@ -13,11 +13,73 @@ import base64
 
 from dotenv import load_dotenv
 
+
+
+import requests
+import pandas as pd
+from llama_index.experimental.query_engine import PandasQueryEngine
+
 whisper_device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🔄 Loading Whisper model on {whisper_device}...")
 whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-small")
 whisper_model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(whisper_device)
 print("✅ Whisper model loaded.")
+
+
+
+
+# 1) Fetch & normalize your ThingSpeak data
+THINGSPEAK_URL = (
+    "https://api.thingspeak.com/channels/2974588/feeds.json?results=100"
+)
+
+def fetch_lahn_sensors_df() -> pd.DataFrame:
+    resp = requests.get(THINGSPEAK_URL)
+    resp.raise_for_status()
+    data = resp.json()
+    # extract channel metadata → used for human‐friendly column names
+    channel_meta = data["channel"]
+    field_map = {
+        f"field{i}": channel_meta[f"field{i}"]
+        for i in range(1, 7)
+    }
+    # load feeds into DataFrame
+    df = pd.json_normalize(data["feeds"])
+    # rename columns to pH, DO (mg/L), etc.
+    df = df.rename(columns=field_map)
+    # parse timestamp & convert all sensor readings to numeric
+    df["created_at"] = pd.to_datetime(df["created_at"])
+    for col in field_map.values():
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
+
+# 2) Wrap it in a callable that runs PandasQueryEngine on demand
+class LahnSensorsTool:
+    name = "lahn_sensors"
+    description = (
+        "Use this to answer analytical questions about the live Lahn Atlas sensor data "
+        "(pH, DO, Temp, EC, Humidity, CO2) fetched from the ThingSpeak REST API."
+    )
+
+    def __init__(self, llm):
+        # store whichever LLM you pass in (e.g. get_llm("mistral-large-instruct"))
+        self.llm = llm
+
+    def __call__(self, query: str) -> str:
+        print('Calling Lahn Sensors Tool...')
+        # fetch fresh data
+        df = fetch_lahn_sensors_df()
+        # spin up a Pandas‐powered engine on it
+        engine = PandasQueryEngine(
+            df=df,
+            llm=self.llm,             # or your preferred LLM wrapper
+            verbose=True,             # shows generated pandas code
+            synthesize_response=True, # narrative answer
+        )
+        # run the query & return the natural‐language result
+        result = engine.query(query)
+        return result.response
+
 
 
 def format_history_as_string(history):

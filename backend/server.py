@@ -6,9 +6,10 @@ from datetime import datetime
 
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
+from llama_index.tools import QueryEngineTool
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
-from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string
+from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool
 
 
 # === Initialize Flask ===
@@ -19,13 +20,31 @@ UPLOAD_DIR = "data/uploaded_experiences"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
-llm = get_llm("mistral-large-instruct")
+llm = get_llm() #"mistral-large-instruct")
 index = build_or_load_index(llm)
+
+
+# 3) Register it as a tool
+api_tool = QueryEngineTool.from_defaults(
+    query_engine=LahnSensorsTool(llm),
+    name=LahnSensorsTool.name,
+    description=LahnSensorsTool.description,
+)
+
+
 # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
-chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
+# chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
+
+# 4) Finally, build your chat engine in tool mode
+chat_engine = index.as_chat_engine(
+    chat_mode="tool",       # enables automatic tool dispatch
+    memory=None,
+    toolkits=[api_tool],    # make the live API tool available
+)
 
 debate_summary_llm = get_llm("mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
+
 
 
 
