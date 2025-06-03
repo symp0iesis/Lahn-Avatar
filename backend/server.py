@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import os, io, asyncio
 from datetime import datetime
 
+from llama_index.core.chat_engine.types import ChatMode
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 from llama_index.core.tools.query_engine import QueryEngineTool
@@ -37,7 +38,7 @@ api_tool = QueryEngineTool.from_defaults(
 
 # 4) Finally, build your chat engine in tool mode
 chat_engine = index.as_chat_engine(
-    chat_mode="tool",       # enables automatic tool dispatch
+    chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
     memory=None,
     toolkits=[api_tool],    # make the live API tool available
 )
