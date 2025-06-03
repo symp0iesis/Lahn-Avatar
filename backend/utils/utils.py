@@ -34,6 +34,7 @@ THINGSPEAK_URL = (
 )
 
 def fetch_lahn_sensors_df() -> pd.DataFrame:
+    print('Fetching Lahn sensor data...')
     resp = requests.get(THINGSPEAK_URL)
     resp.raise_for_status()
     data = resp.json()
