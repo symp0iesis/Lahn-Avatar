@@ -6,7 +6,6 @@ from datetime import datetime
 
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
-# Newer versions (0.10.x and above)
 from llama_index.core.tools.query_engine import QueryEngineTool
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc

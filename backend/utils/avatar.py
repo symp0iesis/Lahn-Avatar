@@ -19,7 +19,7 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
 
-from llama_index.llms.openai import AzureOpenAI
+from llama_index.llms.azure_openai import AzureOpenAI
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
