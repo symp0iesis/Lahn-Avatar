@@ -24,24 +24,35 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
 llm = get_llm() #"mistral-large-instruct")
-# index = build_or_load_index(llm)
+index = build_or_load_index(llm)
+
+index_query_engine = index.as_query_engine(llm=llm)
+
+# Wrap that query engine in a QueryEngineTool:
+index_tool = QueryEngineTool.from_defaults(
+    query_engine=index_query_engine,
+    name="general_index",  
+    description=(
+        "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
+        "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
+        "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
+        "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
+    ),
+)
 
 
-# 3) Register it as a tool
 api_tool = QueryEngineTool.from_defaults(
     query_engine=LahnSensorsTool(llm),
     name=LahnSensorsTool.name,
     description=LahnSensorsTool.description,
 )
-
-
 # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 # chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
 
 # 4) Finally, build your chat engine in tool mode
 
 chat_engine = OpenAIAgent.from_tools(
-    tools=[api_tool],
+    tools=[index_tool, api_tool],
     llm=llm,
     memory=None,
     verbose=True,         # optionally see function‐call traces
