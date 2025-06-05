@@ -86,6 +86,13 @@ class LahnSensorsTool:
         result = engine.query(query)
         return result.response
 
+    def query(self, query_str: str) -> str:
+        """
+        Alias so that QueryEngineTool can call .query(...)
+        under the hood. Simply forwards to __call__.
+        """
+        return self(query_str)
+
 
 
 def format_history_as_string(history):
