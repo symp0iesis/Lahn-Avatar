@@ -18,6 +18,8 @@ from dotenv import load_dotenv
 import requests
 import pandas as pd
 from llama_index.experimental.query_engine import PandasQueryEngine
+from llama_index.core.memory.types import BaseMemory
+
 
 whisper_device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🔄 Loading Whisper model on {whisper_device}...")
@@ -93,6 +95,17 @@ class LahnSensorsTool:
         """
         return self(query_str)
 
+
+class NoMemory(BaseMemory):
+    async def aput_messages(self, messages):
+        # Called when the agent tries to “add” messages to memory.
+        # We simply ignore them.
+        return
+
+    async def get(self, query):
+        # Called when the agent tries to “retrieve” memory.
+        # Always return an empty list—so there’s never any stored context.
+        return []
 
 
 def format_history_as_string(history):

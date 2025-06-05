@@ -12,7 +12,7 @@ from llama_index.core.tools.query_engine import QueryEngineTool
 from llama_index.agent.openai import OpenAIAgent
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
-from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool
+from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool, NoMemory
 
 
 # === Initialize Flask ===
@@ -46,6 +46,8 @@ api_tool = QueryEngineTool.from_defaults(
     name=LahnSensorsTool.name,
     description=LahnSensorsTool.description,
 )
+
+no_memory = NoMemory()
 # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 # chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
 
@@ -54,7 +56,7 @@ api_tool = QueryEngineTool.from_defaults(
 chat_engine = OpenAIAgent.from_tools(
     tools=[index_tool, api_tool],
     llm=llm,
-    memory=None,
+    memory=no_memory,
     verbose=True,         # optionally see function‐call traces
     fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
 )
