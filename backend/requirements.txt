@@ -12,6 +12,7 @@ llama-index-embeddings-huggingface
 llama-index-readers-web
 llama-index-readers-youtube-transcript
 llama-index-llms-azure-openai
+llama-index-experimental
 
 
 

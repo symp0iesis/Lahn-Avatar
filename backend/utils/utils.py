@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 
 import requests
 import pandas as pd
-from llama_index.core.query_engine.pandas import PandasQueryEngine
+from llama_index.experimental.query_engine import PandasQueryEngine
 
 whisper_device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🔄 Loading Whisper model on {whisper_device}...")
