@@ -9,6 +9,8 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 from llama_index.core.tools.query_engine import QueryEngineTool
 
+from llama_index.agent.openai import OpenAIAgent
+
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool
 
@@ -22,7 +24,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
 llm = get_llm() #"mistral-large-instruct")
-index = build_or_load_index(llm)
+# index = build_or_load_index(llm)
 
 
 # 3) Register it as a tool
@@ -37,11 +39,20 @@ api_tool = QueryEngineTool.from_defaults(
 # chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
 
 # 4) Finally, build your chat engine in tool mode
-chat_engine = index.as_chat_engine(
-    chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
+
+chat_engine = OpenAIAgent.from_tools(
+    tools=[api_tool],
+    llm=llm,
     memory=None,
-    toolkits=[api_tool],    # make the live API tool available
+    verbose=True,         # optionally see function‐call traces
+    fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
 )
+
+# chat_engine = index.as_chat_engine(
+#     chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
+#     memory=None,
+#     toolkits=[api_tool],    # make the live API tool available
+# )
 
 debate_summary_llm = get_llm("mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')

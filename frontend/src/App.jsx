@@ -15,7 +15,7 @@ export default function LahnAvatarChat() {
   const [defaultThinking, setDefaultThinking] = useState(false);
   const [debateThinking, setDebateThinking] = useState(false);
   const [isDebateMode, setIsDebateMode] = useState(false);
-  const [topics] = useState(['Clean up Lahn', 'Reforest headwater']);
+  const [topics] = useState(['Clean up Lahn', 'Reforest headwater', 'Bridge construction across Lahn']);
   const [selectedTopic, setSelectedTopic] = useState("");
   const [debateSummary, setDebateSummary] = useState(`Lahn:\nPro:\nCon:\n\nYou:\nPro:\nCon:`);
   const [hasFetchedDebateInit, setHasFetchedDebateInit] = useState(false);
@@ -140,13 +140,27 @@ export default function LahnAvatarChat() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-stone-100 p-4 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-100 to-stone-100 p-4 flex flex-col items-center">
       <motion.h1 className="text-3xl font-poetic text-amber-700 mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
         Lahn River: Listening to the Ecosystem.
       </motion.h1>
       <motion.h3 className="text-xl font-poetic text-amber-700 italic mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
         Ever heard a river speak? Meet the Lahn, it has a lot to say.
       </motion.h3>
+
+      <div className="mb-6 text-stone">
+        {/* First line: slightly smaller than "text-xl", italic */}
+        <p className="text-lg italic mb-2">
+          Not sure where to begin? Try asking me:
+        </p>
+        {/* Bulleted list: even smaller font, italic, with indented bullets */}
+        <ul className="list-disc list-inside pl-4">
+          <li className="text-base italic">“What’s your oldest memory?”</li>
+          <li className="text-base italic">“Who lives in you?”</li>
+          <li className="text-base italic">“How can we protect you better?”</li>
+        </ul>
+      </div>
+
 
       <div className="flex items-center space-x-6 mb-4">
   <div className="flex items-center space-x-2">

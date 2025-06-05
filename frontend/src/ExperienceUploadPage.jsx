@@ -118,7 +118,7 @@ export default function ExperienceUploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-stone-100 p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-100 to-stone-100 p-6 flex flex-col items-center">
       <Link
         to="/chat"
         className="text-amber-700 underline text-sm mb-4 hover:text-amber-900 self-start max-w-2xl"

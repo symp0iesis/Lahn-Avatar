@@ -22,7 +22,7 @@ export default function Layout() {
       <nav
         className={
           `
-            fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-green-100 to-stone-100 p-5 shadow-md
+            fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-emerald-100 to-stone-100 p-5 shadow-md
             transform transition-transform duration-200 ease-in-out
             ${isOpen ? "translate-x-0" : "-translate-x-full"}
             flex flex-col gap-4
