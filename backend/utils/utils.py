@@ -12,7 +12,7 @@ from openai import AzureOpenAI, AsyncAzureOpenAI
 import base64
 
 from dotenv import load_dotenv
-from typing import Any, List, Optional
+from typing import Any, List
 
 
 import requests
@@ -98,58 +98,55 @@ class LahnSensorsTool:
 
 class NoMemory(BaseMemory):
     """
-    A no-op memory implementation. It never stores anything,
-    and always returns empty results.
+    A no-op memory implementation for LlamaIndex v0.12.35.
+    All methods are implemented but do nothing or return empty.
     """
 
     @classmethod
     def from_defaults(cls, **kwargs: Any) -> "NoMemory":
-        # Called by `…Memory.from_defaults()`. We just ignore any kwargs.
+        # Ignoring any kwargs; just return an instance
         return cls()
 
-    def put(self, message: Any, **kwargs: Any) -> None:
-        # Called when the agent tries to store a message.
-        # We do nothing.
+    def put(self, message: Any) -> None:
+        # Called when the agent tries to store a message. Do nothing.
         return
 
-    async def aput(self, message: Any, **kwargs: Any) -> None:
-        # If the agent ever calls the async version, also do nothing.
+    async def aput(self, message: Any) -> None:
+        # Async version of put. Do nothing.
         return
 
-    def get(self, query: Any) -> List[Any]:
-        # Called when the agent wants to load “relevant” memory.
+    def get(self) -> List[Any]:
+        # Called when the agent wants to retrieve “relevant” memory.
         # Always return an empty list (no history).
         return []
 
-    async def aget(self, query: Any) -> List[Any]:
-        # Async version—also return empty.
+    async def aget(self) -> List[Any]:
+        # Async version of get. Always return empty.
         return []
 
     def get_all(self) -> List[Any]:
-        # If the agent wants to retrieve the entire memory store,
-        # return an empty list.
+        # Called when the agent wants all memory. Return empty.
         return []
 
     async def aget_all(self) -> List[Any]:
-        # Async version—also return empty.
+        # Async version. Return empty.
         return []
 
-    def reset(self, **kwargs: Any) -> None:
-        # Clear all memory (we have none, so do nothing).
-        return
-
-    async def areset(self, **kwargs: Any) -> None:
-        # Async clear—do nothing.
-        return
-
     def set(self, messages: List[Any]) -> None:
-        # Replace entire memory store with `messages` (we ignore).
+        # Replace entire memory store with new messages. We ignore.
         return
 
     async def aset(self, messages: List[Any]) -> None:
-        # Async replace—do nothing.
+        # Async version of set. Do nothing.
         return
 
+    def reset(self) -> None:
+        # Clear all memory. We have none, so do nothing.
+        return
+
+    async def areset(self) -> None:
+        # Async version of reset. Do nothing.
+        return
 
 def format_history_as_string(history):
     # print('To convert to string. Input: ', history)
