@@ -12,7 +12,7 @@ from openai import AzureOpenAI, AsyncAzureOpenAI
 import base64
 
 from dotenv import load_dotenv
-
+from typing import Any, List, Optional
 
 
 import requests
@@ -97,15 +97,58 @@ class LahnSensorsTool:
 
 
 class NoMemory(BaseMemory):
-    async def aput_messages(self, messages):
-        # Called when the agent tries to “add” messages to memory.
-        # We simply ignore them.
+    """
+    A no-op memory implementation. It never stores anything,
+    and always returns empty results.
+    """
+
+    @classmethod
+    def from_defaults(cls, **kwargs: Any) -> "NoMemory":
+        # Called by `…Memory.from_defaults()`. We just ignore any kwargs.
+        return cls()
+
+    def put(self, message: Any, **kwargs: Any) -> None:
+        # Called when the agent tries to store a message.
+        # We do nothing.
         return
 
-    async def get(self, query):
-        # Called when the agent tries to “retrieve” memory.
-        # Always return an empty list—so there’s never any stored context.
+    async def aput(self, message: Any, **kwargs: Any) -> None:
+        # If the agent ever calls the async version, also do nothing.
+        return
+
+    def get(self, query: Any) -> List[Any]:
+        # Called when the agent wants to load “relevant” memory.
+        # Always return an empty list (no history).
         return []
+
+    async def aget(self, query: Any) -> List[Any]:
+        # Async version—also return empty.
+        return []
+
+    def get_all(self) -> List[Any]:
+        # If the agent wants to retrieve the entire memory store,
+        # return an empty list.
+        return []
+
+    async def aget_all(self) -> List[Any]:
+        # Async version—also return empty.
+        return []
+
+    def reset(self, **kwargs: Any) -> None:
+        # Clear all memory (we have none, so do nothing).
+        return
+
+    async def areset(self, **kwargs: Any) -> None:
+        # Async clear—do nothing.
+        return
+
+    def set(self, messages: List[Any]) -> None:
+        # Replace entire memory store with `messages` (we ignore).
+        return
+
+    async def aset(self, messages: List[Any]) -> None:
+        # Async replace—do nothing.
+        return
 
 
 def format_history_as_string(history):
