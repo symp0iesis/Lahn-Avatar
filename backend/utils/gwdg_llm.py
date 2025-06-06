@@ -12,7 +12,7 @@ import requests, json
 
 
 class GWDGChatLLM(CustomLLM):
-    model: str = Field(default="llama-3.1-8b-instruct")
+    model: str = Field(default="mistral-large-instruct")
     api_base: str = Field(default="https://llm.hrz.uni-giessen.de/api/")
     api_key: str = Field(default="")
     temperature: float = Field(default=0.1)

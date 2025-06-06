@@ -60,11 +60,12 @@ def fetch_lahn_sensors_df() -> pd.DataFrame:
 class LahnSensorsTool:
     name = "lahn_sensors"
     description = (
-        "**Always use this tool for any question about current or recent sensor data.**\n"
+        "**Always use this tool for any question about historical, recent or current sensor data.**\n"
         "This is the single source of truth for live river readings (pH, DO, Temp, EC, Humidity, CO₂).\n"
-        "Do not answer with any historical study or static dataset when up-to-the-minute values are requested.\n"
+        "Some questions requier analysis of the data. For example: What was thelowest temperature reading last week?"
+        "Such questions require you to not just access the relevant data range, but perform a computation on it. Do what is neccessary on the data, to obtain a response to the question."
         "Input: a natural-language question about live Lahn Atlas sensor values.\n"
-        "Output: a concise natural-language answer using the freshest readings."
+        "Output: a concise natural-language answer based on the fetched data and an analysis of it."
         "Use this to answer analytical questions about the live Lahn Atlas sensor data "
         "(pH, DO, Temp, EC, Humidity, CO2) fetched from the ThingSpeak REST API."
     )
