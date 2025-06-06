@@ -24,6 +24,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
 llm = get_llm() #"mistral-large-instruct")
+print('LLM system prompt: ', llm.system_prompt)
 index = build_or_load_index(llm)
 
 index_query_engine = index.as_query_engine(llm=llm)
