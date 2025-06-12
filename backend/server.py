@@ -8,6 +8,7 @@ from llama_index.core.chat_engine.types import ChatMode
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 from llama_index.core.tools.query_engine import QueryEngineTool
+from llama_index import ServiceContext
 
 from llama_index.agent.openai import OpenAIAgent
 
@@ -26,6 +27,13 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 llm = get_llm("hrz-chat-small") #"mistral-large-instruct")
 # print('LLM system prompt: ', llm.system_prompt)
 print('LLM details: ', llm.model_dump())
+
+service_context = ServiceContext.from_defaults(
+    llm=llm,
+    context_window=4096,     # <— your actual context length
+)
+
+
 index = build_or_load_index(llm)
 
 index_query_engine = index.as_query_engine(llm=llm)
@@ -58,6 +66,7 @@ no_memory = NoMemory()
 chat_engine = OpenAIAgent.from_tools(
     tools=[index_tool, api_tool],
     llm=llm,
+    service_context=service_context,
     memory=no_memory,
     verbose=True,         # optionally see function‐call traces
     fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
