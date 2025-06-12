@@ -21,7 +21,7 @@ from llama_index.readers.web import SimpleWebPageReader
 
 from llama_index.llms.azure_openai import AzureOpenAI
 # from llama_index.llms.openai import OpenAI
-from llama_index.llms.openailike import OpenAILike
+from llama_index.llms.openai_like import OpenAILike
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
