@@ -21,6 +21,7 @@ from llama_index.readers.web import SimpleWebPageReader
 
 from llama_index.llms.azure_openai import AzureOpenAI
 # from llama_index.llms.openai import OpenAI
+from llama_index.llms.openailike import OpenAILike
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
@@ -134,18 +135,26 @@ def get_llm(model_name=None, system_prompt=None):
 
     if model_name != None:
 
-
-        # Instantiate your LLM using the subclass:
-        return HrzOpenAI(
-            model_name=model_name,
-            system_prompt=system_prompt,
-            temperature=0.7,
+        return OpenAILike(
+            model=model_name,           # your custom model
+            api_base=API_BASE,                # HRZ endpoint
             api_key=API_KEY,
-            api_base=API_BASE,
-            api_type="open_ai",
-            api_version="",
-            deployment_id=model_name,
+            is_chat_model=True,               # it uses the chat/completions endpoint
+            is_function_calling_model=True,   # enable function/tool calling
+            context_window=8192,              # set your real context size
+            system_prompt=system_prompt,      
         )
+        # Instantiate your LLM using the subclass:
+        # return HrzOpenAI(
+        #     model=model_name,
+        #     system_prompt=system_prompt,
+        #     temperature=0.7,
+        #     api_key=API_KEY,
+        #     api_base=API_BASE,
+        #     api_type="open_ai",
+        #     api_version="",
+        #     deployment_id=model_name,
+        # )
 
         # return OpenAI(
         #     model=model_name,        # your HRZ model name
