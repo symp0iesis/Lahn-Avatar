@@ -17,6 +17,11 @@ import requests, json
 
 class HrzOpenAI(OpenAI):
     @property
+    def supports_function_calling_api(self) -> bool:
+        # Force‐enable tools/function‐calling for this custom model
+        return True
+        
+    @property
     def metadata(self) -> LLMMetadata:
         # Return a metadata object with your real context window
         # and whatever num_output you want.
