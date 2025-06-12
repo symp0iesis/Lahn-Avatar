@@ -8,7 +8,7 @@ from llama_index.core.chat_engine.types import ChatMode
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 from llama_index.core.tools.query_engine import QueryEngineTool
-from llama_index import ServiceContext
+from llama_index.core.indices.service_context import ServiceContext
 
 from llama_index.agent.openai import OpenAIAgent
 
