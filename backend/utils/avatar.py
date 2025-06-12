@@ -20,6 +20,7 @@ from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
 
 from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.llms.openai import OpenAI
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
@@ -132,13 +133,26 @@ def get_llm(model_name=None, system_prompt=None):
         system_prompt = open(file_path, 'r').read()
 
     if model_name != None:
-        return GWDGChatLLM(
-            model=model_name,
-            api_base=API_BASE,
-            api_key=API_KEY,
+        return OpenAI(
+            model_name=model_name,        # your HRZ model name
             temperature=0.7,
-            system_prompt=system_prompt
+            system_prompt=system_prompt,
+
+            # point at your custom endpoint:
+            openai_api_key=API_KEY,             # e.g. 'sk-…'
+            openai_api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+            openai_api_type="open_ai",          # use the “open_ai” protocol
+            openai_api_version=None,            # leave None unless your server needs a version
         )
+
+
+        # GWDGChatLLM(
+        #     model=model_name,
+        #     api_base=API_BASE,
+        #     api_key=API_KEY,
+        #     temperature=0.7,
+        #     system_prompt=system_prompt
+        # )
 
     else:
         return AzureOpenAI(
