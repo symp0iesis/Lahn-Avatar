@@ -21,9 +21,9 @@ class HrzOpenAI(OpenAI):
         # Return a metadata object with your real context window
         # and whatever num_output you want.
         return LLMMetadata(
-            context_window=4096,    # your model’s max context size
+            context_window=8192,    # your model’s max context size
             num_output=512,         # tokens back
-            model_name=self.model_name,
+            model_name="hrz-chat-small", #hardcoded ⚠️
         )
 
 
