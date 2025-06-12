@@ -29,7 +29,7 @@ llm = get_llm("hrz-chat-small") #"mistral-large-instruct")
 print('LLM details: ', llm.model_dump())
 
 Settings.llm = llm
-Settings.context_window = 4096
+# Settings.context_window = 4096
 
 # service_context = ServiceContext.from_defaults(
 #     llm=llm,

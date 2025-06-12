@@ -6,9 +6,25 @@ from llama_index.core.llms import (
     CompletionResponseGen,
     LLMMetadata,
 )
+
+from llama_index.llms.openai import OpenAI
+
 from llama_index.core.llms.callbacks import llm_completion_callback
 from llama_index.core.base.embeddings.base import BaseEmbedding
 import requests, json
+
+
+
+class HrzOpenAI(OpenAI):
+    @property
+    def metadata(self, model_name) -> LLMMetadata:
+        # Return a metadata object with your real context window
+        # and whatever num_output you want.
+        return LLMMetadata(
+            context_window=4096,    # your model’s max context size
+            num_output=512,         # tokens back
+            model_name=model_name,
+        )
 
 
 class GWDGChatLLM(CustomLLM):

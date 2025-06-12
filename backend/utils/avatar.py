@@ -20,11 +20,11 @@ from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
 
 from llama_index.llms.azure_openai import AzureOpenAI
-from llama_index.llms.openai import OpenAI
+# from llama_index.llms.openai import OpenAI
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-from .gwdg_llm import GWDGChatLLM, GWDGEmbedding
+from .gwdg_llm import GWDGChatLLM, GWDGEmbedding, HrzOpenAI
 
 
 load_dotenv()
@@ -133,17 +133,31 @@ def get_llm(model_name=None, system_prompt=None):
         system_prompt = open(file_path, 'r').read()
 
     if model_name != None:
-        return OpenAI(
-            model=model_name,        # your HRZ model name
-            temperature=0.7,
-            system_prompt=system_prompt,
 
-            # point at your custom endpoint:
-            api_key=API_KEY,             # e.g. 'sk-…'
-            api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
-            api_type="open_ai",          # use the “open_ai” protocol
-            api_version=None,            # leave None unless your server needs a version
+
+        # Instantiate your LLM using the subclass:
+        return HrzOpenAI(
+            model_name=model_name,
+            system_prompt=system_prompt,
+            temperature=0.7,
+            api_key=API_KEY,
+            api_base=API_BASE,
+            api_type="open_ai",
+            api_version="",
+            deployment_id=model_name,
         )
+
+        # return OpenAI(
+        #     model=model_name,        # your HRZ model name
+        #     temperature=0.7,
+        #     system_prompt=system_prompt,
+
+        #     # point at your custom endpoint:
+        #     api_key=API_KEY,             # e.g. 'sk-…'
+        #     api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+        #     api_type="open_ai",          # use the “open_ai” protocol
+        #     api_version=None,            # leave None unless your server needs a version
+        # )
 
 
         # GWDGChatLLM(
