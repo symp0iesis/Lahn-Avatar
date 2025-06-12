@@ -134,15 +134,15 @@ def get_llm(model_name=None, system_prompt=None):
 
     if model_name != None:
         return OpenAI(
-            model_name=model_name,        # your HRZ model name
+            model=model_name,        # your HRZ model name
             temperature=0.7,
             system_prompt=system_prompt,
 
             # point at your custom endpoint:
-            openai_api_key=API_KEY,             # e.g. 'sk-…'
-            openai_api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
-            openai_api_type="open_ai",          # use the “open_ai” protocol
-            openai_api_version=None,            # leave None unless your server needs a version
+            api_key=API_KEY,             # e.g. 'sk-…'
+            api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+            api_type="open_ai",          # use the “open_ai” protocol
+            api_version=None,            # leave None unless your server needs a version
         )
 
 
