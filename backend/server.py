@@ -68,7 +68,7 @@ no_memory = NoMemory()
 
 chat_engine = OpenAIAgent.from_tools(
     tools=[index_tool, api_tool],
-    llm=llm,
+    # llm=llm,
     # service_context=service_context,
     memory=no_memory,
     verbose=True,         # optionally see function‐call traces
