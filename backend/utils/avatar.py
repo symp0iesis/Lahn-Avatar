@@ -127,6 +127,19 @@ def select_model():
     return "llama-3.1-sauerkrautlm-70b-instruct" if choice == "2" else "mistral-large-instruct"
 
 
+class DebugOpenAILike(OpenAILike):
+    def chat(self, messages, **kwargs):
+        print("\n=== PAYLOAD TO .chat() ===")
+        print("Messages:")
+        for m in messages:
+            print(m)
+        print("Other kwargs:")
+        for k, v in kwargs.items():
+            print(f"{k}: {v}")
+        print("==========================\n")
+        return super().chat(messages, **kwargs)
+
+
 def get_llm(model_name=None, system_prompt=None):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, 'system_prompt.txt')
@@ -135,7 +148,7 @@ def get_llm(model_name=None, system_prompt=None):
 
     if model_name != None:
 
-        return OpenAILike(
+        return DebugOpenAILike(
             model=model_name,           # your custom model
             api_base=API_BASE,                # HRZ endpoint
             api_key=API_KEY,
