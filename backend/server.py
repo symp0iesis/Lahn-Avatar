@@ -67,7 +67,7 @@ no_memory = NoMemory()
 # 4) Finally, build your chat engine in tool mode
 
 chat_engine = OpenAIAgent.from_tools(
-    tools=[index_tool, api_tool],
+    tools=[], #index_tool, api_tool],
     # llm=llm,
     # service_context=service_context,
     memory=no_memory,

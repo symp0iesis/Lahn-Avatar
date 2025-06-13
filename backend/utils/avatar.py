@@ -153,7 +153,7 @@ def get_llm(model_name=None, system_prompt=None):
             api_base=API_BASE,                # HRZ endpoint
             api_key=API_KEY,
             is_chat_model=True,               # it uses the chat/completions endpoint
-            is_function_calling_model=False,   # enable function/tool calling
+            is_function_calling_model=True,   # enable function/tool calling
             context_window=8192,              # set your real context size
             system_prompt=system_prompt,      
         )
