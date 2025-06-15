@@ -7,11 +7,11 @@ export default function Layout() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen font-sans">
+    <div className="flex h-screen font-sans overflow-hidden min-h-0">
       {/* Hamburger button */}
       {!isOpen && (
         <button
-          className="p-2 m-2 bg-white rounded-md shadow-md z-10"
+          className="hidden p-2 m-2 bg-white rounded-md shadow-md z-10"
           onClick={() => setIsOpen(true)}
         >
           <Menu size={24} />
@@ -22,7 +22,7 @@ export default function Layout() {
       <nav
         className={
           `
-            fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-emerald-100 to-stone-100 p-5 shadow-md
+            hidden fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-emerald-100 to-stone-100 p-5 shadow-md
             transform transition-transform duration-200 ease-in-out
             ${isOpen ? "translate-x-0" : "-translate-x-full"}
             flex flex-col gap-4
@@ -85,7 +85,7 @@ export default function Layout() {
       </nav>
 
       {/* Main content */}
-      <main className={`flex-1 p-8 bg-gradient-to-br from-stone-50 to-green-50 transition-margin duration-200 ${isOpen ? 'ml-64' : 'ml-0'}`}>
+      <main className={`flex-1 p-8 bg-gradient-to-br from-stone-50 to-green-50 transition-margin duration-200 ${isOpen ? 'ml-64' : 'ml-0'} overflow-hidden min-h-0`}>
         <Outlet />
       </main>
     </div>
