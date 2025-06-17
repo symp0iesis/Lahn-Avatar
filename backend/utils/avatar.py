@@ -193,6 +193,7 @@ def get_llm(model_name=None, system_prompt=None):
     else:
         llm = DebugOpenAILike(
             model='gpt-4o',           # your custom model
+            deployment_name="gpt-4o",
             api_base=AZURE_BASE,                # HRZ endpoint
             api_key=AZURE_KEY,
             api_version=AZURE_VERSION, 
