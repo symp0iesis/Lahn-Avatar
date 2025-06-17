@@ -29,6 +29,7 @@ llm_choice = None #"mistral-large-instruct" #"hrz-chat-small"
 llm, system_prompt = get_llm(llm_choice)
 
 
+
 def prepare_chat_engine(refresh=False):
     if refresh==True:
         index = build_index()
@@ -132,13 +133,13 @@ def chat():
     # response = chat_engine.chat(messages=chat_history)
 
     else:
-        system = [ ChatMessage(role="system", content=system_prompt) ]
+        # system = [ ChatMessage(role="system", content=system_prompt) ]
 
-        chat_history = system + [
-            ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
-            for m in conversation
-            ]
-        # chat_history = format_history_as_string(conversation)
+        # chat_history = system + [
+        #     ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+        #     for m in conversation
+        #     ]
+        chat_history = format_history_as_string(conversation)
         prompt = chat_history
 
 

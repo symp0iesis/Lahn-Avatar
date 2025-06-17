@@ -22,6 +22,7 @@ from llama_index.readers.web import SimpleWebPageReader
 from llama_index.llms.azure_openai import AzureOpenAI
 # from llama_index.llms.openai import OpenAI
 from llama_index.llms.openai_like import OpenAILike
+from llama_index.callbacks import CallbackManager, LLMLogger
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
@@ -140,6 +141,9 @@ class DebugOpenAILike(OpenAILike):
         return super().chat(messages, **kwargs)
 
 
+callback_manager = CallbackManager([LLMLogger()])
+
+
 def get_llm(model_name=None, system_prompt=None):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, 'system_prompt.txt')
@@ -198,7 +202,8 @@ def get_llm(model_name=None, system_prompt=None):
             api_version=AZURE_VERSION,  
             api_key= AZURE_KEY, 
             azure_endpoint= AZURE_BASE,
-            system_prompt=system_prompt
+            system_prompt=system_prompt,
+            callback_manager=callback_manager
         )
 
     print('LLM details: ', llm.model_dump())
