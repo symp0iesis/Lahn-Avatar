@@ -21,11 +21,19 @@ from llama_index.experimental.query_engine import PandasQueryEngine
 from llama_index.core.memory.types import BaseMemory
 
 
+from llama_index.core.tools.query_engine import QueryEngineTool
+
 whisper_device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🔄 Loading Whisper model on {whisper_device}...")
 whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-small")
 whisper_model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(whisper_device)
 print("✅ Whisper model loaded.")
+
+
+
+
+
+
 
 
 
@@ -148,6 +156,38 @@ class NoMemory(BaseMemory):
     async def areset(self) -> None:
         # Async version of reset. Do nothing.
         return
+
+
+
+def make_agent_for_llm(index, llm):
+    # re-use the same index, but spin up a new query engine against this llm:
+    idx_qe = index.as_query_engine(llm=llm)
+    index_tool = QueryEngineTool.from_defaults(
+        query_engine=idx_qe,
+        name="general_index",
+        description=("Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
+        "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
+        "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
+        "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings.")
+    )
+
+    sensor_qe = LahnSensorsTool(llm)
+    api_tool = QueryEngineTool.from_defaults(
+        query_engine=sensor_qe,
+        name=LahnSensorsTool.name,
+        description=LahnSensorsTool.description
+    )
+
+    return OpenAIAgent.from_tools(
+        tools=[index_tool, api_tool] if llm.model=='gpt-4o' else [],
+        llm=llm,
+        memory=NoMemory(),
+        verbose=True,
+        fallback_to_llm=True
+    )
+
+
+
 
 def format_history_as_string(history):
     # print('To convert to string. Input: ', history)

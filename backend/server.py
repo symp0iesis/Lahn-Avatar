@@ -7,13 +7,13 @@ from datetime import datetime
 from llama_index.core.chat_engine.types import ChatMode
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
-from llama_index.core.tools.query_engine import QueryEngineTool
+# from llama_index.core.tools.query_engine import QueryEngineTool
 from llama_index.core import Settings
 
 from llama_index.agent.openai import OpenAIAgent
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
-from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool, NoMemory
+from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, make_agent_for_llm #LahnSensorsTool, NoMemory
 
 
 # === Initialize Flask ===
@@ -24,56 +24,70 @@ UPLOAD_DIR = "data/uploaded_experiences"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
-llm = get_llm("hrz-chat-small") #"mistral-large-instruct")
+# llm = get_llm("hrz-chat-small") #"mistral-large-instruct")
 # print('LLM system prompt: ', llm.system_prompt)
-print('LLM details: ', llm.model_dump())
+# print('LLM details: ', llm.model_dump())
 
-Settings.llm = llm
-# Settings.context_window = 4096
+# Settings.llm = llm
 
-# service_context = ServiceContext.from_defaults(
-#     llm=llm,
-#     context_window=4096,     # <— your actual context length
+index = build_or_load_index()
+
+AVAILABLE_MODELS = {
+    "small":        "hrz-chat-small",
+    "gpt-4o":       "gpt-4o",
+    "mistral":  "mistral-large-instruct",   # whatever your get_llm keys are
+}
+
+# lazily build agents on first use, or pre-warm them if you prefer
+agents = {}
+
+def get_agent(model_key):
+    if model_key not in agents:
+        model_name = AVAILABLE_MODELS[model_key]
+        if model_name == 'gpt-4o':
+            llm = get_llm()
+        else:
+            llm = get_llm(model_name)
+        print("Loaded LLM:", llm.model_dump())
+        agents[model_key] = make_agent_for_llm(llm)
+    return agents[model_key]
+
+
+# index_query_engine = index.as_query_engine(llm=llm)
+
+# Wrap that query engine in a QueryEngineTool:
+# index_tool = QueryEngineTool.from_defaults(
+#     query_engine=index_query_engine,
+#     name="general_index",  
+#     description=(
+#         "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
+#         "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
+#         "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
+#         "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
+#     ),
 # )
 
 
-index = build_or_load_index(llm)
+# api_tool = QueryEngineTool.from_defaults(
+#     query_engine=LahnSensorsTool(llm),
+#     name=LahnSensorsTool.name,
+#     description=LahnSensorsTool.description,
+# )
 
-index_query_engine = index.as_query_engine(llm=llm)
-
-# Wrap that query engine in a QueryEngineTool:
-index_tool = QueryEngineTool.from_defaults(
-    query_engine=index_query_engine,
-    name="general_index",  
-    description=(
-        "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
-        "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
-        "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
-        "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
-    ),
-)
-
-
-api_tool = QueryEngineTool.from_defaults(
-    query_engine=LahnSensorsTool(llm),
-    name=LahnSensorsTool.name,
-    description=LahnSensorsTool.description,
-)
-
-no_memory = NoMemory()
+# no_memory = NoMemory()
 # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 # chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
 
 # 4) Finally, build your chat engine in tool mode
 
-chat_engine = OpenAIAgent.from_tools(
-    tools=[], #index_tool, api_tool],
-    # llm=llm,
-    # service_context=service_context,
-    memory=no_memory,
-    verbose=True,         # optionally see function‐call traces
-    fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
-)
+# chat_engine = OpenAIAgent.from_tools(
+#     tools=[], #index_tool, api_tool],
+#     # llm=llm,
+#     # service_context=service_context,
+#     memory=no_memory,
+#     verbose=True,         # optionally see function‐call traces
+#     fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
+# )
 
 # chat_engine = index.as_chat_engine(
 #     chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
@@ -112,6 +126,8 @@ def chat():
     data = request.get_json()
     prompt = data.get("prompt", "")
     conversation = data.get("history", "")
+
+    model = data.get("model", "")
 
     if prompt == "__INIT__":
         prompt = "Hallo"
