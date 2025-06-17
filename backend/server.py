@@ -77,6 +77,9 @@ def prepare_chat_engine(refresh=False):
     #     toolkits=[api_tool],    # make the live API tool available
     # )
 
+    return chat_engine
+
+    
 chat_engine = prepare_chat_engine()
 
 debate_summary_llm = get_llm("mistral-large-instruct", system_prompt= '')
