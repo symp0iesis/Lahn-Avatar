@@ -24,7 +24,7 @@ UPLOAD_DIR = "data/uploaded_experiences"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
-llm_choice = "mistral-large-instruct" #"hrz-chat-small"
+llm_choice = None #"mistral-large-instruct" #"hrz-chat-small"
 
 llm = get_llm(llm_choice)
 
@@ -79,7 +79,7 @@ def prepare_chat_engine(refresh=False):
 
     return chat_engine
 
-    
+
 chat_engine = prepare_chat_engine()
 
 debate_summary_llm = get_llm("mistral-large-instruct", system_prompt= '')
