@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
 from llama_index.core.schema import Document as LlamaDocument
 
-from llama_index.core import StorageContext, load_index_from_storage
+from llama_index.core import StorageContext, load_index_from_storage, Settings
 from llama_index.core.readers import SimpleDirectoryReader
 from llama_index.core.indices.vector_store import VectorStoreIndex
 from llama_index.core.memory import ChatMemoryBuffer
@@ -148,7 +148,7 @@ def get_llm(model_name=None, system_prompt=None):
 
     if model_name != None:
 
-        return DebugOpenAILike(
+        llm = DebugOpenAILike(
             model=model_name,           # your custom model
             api_base=API_BASE,                # HRZ endpoint
             api_key=API_KEY,
@@ -191,13 +191,19 @@ def get_llm(model_name=None, system_prompt=None):
         # )
 
     else:
-        return AzureOpenAI(
+        llm = AzureOpenAI(
             deployment_name="gpt-4o",
             api_version=AZURE_VERSION,  
             api_key= AZURE_KEY, 
             azure_endpoint= AZURE_BASE,
             system_prompt=system_prompt
         )
+
+    print('LLM details: ', llm.model_dump())
+
+    Settings.llm = llm
+
+    return llm
 
 
 def create_session_log():
@@ -257,7 +263,7 @@ def build_index():
 
 
 def build_or_load_index(llm, refresh=False):
-    Settings.llm = llm #Why is this declared here specifically?
+    # Settings.llm = llm #Why is this declared here specifically?
     Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
     # GWDGEmbedding(
     #     api_key=API_KEY,

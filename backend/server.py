@@ -8,7 +8,7 @@ from llama_index.core.chat_engine.types import ChatMode
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 from llama_index.core.tools.query_engine import QueryEngineTool
-from llama_index.core import Settings
+# from llama_index.core import Settings
 
 from llama_index.agent.openai import OpenAIAgent
 
@@ -24,62 +24,60 @@ UPLOAD_DIR = "data/uploaded_experiences"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
-llm = get_llm("hrz-chat-small") #"mistral-large-instruct")
-# print('LLM system prompt: ', llm.system_prompt)
-print('LLM details: ', llm.model_dump())
+llm_choice = "mistral-large-instruct" #"hrz-chat-small"
 
-Settings.llm = llm
-# Settings.context_window = 4096
-
-# service_context = ServiceContext.from_defaults(
-#     llm=llm,
-#     context_window=4096,     # <— your actual context length
-# )
+llm = get_llm(llm_choice)
 
 
-index = build_or_load_index(llm)
+def prepare_chat_engine(refresh=False):
+    if refresh==True:
+        index = build_index()
+    else:
+        index = build_or_load_index(llm)
 
-index_query_engine = index.as_query_engine(llm=llm)
+    index_query_engine = index.as_query_engine(llm=llm)
 
-# Wrap that query engine in a QueryEngineTool:
-index_tool = QueryEngineTool.from_defaults(
-    query_engine=index_query_engine,
-    name="general_index",  
-    description=(
-        "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
-        "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
-        "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
-        "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
-    ),
-)
+    # Wrap that query engine in a QueryEngineTool:
+    index_tool = QueryEngineTool.from_defaults(
+        query_engine=index_query_engine,
+        name="general_index",  
+        description=(
+            "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
+            "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
+            "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
+            "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
+        ),
+    )
 
 
-api_tool = QueryEngineTool.from_defaults(
-    query_engine=LahnSensorsTool(llm),
-    name=LahnSensorsTool.name,
-    description=LahnSensorsTool.description,
-)
+    api_tool = QueryEngineTool.from_defaults(
+        query_engine=LahnSensorsTool(llm),
+        name=LahnSensorsTool.name,
+        description=LahnSensorsTool.description,
+    )
 
-no_memory = NoMemory()
-# memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
-# chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
+    no_memory = NoMemory()
+    # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
+    # chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
 
-# 4) Finally, build your chat engine in tool mode
+    # 4) Finally, build your chat engine in tool mode
 
-chat_engine = OpenAIAgent.from_tools(
-    tools=[], #index_tool, api_tool],
-    # llm=llm,
-    # service_context=service_context,
-    memory=no_memory,
-    verbose=True,         # optionally see function‐call traces
-    fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
-)
+    chat_engine = OpenAIAgent.from_tools(
+        tools=[], #index_tool, api_tool],
+        # llm=llm,
+        # service_context=service_context,
+        memory=no_memory,
+        verbose=True,         # optionally see function‐call traces
+        fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
+    )
 
-# chat_engine = index.as_chat_engine(
-#     chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
-#     memory=None,
-#     toolkits=[api_tool],    # make the live API tool available
-# )
+    # chat_engine = index.as_chat_engine(
+    #     chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
+    #     memory=None,
+    #     toolkits=[api_tool],    # make the live API tool available
+    # )
+
+chat_engine = prepare_chat_engine()
 
 debate_summary_llm = get_llm("mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
@@ -91,6 +89,7 @@ print('LLM initialized.')
 def refresh_prompt():
     print('Refresh prompt request received.')
     fetch_system_prompt_from_gdoc()
+    llm = get_llm(llm_choice)
     return 'Done.'
 
 
@@ -99,9 +98,11 @@ def refresh_prompt():
 def refresh_embeddings():
     global chat_engine
     print('Refresh embeddings request received.')
-    index = build_index()
-    memory = ChatMemoryBuffer.from_defaults(token_limit=2000) #Do I need to define this afresh here?
-    chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
+    chat_engine = prepare_chat_engine(refresh=True)
+    
+    # index = build_index()
+    # memory = ChatMemoryBuffer.from_defaults(token_limit=2000) #Do I need to define this afresh here?
+    # chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
     return 'Done'
 
 
@@ -124,13 +125,6 @@ def chat():
 
     else:
         chat_history = format_history_as_string(conversation)
-        # [
-        #     ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
-        #     for m in conversation
-        #     ]
-
-        # print('User message:', prompt)
-        # response = chat_engine.chat(message=chat_history)
         prompt = chat_history
 
 
