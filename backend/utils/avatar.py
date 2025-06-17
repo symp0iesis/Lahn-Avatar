@@ -205,7 +205,8 @@ def get_llm(model_name=None, system_prompt=None):
             api_key= AZURE_KEY, 
             azure_endpoint= AZURE_BASE,
             system_prompt=system_prompt,
-            callback_manager=callback_manager
+            callback_manager=callback_manager,
+            verbose=True
         )
 
     print('LLM details: ', llm.model_dump())
