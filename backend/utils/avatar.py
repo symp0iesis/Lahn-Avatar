@@ -191,14 +191,25 @@ def get_llm(model_name=None, system_prompt=None):
         # )
 
     else:
-        llm = AzureOpenAI(
-            model="gpt-4o",
-            deployment_name="gpt-4o",
-            api_version=AZURE_VERSION,  
-            api_key= AZURE_KEY, 
-            azure_endpoint= AZURE_BASE,
-            system_prompt=system_prompt
+        llm = DebugOpenAILike(
+            model='gpt-4o',           # your custom model
+            api_base=AZURE_BASE,                # HRZ endpoint
+            api_key=AZURE_KEY,
+            api_version=AZURE_VERSION, 
+            is_chat_model=True,               # it uses the chat/completions endpoint
+            is_function_calling_model=True,   # enable function/tool calling
+            context_window=48000,              # set your real context size
+            system_prompt=system_prompt,      
         )
+
+        # AzureOpenAI(
+        #     model="gpt-4o",
+        #     deployment_name="gpt-4o",
+        #     api_version=AZURE_VERSION,  
+        #     api_key= AZURE_KEY, 
+        #     azure_endpoint= AZURE_BASE,
+        #     system_prompt=system_prompt
+        # )
 
     print('LLM details: ', llm.model_dump())
 
