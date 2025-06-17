@@ -22,7 +22,9 @@ from llama_index.readers.web import SimpleWebPageReader
 from llama_index.llms.azure_openai import AzureOpenAI
 # from llama_index.llms.openai import OpenAI
 from llama_index.llms.openai_like import OpenAILike
-from llama_index.callbacks import CallbackManager, LLMLogger
+from llama_index.core.callbacks import CallbackManager
+
+from llama_index.core.callbacks.llama_debug import LlamaDebugHandler
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
@@ -141,7 +143,7 @@ class DebugOpenAILike(OpenAILike):
         return super().chat(messages, **kwargs)
 
 
-callback_manager = CallbackManager([LLMLogger()])
+callback_manager = CallbackManager([LlamaDebugHandler()])
 
 
 def get_llm(model_name=None, system_prompt=None):
