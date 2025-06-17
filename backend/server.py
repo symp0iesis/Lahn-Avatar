@@ -68,7 +68,7 @@ def prepare_chat_engine(refresh=False):
         # service_context=service_context,
         memory=no_memory,
         verbose=True,         # optionally see function‐call traces
-        fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
+        fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
     )
 
     # chat_engine = index.as_chat_engine(
