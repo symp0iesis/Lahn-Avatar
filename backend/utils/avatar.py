@@ -192,6 +192,7 @@ def get_llm(model_name=None, system_prompt=None):
 
     else:
         llm = AzureOpenAI(
+            model="gpt-4o",
             deployment_name="gpt-4o",
             api_version=AZURE_VERSION,  
             api_key= AZURE_KEY, 
@@ -263,7 +264,6 @@ def build_index():
 
 
 def build_or_load_index(llm, refresh=False):
-    # Settings.llm = llm #Why is this declared here specifically?
     Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
     # GWDGEmbedding(
     #     api_key=API_KEY,
