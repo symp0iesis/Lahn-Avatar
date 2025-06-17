@@ -26,7 +26,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # === Load LLM once at startup ===
 llm_choice = None #"mistral-large-instruct" #"hrz-chat-small"
 
-llm = get_llm(llm_choice)
+llm, system_prompt = get_llm(llm_choice)
 
 
 def prepare_chat_engine(refresh=False):
@@ -82,7 +82,7 @@ def prepare_chat_engine(refresh=False):
 
 chat_engine = prepare_chat_engine()
 
-debate_summary_llm = get_llm("mistral-large-instruct", system_prompt= '')
+debate_summary_llm, _ = get_llm("mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
 
 
@@ -90,9 +90,10 @@ print('LLM initialized.')
 
 @app.route("/api/refresh-prompt", methods=["POST"])
 def refresh_prompt():
+    global system_prompt
     print('Refresh prompt request received.')
     fetch_system_prompt_from_gdoc()
-    llm = get_llm(llm_choice)
+    llm, system_prompt = get_llm(llm_choice)
     return 'Done.'
 
 
@@ -126,8 +127,18 @@ def chat():
     elif not prompt: #Needed?
         return jsonify({"reply": "Please say something."}), 400
 
+
+    # print('User message:', prompt)
+    # response = chat_engine.chat(messages=chat_history)
+
     else:
-        chat_history = format_history_as_string(conversation)
+        system = [ ChatMessage(role="system", content=system_prompt) ]
+
+        chat_history = system + [
+            ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+            for m in conversation
+            ]
+        # chat_history = format_history_as_string(conversation)
         prompt = chat_history
 
 
