@@ -27,7 +27,7 @@ llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-larg
 
 llm, system_prompt = get_llm(llm_choice)
 
-agent=False
+agent=True
 
 def prepare_chat_engine(agent=agent, refresh=False):
     if refresh==True:
