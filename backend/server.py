@@ -28,55 +28,63 @@ llm_choice = "gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
 
 llm, system_prompt = get_llm(llm_choice)
 
+agent=False
 
-
-def prepare_chat_engine(refresh=False):
+def prepare_chat_engine(agent=agent, refresh=False):
     if refresh==True:
         index = build_index()
     else:
         index = build_or_load_index(llm)
 
-    index_query_engine = index.as_query_engine(llm=llm)
-
-    # Wrap that query engine in a QueryEngineTool:
-    index_tool = QueryEngineTool.from_defaults(
-        query_engine=index_query_engine,
-        name="general_index",  
-        description=(
-            "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
-            "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
-            "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
-            "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
-        ),
-    )
-
-
-    api_tool = QueryEngineTool.from_defaults(
-        query_engine=LahnSensorsTool(llm),
-        name=LahnSensorsTool.name,
-        description=LahnSensorsTool.description,
-    )
 
     no_memory = NoMemory()
     # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
-    # chat_engine = index.as_chat_engine(chat_mode="context", memory=None) #, memory=memory)
 
-    # 4) Finally, build your chat engine in tool mode
+    if agent==True:
 
-    chat_engine = OpenAIAgent.from_tools(
-        tools=[index_tool, api_tool], #], #
-        # llm=llm,
-        # service_context=service_context,
-        memory=no_memory,
-        verbose=True,         # optionally see function‐call traces
-        fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
-    )
+        index_query_engine = index.as_query_engine(llm=llm)
 
-    # chat_engine = index.as_chat_engine(
-    #     chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
-    #     memory=None,
-    #     toolkits=[api_tool],    # make the live API tool available
-    # )
+        # Wrap that query engine in a QueryEngineTool:
+        index_tool = QueryEngineTool.from_defaults(
+            query_engine=index_query_engine,
+            name="general_index",  
+            description=(
+                "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
+                "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
+                "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
+                "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
+            ),
+        )
+
+
+        api_tool = QueryEngineTool.from_defaults(
+            query_engine=LahnSensorsTool(llm),
+            name=LahnSensorsTool.name,
+            description=LahnSensorsTool.description,
+        )
+
+        chat_engine = OpenAIAgent.from_tools(
+            tools=[index_tool, api_tool], #], #
+            # llm=llm,
+            # service_context=service_context,
+            memory=no_memory,
+            verbose=True,         # optionally see function‐call traces
+            fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
+        )
+
+    else:
+        chat_engine = index.as_chat_engine(chat_mode="context", memory=no_memory) #, memory=memory)
+
+
+        # chat_engine = index.as_chat_engine(
+        #     chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
+        #     memory=None,
+        #     toolkits=[api_tool],    # make the live API tool available
+        # )
+
+        # 4) Finally, build your chat engine in tool mode
+
+    
 
     return chat_engine
 
@@ -133,13 +141,17 @@ def chat():
     # response = chat_engine.chat(messages=chat_history)
 
     else:
-        # system = [ ChatMessage(role="system", content=system_prompt) ]
+        if agent==True:
+            chat_history = format_history_as_string(conversation)
+        else:
+            # system = [ ChatMessage(role="system", content=system_prompt) ]
+            # chat_history = system + 
 
-        # chat_history = system + [
-        #     ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
-        #     for m in conversation
-        #     ]
-        chat_history = format_history_as_string(conversation)
+            chat_history = [
+                ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+                for m in conversation
+                ]
+        
         prompt = chat_history
 
 
