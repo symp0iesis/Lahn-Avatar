@@ -8,6 +8,9 @@ from llama_index.core.chat_engine.types import ChatMode
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 # from llama_index.core import Settings
+from llama_index.core.tools.query_engine import QueryEngineTool
+# from llama_index.agent.openai import OpenAIAgent
+from llama_index.core.agent.workflow import FunctionAgent
 
 
 
@@ -40,8 +43,6 @@ def prepare_chat_engine(agent=agent, refresh=False):
     # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 
     if agent==True:
-        from llama_index.core.tools.query_engine import QueryEngineTool
-        from llama_index.agent.openai import OpenAIAgent
 
         index_query_engine = index.as_query_engine(llm=llm)
 
@@ -64,13 +65,20 @@ def prepare_chat_engine(agent=agent, refresh=False):
             description=LahnSensorsTool.description,
         )
 
-        chat_engine = OpenAIAgent.from_tools(
-            tools=[index_tool, api_tool], #], #
-            # llm=llm,
-            # service_context=service_context,
+        # chat_engine = OpenAIAgent.from_tools(
+        #     tools=[index_tool, api_tool], #], #
+        #     # llm=llm,
+        #     # service_context=service_context,
+        #     memory=no_memory,
+        #     verbose=True,         # optionally see function‐call traces
+        #     fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
+        # )
+
+        chat_engine = index.as_chat_engine(
+            # chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
             memory=no_memory,
-            verbose=True,         # optionally see function‐call traces
-            fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
+            toolkits=[index_tool, api_tool],
+            verbose=True,     # make the live API tool available
         )
 
     else:
