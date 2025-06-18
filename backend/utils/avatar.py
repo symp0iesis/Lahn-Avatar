@@ -20,7 +20,7 @@ from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
 
 from llama_index.llms.azure_openai import AzureOpenAI
-# from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai import OpenAI
 from llama_index.llms.openai_like import OpenAILike
 from llama_index.core.callbacks import CallbackManager
 
@@ -154,15 +154,17 @@ def get_llm(model_name=None, system_prompt=None):
 
     if model_name != None:
 
-        llm = DebugOpenAILike(
-            model=model_name,           # your custom model
-            api_base=API_BASE,                # HRZ endpoint
-            api_key=API_KEY,
-            is_chat_model=True,               # it uses the chat/completions endpoint
-            is_function_calling_model=False,   # enable function/tool calling
-            context_window=8192,              # set your real context size
-            system_prompt=system_prompt,      
-        )
+        # llm = DebugOpenAILike(
+        #     model=model_name,           # your custom model
+        #     api_base=API_BASE,                # HRZ endpoint
+        #     api_key=API_KEY,
+        #     is_chat_model=True,               # it uses the chat/completions endpoint
+        #     is_function_calling_model=False,   # enable function/tool calling
+        #     context_window=8192,              # set your real context size
+        #     system_prompt=system_prompt,      
+        # )
+
+        
         # Instantiate your LLM using the subclass:
         # return HrzOpenAI(
         #     model=model_name,
@@ -175,17 +177,17 @@ def get_llm(model_name=None, system_prompt=None):
         #     deployment_id=model_name,
         # )
 
-        # return OpenAI(
-        #     model=model_name,        # your HRZ model name
-        #     temperature=0.7,
-        #     system_prompt=system_prompt,
+        llm =  OpenAI(
+            model=model_name,        # your HRZ model name
+            temperature=0.7,
+            system_prompt=system_prompt,
 
-        #     # point at your custom endpoint:
-        #     api_key=API_KEY,             # e.g. 'sk-…'
-        #     api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
-        #     api_type="open_ai",          # use the “open_ai” protocol
-        #     api_version=None,            # leave None unless your server needs a version
-        # )
+            # point at your custom endpoint:
+            api_key=API_KEY,             # e.g. 'sk-…'
+            api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+            api_type="open_ai",          # use the “open_ai” protocol
+            api_version=None,            # leave None unless your server needs a version
+        )
 
 
         # GWDGChatLLM(
