@@ -24,7 +24,7 @@ UPLOAD_DIR = "data/uploaded_experiences"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
-llm_choice = None #"mistral-large-instruct" #"hrz-chat-small"
+llm_choice = "gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
 
 llm, system_prompt = get_llm(llm_choice)
 
