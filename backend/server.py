@@ -74,7 +74,7 @@ def prepare_chat_engine(agent=agent, refresh=False):
         )
 
     else:
-        chat_engine = index.as_chat_engine(chat_mode="context") #, memory=no_memory) #, memory=memory)
+        chat_engine = index.as_chat_engine(chat_mode="context", memory=no_memory) #, memory=memory)
 
 
         # chat_engine = index.as_chat_engine(
@@ -142,16 +142,16 @@ def chat():
     # response = chat_engine.chat(messages=chat_history)
 
     else:
-        if agent==True:
-            chat_history = format_history_as_string(conversation)
-        else:
-            # system = [ ChatMessage(role="system", content=system_prompt) ]
-            # chat_history = system + 
+        # if agent==True:
+        chat_history = format_history_as_string(conversation)
+        # else:
+        #     # system = [ ChatMessage(role="system", content=system_prompt) ]
+        #     # chat_history = system + 
 
-            chat_history = [
-                ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
-                for m in conversation
-                ]
+        #     chat_history = [
+        #         ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+        #         for m in conversation
+        #         ]
         
         prompt = chat_history
 
