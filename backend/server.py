@@ -75,7 +75,7 @@ def prepare_chat_engine(agent=agent, refresh=False):
         # )
 
         chat_engine = index.as_chat_engine(
-            # chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
+            chat_mode="context",      
             memory=no_memory,
             toolkits=[index_tool, api_tool],
             # verbose=True,     # make the live API tool available
