@@ -78,7 +78,7 @@ def prepare_chat_engine(agent=agent, refresh=False):
             # chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
             memory=no_memory,
             toolkits=[index_tool, api_tool],
-            verbose=True,     # make the live API tool available
+            # verbose=True,     # make the live API tool available
         )
 
     else:
