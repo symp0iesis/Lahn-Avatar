@@ -73,7 +73,7 @@ def prepare_chat_engine(agent=agent, refresh=False):
         )
 
     else:
-        chat_engine = index.as_chat_engine(chat_mode="context", memory=no_memory) #, memory=memory)
+        chat_engine = index.as_chat_engine() #chat_mode="context", memory=no_memory) #, memory=memory)
 
 
         # chat_engine = index.as_chat_engine(
