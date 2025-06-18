@@ -7,10 +7,9 @@ from datetime import datetime
 from llama_index.core.chat_engine.types import ChatMode
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
-from llama_index.core.tools.query_engine import QueryEngineTool
 # from llama_index.core import Settings
 
-from llama_index.agent.openai import OpenAIAgent
+
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool, NoMemory
@@ -41,6 +40,8 @@ def prepare_chat_engine(agent=agent, refresh=False):
     # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 
     if agent==True:
+        from llama_index.core.tools.query_engine import QueryEngineTool
+        from llama_index.agent.openai import OpenAIAgent
 
         index_query_engine = index.as_query_engine(llm=llm)
 
@@ -73,7 +74,7 @@ def prepare_chat_engine(agent=agent, refresh=False):
         )
 
     else:
-        chat_engine = index.as_chat_engine() #chat_mode="context", memory=no_memory) #, memory=memory)
+        chat_engine = index.as_chat_engine(chat_mode="context") #, memory=no_memory) #, memory=memory)
 
 
         # chat_engine = index.as_chat_engine(
