@@ -116,7 +116,7 @@ class NoMemory(BaseMemory):
         # Async version of put. Do nothing.
         return
 
-    def get(self) -> List[Any]:
+    def get(self, input=None) -> List[Any]:
         # Called when the agent wants to retrieve “relevant” memory.
         # Always return an empty list (no history).
         return []
