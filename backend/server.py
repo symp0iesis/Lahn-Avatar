@@ -112,6 +112,7 @@ def refresh_prompt():
     print('Refresh prompt request received.')
     fetch_system_prompt_from_gdoc()
     llm, system_prompt = get_llm(llm_choice)
+    chat_engine = prepare_chat_engine()
     return 'Done.'
 
 
