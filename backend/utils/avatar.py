@@ -164,7 +164,7 @@ def get_llm(model_name=None, system_prompt=None):
         #     system_prompt=system_prompt,      
         # )
 
-        
+
         # Instantiate your LLM using the subclass:
         # return HrzOpenAI(
         #     model=model_name,
@@ -177,26 +177,27 @@ def get_llm(model_name=None, system_prompt=None):
         #     deployment_id=model_name,
         # )
 
-        llm =  OpenAI(
-            model=model_name,        # your HRZ model name
-            temperature=0.7,
-            system_prompt=system_prompt,
-
-            # point at your custom endpoint:
-            api_key=API_KEY,             # e.g. 'sk-…'
-            api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
-            api_type="open_ai",          # use the “open_ai” protocol
-            api_version=None,            # leave None unless your server needs a version
-        )
-
-
-        # GWDGChatLLM(
-        #     model=model_name,
-        #     api_base=API_BASE,
-        #     api_key=API_KEY,
+        # llm =  OpenAI(
+        #     model=model_name,        # your HRZ model name
         #     temperature=0.7,
-        #     system_prompt=system_prompt
+        #     system_prompt=system_prompt,
+        #     context_window=8192,
+
+        #     # point at your custom endpoint:
+        #     api_key=API_KEY,             # e.g. 'sk-…'
+        #     api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+        #     api_type="open_ai",          # use the “open_ai” protocol
+        #     api_version=None,            # leave None unless your server needs a version
         # )
+
+
+        llm = GWDGChatLLM(
+            model=model_name,
+            api_base=API_BASE,
+            api_key=API_KEY,
+            temperature=0.7,
+            system_prompt=system_prompt
+        )
 
     else:
         llm = AzureOpenAI(
