@@ -108,7 +108,7 @@ print('LLM initialized.')
 
 @app.route("/api/refresh-prompt", methods=["POST"])
 def refresh_prompt():
-    global system_prompt
+    global system_prompt, chat_engine
     print('Refresh prompt request received.')
     fetch_system_prompt_from_gdoc()
     llm, system_prompt = get_llm(llm_choice)
