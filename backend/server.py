@@ -93,7 +93,9 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     toolkits=[api_tool],    # make the live API tool available
         # )
 
-    tools = chat_engine.agent_worker._get_tools()
+    tools = chat_engine.agent_worker._get_tools(None)
+    # or, more semantically, pass in the agent’s state:
+    # tools = chat_engine.agent_worker._get_tools(chat_engine.agent_worker.state)
 
     print("Registered tools:")
     for t in tools:
