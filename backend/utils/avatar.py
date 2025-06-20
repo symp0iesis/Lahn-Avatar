@@ -28,7 +28,7 @@ from llama_index.core.callbacks.llama_debug import LlamaDebugHandler
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-from .gwdg_llm import GWDGChatLLM, GWDGEmbedding, HrzOpenAI
+from .gwdg_llm import GWDGChatLLM, GWDGEmbedding, HrzOpenAI, CustomOpenAILike
 
 
 load_dotenv()
@@ -154,7 +154,7 @@ def get_llm(model_name=None, system_prompt=None):
 
     if model_name != None:
 
-        llm = DebugOpenAILike(
+        llm = CustomOpenAILike(
             model=model_name,           # your custom model
             api_base=API_BASE,                # HRZ endpoint
             api_key=API_KEY,

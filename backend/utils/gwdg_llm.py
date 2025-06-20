@@ -20,7 +20,7 @@ class HrzOpenAI(OpenAI):
     def supports_function_calling_api(self) -> bool:
         # Force‐enable tools/function‐calling for this custom model
         return True
-        
+
     @property
     def metadata(self) -> LLMMetadata:
         # Return a metadata object with your real context window
@@ -30,6 +30,90 @@ class HrzOpenAI(OpenAI):
             num_output=512,         # tokens back
             model_name="hrz-chat-small", #hardcoded ⚠️
         )
+
+
+
+
+import json
+import requests
+from pydantic import Field
+from typing import Any, List
+from llama_index.llms.openai_like import OpenAILike
+from llama_index.core.llms.base import CompletionResponse, CompletionResponseGen, LLMMetadata, llm_chat_callback
+
+class CustomOpenAILike(OpenAILike):
+    """
+    A custom OpenAILike subclass that mirrors your GWDGChatLLM behavior—
+    sending system prompts and messages in a single payload to a non-OpenAI endpoint,
+    with both standard and streaming chat methods.
+    """
+    model: str = Field(default="mistral-large-instruct")
+    api_base: str = Field(default="https://llm.hrz.uni-giessen.de/api")
+    api_key: str = Field(default="")
+    temperature: float = Field(default=0.1)
+    system_prompt: str = Field(default="")
+
+    context_window: int = 16000
+    num_output: int = 512
+
+    @property
+    def metadata(self) -> LLMMetadata:
+        # Report your real context window & output size
+        return LLMMetadata(
+            context_window=self.context_window,
+            num_output=self.num_output,
+            model_name=self.model,
+        )
+
+    @llm_chat_callback()
+    def chat(self, messages: List[dict], **kwargs: Any) -> CompletionResponse:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                *messages
+            ],
+            "temperature": self.temperature,
+        }
+        url = f"{self.api_base}/chat/completions"
+        resp = requests.post(url, headers=headers, json=payload)
+        resp.raise_for_status()
+        data = resp.json()
+        text = data["choices"][0]["message"]["content"]
+        return CompletionResponse(text=text)
+
+    @llm_chat_callback()
+    def stream_chat(self, messages: List[dict], **kwargs: Any) -> CompletionResponseGen:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                *messages
+            ],
+            "temperature": self.temperature,
+            "stream": True,
+        }
+        url = f"{self.api_base}/chat/completions"
+        resp = requests.post(url, headers=headers, json=payload, stream=True)
+        resp.raise_for_status()
+        for line in resp.iter_lines(decode_unicode=True):
+            if not line or not line.startswith("data: "):
+                continue
+            chunk = line.removeprefix("data: ")
+            if chunk.strip() == "[DONE]":
+                break
+            data = json.loads(chunk)
+            delta = data["choices"][0]["delta"].get("content", "")
+            yield CompletionResponse(text=delta, delta=delta)
+
 
 
 class GWDGChatLLM(CustomLLM):
