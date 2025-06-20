@@ -99,7 +99,9 @@ def prepare_chat_engine(agent=True, refresh=False):
 
     print("Registered tools:")
     for t in tools:
-        print(f" • {t.name}: {t.description.splitlines()[0]}…")
+        print("Tool name:       ", t.metadata.name)
+        print("Tool description:", t.metadata.description)
+        print("—" * 40)
 
 
     
