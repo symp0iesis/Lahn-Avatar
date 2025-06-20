@@ -63,6 +63,7 @@ class CustomOpenAILike(OpenAILike):
             context_window=self.context_window,
             num_output=self.num_output,
             model_name="gpt-3.5-turbo",
+            model="gpt-3.5-turbo"
         )
 
     @property
