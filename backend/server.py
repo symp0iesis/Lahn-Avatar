@@ -82,6 +82,7 @@ def prepare_chat_engine(agent=True, refresh=False):
             chat_mode="context",      
             memory=no_memory,
             # toolkits=[index_tool, api_tool],
+            # fallback_to_llm=True,
             verbose=True     
         )
 

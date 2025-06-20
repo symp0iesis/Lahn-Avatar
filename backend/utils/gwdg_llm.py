@@ -167,7 +167,7 @@ class GWDGChatLLM(CustomLLM):
     temperature: float = Field(default=0.1)
     system_prompt: str = Field(default="")
 
-    context_window: int = 8192
+    context_window: int = 128000
     num_output: int = 512
 
     @property
