@@ -116,7 +116,8 @@ class CustomOpenAILike(OpenAILike):
         resp.raise_for_status()
         data = resp.json()
         text = data["choices"][0]["message"]["content"]
-        return ChatResponse(text=text)
+        return {"message": {"role": "assistant", "content": text}}
+        # return ChatResponse(text=text)
 
     @llm_chat_callback()
     def stream_chat(self, messages: List[dict], **kwargs: Any) -> CompletionResponseGen:
