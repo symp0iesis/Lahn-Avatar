@@ -84,15 +84,6 @@ class CustomOpenAILike(OpenAILike):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        # payload = {
-        #     "model": self.model,
-        #     "messages": [
-        #         {"role": "system", "content": self.system_prompt},
-        #         *messages
-        #     ],
-        #     "temperature": self.temperature,
-        # }
-
         # turn each ChatMessage (or dict) into the simple OpenAI dict form
         serialized = []
         for m in messages:
@@ -116,8 +107,9 @@ class CustomOpenAILike(OpenAILike):
         resp.raise_for_status()
         data = resp.json()
         text = data["choices"][0]["message"]["content"]
-        return {"message": {"role": "assistant", "content": text}}
-        # return ChatResponse(text=text)
+        return ChatResponse(
+            message=ChatMessage(role="assistant", content=text)
+        )
 
     @llm_chat_callback()
     def stream_chat(self, messages: List[dict], **kwargs: Any) -> CompletionResponseGen:
