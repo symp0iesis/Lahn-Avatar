@@ -263,8 +263,8 @@ def build_index():
             except Exception as e:
                 print(f"❌ Failed to fetch {url}: {e}")
 
-    scraped_documents_is_empty = not os.listdir(str(Path(DATA_DIR) / "General_News/scraped_texts"))
-    if not scraped_documents_is_empty:
+    scraped_documents_path = Path(DATA_DIR) / "General_News/scraped_texts"
+    if  scraped_documents_path.exists() and len(os.listdir(str(Path(DATA_DIR) / "General_News/scraped_texts")))>0:
         scraped_documents = SimpleDirectoryReader(str(Path(DATA_DIR) / "General_News/scraped_texts")).load_data()
         documents += scraped_documents
 
