@@ -94,6 +94,15 @@ def prepare_chat_engine(agent=True, refresh=False):
         # )
 
     print("Chat engine:", chat_engine)
+    print("Engine attrs:", dir(chat_engine))
+
+    print("  chat_mode:", chat_engine.chat_mode)
+    print("  memory:",    chat_engine.memory)
+    print("  toolkits:",  chat_engine.toolkits)
+
+# 3) Drill into each toolkit
+for tk in chat_engine.toolkits:
+    print(f"    • {tk.name!r}: {tk.description.splitlines()[0]}")
 
     
 
