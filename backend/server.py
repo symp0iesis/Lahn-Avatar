@@ -9,7 +9,8 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 # from llama_index.core import Settings
 from llama_index.core.tools.query_engine import QueryEngineTool
-from llama_index.agent.openai import OpenAIAgent
+# from llama_index.agent.openai import OpenAIAgent
+from llama_index.core.agent import ReActAgent
 from llama_index.core.agent.workflow import FunctionAgent
 
 
@@ -66,7 +67,7 @@ def prepare_chat_engine(agent=True, refresh=False):
             description=LahnSensorsTool.description,
         )
 
-        chat_engine = OpenAIAgent.from_tools(
+        chat_engine = ReActAgent.from_tools(
             tools=[index_tool, api_tool], #], #
             llm=llm,
             # service_context=service_context,
@@ -93,6 +94,8 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     toolkits=[api_tool],    # make the live API tool available
         # )
 
+    print("tools:", [t.metadata.name for t in chat_engine.tools])
+    
     tools = chat_engine.agent_worker._get_tools(None)
     # or, more semantically, pass in the agent’s state:
     # tools = chat_engine.agent_worker._get_tools(chat_engine.agent_worker.state)
