@@ -225,6 +225,10 @@ def create_session_log():
     return open(os.path.join(LOG_DIR, f"session_{timestamp}.txt"), "w")
 
 def build_index():
+    cmd = f"rm -r data/*"
+    subprocess.run(cmd, shell=True)
+    print('Just cleared data/ . Contents: ', os.listdir('data'))
+
 
     print('Refreshing from Google Drive...')
     download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
