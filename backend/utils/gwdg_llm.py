@@ -7,6 +7,7 @@ from llama_index.core.llms import (
     CompletionResponse,
     CompletionResponseGen,
     LLMMetadata,
+    ChatMessage
 )
 
 from llama_index.llms.openai import OpenAI
