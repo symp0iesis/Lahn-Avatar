@@ -62,7 +62,7 @@ class CustomOpenAILike(OpenAILike):
         return LLMMetadata(
             context_window=self.context_window,
             num_output=self.num_output,
-            model_name=self.model,
+            model_name="gpt-3.5-turbo",
         )
 
     @property
