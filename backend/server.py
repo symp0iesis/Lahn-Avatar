@@ -66,21 +66,21 @@ def prepare_chat_engine(agent=True, refresh=False):
             description=LahnSensorsTool.description,
         )
 
-        # chat_engine = OpenAIAgent.from_tools(
-        #     tools=[index_tool, api_tool], #], #
-        #     # llm=llm,
-        #     # service_context=service_context,
-        #     memory=no_memory,
-        #     verbose=True,         # optionally see function‐call traces
-        #     fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
-        # )
-
-        chat_engine = index.as_chat_engine(
-            chat_mode=ChatMode.BEST,      
+        chat_engine = OpenAIAgent.from_tools(
+            tools=[index_tool, api_tool], #], #
+            llm=llm,
+            # service_context=service_context,
             memory=no_memory,
-            toolkits=[index_tool, api_tool],
-            verbose=True     
+            verbose=True,         # optionally see function‐call traces
+            fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
         )
+
+        # chat_engine = index.as_chat_engine(
+        #     chat_mode=ChatMode.BEST,      
+        #     memory=no_memory,
+        #     toolkits=[index_tool, api_tool],
+        #     verbose=True     
+        # )
 
     else:
         print('Agent == False')
