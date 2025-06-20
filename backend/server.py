@@ -72,30 +72,18 @@ def prepare_chat_engine(agent=True, refresh=False):
             llm=llm,
             # service_context=service_context,
             memory=no_memory,
+            max_iterations=3,
             # verbose=True,         # optionally see function‐call traces
             fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
         )
 
-        # chat_engine = index.as_chat_engine(
-        #     chat_mode=ChatMode.BEST,      
-        #     memory=no_memory,
-        #     toolkits=[index_tool, api_tool],
-        #     verbose=True     
-        # )
 
     else:
         print('Agent == False')
         chat_engine = index.as_chat_engine(chat_mode="context", memory=no_memory, verbose=True) #, memory=memory)
 
 
-        # chat_engine = index.as_chat_engine(
-        #     chat_mode=ChatMode.BEST,       # enables automatic tool dispatch
-        #     memory=None,
-        #     toolkits=[api_tool],    # make the live API tool available
-        # )
 
-    # print("tools:", [t.metadata.name for t in chat_engine.tools])
-    
     tools = chat_engine.agent_worker._get_tools(None)
     # or, more semantically, pass in the agent’s state:
     # tools = chat_engine.agent_worker._get_tools(chat_engine.agent_worker.state)
