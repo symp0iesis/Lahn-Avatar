@@ -93,15 +93,11 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     toolkits=[api_tool],    # make the live API tool available
         # )
 
-    import pprint
-    pprint.pprint(vars(chat_engine.agent_worker))
+    tools = chat_engine.agent_worker._get_tools()
 
-    # 2) The tools list should be on the worker—print their names & descriptions
-    print("\nRegistered tools:")
-    for tool in chat_engine.agent_worker.tools:
-        print(f" • {tool.name}: {tool.description.splitlines()[0]}")
-
-    print([attr for attr in dir(chat_engine.agent_worker) if 'tool' in attr.lower()])
+    print("Registered tools:")
+    for t in tools:
+        print(f" • {t.name}: {t.description.splitlines()[0]}…")
 
 
     
