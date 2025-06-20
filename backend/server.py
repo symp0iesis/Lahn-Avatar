@@ -94,7 +94,7 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     toolkits=[api_tool],    # make the live API tool available
         # )
 
-    print("tools:", [t.metadata.name for t in chat_engine.tools])
+    # print("tools:", [t.metadata.name for t in chat_engine.tools])
     
     tools = chat_engine.agent_worker._get_tools(None)
     # or, more semantically, pass in the agent’s state:
