@@ -78,11 +78,11 @@ def prepare_chat_engine(agent=agent, refresh=False):
             chat_mode="context",      
             memory=no_memory,
             toolkits=[index_tool, api_tool],
-            # verbose=True,     # make the live API tool available
+            verbose=True     
         )
 
     else:
-        chat_engine = index.as_chat_engine(chat_mode="context", memory=no_memory) #, memory=memory)
+        chat_engine = index.as_chat_engine(chat_mode="context", memory=no_memory, verbose=True) #, memory=memory)
 
 
         # chat_engine = index.as_chat_engine(
