@@ -264,12 +264,13 @@ def build_index():
                 print(f"❌ Failed to fetch {url}: {e}")
 
     scraped_documents_path = Path(DATA_DIR) / "General_News/scraped_texts"
-    if  scraped_documents_path.exists() and len(os.listdir(str(Path(DATA_DIR) / "General_News/scraped_texts")))>0:
+    if  scraped_documents_path.exists() and len(os.listdir(str(scraped_documents_path)))>0:
         scraped_documents = SimpleDirectoryReader(str(Path(DATA_DIR) / "General_News/scraped_texts")).load_data()
         documents += scraped_documents
 
-    experiences_folder_is_empty = not os.listdir(str(Path(DATA_DIR) / "uploaded_experiences/text"))
-    if not experiences_folder_is_empty:
+    experiences_folder_path = Path(DATA_DIR) / "uploaded_experiences/text"
+    # experiences_folder_is_empty = not os.listdir(str(Path(DATA_DIR) / "uploaded_experiences/text"))
+    if experiences_folder_path.exists() and len(os.listdir(str(experiences_folder_path)))>0:
         user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
         documents += user_experiences
 
