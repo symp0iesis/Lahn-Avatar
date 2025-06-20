@@ -66,6 +66,11 @@ class CustomOpenAILike(OpenAILike):
             model="gpt-3.5-turbo"
         )
 
+    def _get_model_name(self) -> str:
+        # override to match OpenAI model whitelist
+        return self.metadata.model_name
+
+
     @property
     def supports_function_calling_api(self) -> bool:
         # force‐enable the function‐calling machinery
