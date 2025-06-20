@@ -27,6 +27,7 @@ from llama_index.core.callbacks import CallbackManager
 from llama_index.core.callbacks.llama_debug import LlamaDebugHandler
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 
 from .gwdg_llm import GWDGChatLLM, GWDGEmbedding, HrzOpenAI, CustomOpenAILike
 
@@ -235,7 +236,7 @@ def build_index():
     convert_docx_to_txt_and_cleanup(DATA_DIR)
 
     print('Creating Vector store from data sources...')
-    
+
     if len(os.listdir(DATA_DIR))>0:
         documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
 
@@ -285,7 +286,14 @@ def build_index():
 
 
 def build_or_load_index(llm, refresh=False):
-    Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
+    Settings.embed_model = AzureOpenAIEmbedding(
+        model="text-embedding-3-large",
+        deployment_name="text-embedding-3-large",
+        api_key=AZURE_KEY,
+        azure_endpoint=AZURE_BASE,
+        api_version=AZURE_VERSION,
+    )
+    # HuggingFaceEmbedding(model_name="BAAI/bge-m3")
     # GWDGEmbedding(
     #     api_key=API_KEY,
     #     api_base=API_BASE,

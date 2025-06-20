@@ -161,7 +161,7 @@ class CustomOpenAILike(OpenAILike):
 
 
 class GWDGChatLLM(CustomLLM):
-    model: str = Field(default="mistral-large-instruct")
+    model: str = Field(default="gemma-3-27b-it")
     api_base: str = Field(default="https://llm.hrz.uni-giessen.de/api/")
     api_key: str = Field(default="")
     temperature: float = Field(default=0.1)
