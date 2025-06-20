@@ -72,7 +72,7 @@ def prepare_chat_engine(agent=True, refresh=False):
             llm=llm,
             # service_context=service_context,
             memory=no_memory,
-            verbose=True,         # optionally see function‐call traces
+            # verbose=True,         # optionally see function‐call traces
             fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
         )
 
