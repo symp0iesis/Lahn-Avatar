@@ -154,15 +154,15 @@ def get_llm(model_name=None, system_prompt=None):
 
     if model_name != None:
 
-        # llm = DebugOpenAILike(
-        #     model=model_name,           # your custom model
-        #     api_base=API_BASE,                # HRZ endpoint
-        #     api_key=API_KEY,
-        #     is_chat_model=True,               # it uses the chat/completions endpoint
-        #     is_function_calling_model=False,   # enable function/tool calling
-        #     context_window=8192,              # set your real context size
-        #     system_prompt=system_prompt,      
-        # )
+        llm = DebugOpenAILike(
+            model=model_name,           # your custom model
+            api_base=API_BASE,                # HRZ endpoint
+            api_key=API_KEY,
+            is_chat_model=True,               # it uses the chat/completions endpoint
+            is_function_calling_model=True,   # enable function/tool calling
+            context_window=16000,              # set your real context size
+            system_prompt=system_prompt,      
+        )
 
 
         # Instantiate your LLM using the subclass:
@@ -191,13 +191,13 @@ def get_llm(model_name=None, system_prompt=None):
         # )
 
 
-        llm = GWDGChatLLM(
-            model=model_name,
-            api_base=API_BASE,
-            api_key=API_KEY,
-            temperature=0.7,
-            system_prompt=system_prompt
-        )
+        # llm = GWDGChatLLM(
+        #     model=model_name,
+        #     api_base=API_BASE,
+        #     api_key=API_KEY,
+        #     temperature=0.7,
+        #     system_prompt=system_prompt
+        # )
 
     else:
         llm = AzureOpenAI(

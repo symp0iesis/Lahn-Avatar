@@ -9,7 +9,7 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 # from llama_index.core import Settings
 from llama_index.core.tools.query_engine import QueryEngineTool
-# from llama_index.agent.openai import OpenAIAgent
+from llama_index.agent.openai import OpenAIAgent
 from llama_index.core.agent import ReActAgent
 from llama_index.core.agent.workflow import FunctionAgent
 
@@ -67,15 +67,24 @@ def prepare_chat_engine(agent=True, refresh=False):
             description=LahnSensorsTool.description,
         )
 
-        chat_engine = ReActAgent.from_tools(
+        chat_engine = OpenAIAgent.from_tools(
             tools=[index_tool, api_tool], #], #
             llm=llm,
             # service_context=service_context,
             memory=no_memory,
-            max_iterations=3,
-            # verbose=True,         # optionally see function‐call traces
-            fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
+            verbose=True,         # optionally see function‐call traces
+            fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
         )
+
+        # chat_engine = ReActAgent.from_tools(
+        #     tools=[index_tool, api_tool], #], #
+        #     llm=llm,
+        #     # service_context=service_context,
+        #     memory=no_memory,
+        #     # max_iterations=3,
+        #     # verbose=True,         # optionally see function‐call traces
+        #     fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
+        # )
 
 
     else:
