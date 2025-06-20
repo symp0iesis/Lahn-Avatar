@@ -9,7 +9,7 @@ from llama_index.core.llms import (
 
 from llama_index.llms.openai import OpenAI
 
-from llama_index.core.llms.callbacks import llm_completion_callback
+from llama_index.core.llms.callbacks import llm_completion_callback, llm_chat_callback
 from llama_index.core.base.embeddings.base import BaseEmbedding
 import requests, json
 
@@ -39,7 +39,7 @@ import requests
 from pydantic import Field
 from typing import Any, List
 from llama_index.llms.openai_like import OpenAILike
-from llama_index.core.llms.base import CompletionResponse, CompletionResponseGen, LLMMetadata, llm_chat_callback
+# from llama_index.core.llms.base import CompletionResponse, CompletionResponseGen, LLMMetadata, llm_chat_callback
 
 class CustomOpenAILike(OpenAILike):
     """
