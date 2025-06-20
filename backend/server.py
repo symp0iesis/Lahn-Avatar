@@ -9,7 +9,7 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.llms import ChatMessage
 # from llama_index.core import Settings
 from llama_index.core.tools.query_engine import QueryEngineTool
-# from llama_index.agent.openai import OpenAIAgent
+from llama_index.agent.openai import OpenAIAgent
 from llama_index.core.agent.workflow import FunctionAgent
 
 
