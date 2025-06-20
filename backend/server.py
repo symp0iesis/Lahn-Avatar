@@ -74,7 +74,7 @@ def prepare_chat_engine(agent=True, refresh=False):
             memory=no_memory,
             max_iterations=3,
             # verbose=True,         # optionally see function‐call traces
-            fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
+            fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
         )
 
 
