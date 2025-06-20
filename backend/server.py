@@ -102,15 +102,15 @@ def prepare_chat_engine(agent=True, refresh=False):
 
 
 
-    tools = chat_engine.agent_worker._get_tools(None)
+    # tools = chat_engine.agent_worker._get_tools(None)
     # or, more semantically, pass in the agent’s state:
     # tools = chat_engine.agent_worker._get_tools(chat_engine.agent_worker.state)
 
-    print("Registered tools:")
-    for t in tools:
-        print("Tool name:       ", t.metadata.name)
-        print("Tool description:", t.metadata.description)
-        print("—" * 40)
+    # print("Registered tools:")
+    # for t in tools:
+    #     print("Tool name:       ", t.metadata.name)
+    #     print("Tool description:", t.metadata.description)
+    #     print("—" * 40)
 
 
     
