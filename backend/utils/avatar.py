@@ -64,7 +64,7 @@ def fetch_system_prompt_from_gdoc():
     response = requests.get(url)
     response.raise_for_status()
     prompt = response.text.strip()
-    prompt = prompt[:prompt.find('General Internal Impressions')]
+    # prompt = prompt[:prompt.find('General Internal Impressions')]
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, 'system_prompt.txt')
