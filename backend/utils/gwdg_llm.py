@@ -65,6 +65,11 @@ class CustomOpenAILike(OpenAILike):
             model_name=self.model,
         )
 
+    @property
+    def supports_function_calling_api(self) -> bool:
+        # force‐enable the function‐calling machinery
+        return True
+
     @llm_chat_callback()
     def chat(self, messages: List[dict], **kwargs: Any) -> CompletionResponse:
         headers = {
