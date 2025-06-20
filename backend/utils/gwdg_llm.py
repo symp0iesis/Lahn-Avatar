@@ -82,11 +82,30 @@ class CustomOpenAILike(OpenAILike):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+        # payload = {
+        #     "model": self.model,
+        #     "messages": [
+        #         {"role": "system", "content": self.system_prompt},
+        #         *messages
+        #     ],
+        #     "temperature": self.temperature,
+        # }
+
+        # turn each ChatMessage (or dict) into the simple OpenAI dict form
+        serialized = []
+        for m in messages:
+            if hasattr(m, "role") and hasattr(m, "content"):
+                # ChatMessage-like object
+                serialized.append({"role": m.role, "content": m.content})
+            else:
+                # assume it’s already a dict
+                serialized.append(m)
+
         payload = {
             "model": self.model,
             "messages": [
                 {"role": "system", "content": self.system_prompt},
-                *messages
+                *serialized
             ],
             "temperature": self.temperature,
         }
@@ -103,15 +122,33 @@ class CustomOpenAILike(OpenAILike):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+        # payload = {
+        #     "model": self.model,
+        #     "messages": [
+        #         {"role": "system", "content": self.system_prompt},
+        #         *messages
+        #     ],
+        #     "temperature": self.temperature,
+        #     "stream": True,
+        # }
+
+        serialized = []
+        for m in messages:
+            if hasattr(m, "role") and hasattr(m, "content"):
+                serialized.append({"role": m.role, "content": m.content})
+            else:
+                serialized.append(m)
+
         payload = {
             "model": self.model,
             "messages": [
                 {"role": "system", "content": self.system_prompt},
-                *messages
+                *serialized
             ],
             "temperature": self.temperature,
             "stream": True,
         }
+        
         url = f"{self.api_base}/chat/completions"
         resp = requests.post(url, headers=headers, json=payload, stream=True)
         resp.raise_for_status()
