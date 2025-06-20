@@ -63,18 +63,18 @@ class CustomOpenAILike(OpenAILike):
             context_window=self.context_window,
             num_output=self.num_output,
             model_name="gpt-3.5-turbo",
-            model="gpt-3.5-turbo"
+            is_function_calling_model=True
         )
 
-    def _get_model_name(self) -> str:
-        # override to match OpenAI model whitelist
-        return self.metadata.model_name
+    # def _get_model_name(self) -> str:
+    #     # override to match OpenAI model whitelist
+    #     return self.metadata.model_name
 
 
-    @property
-    def supports_function_calling_api(self) -> bool:
-        # force‐enable the function‐calling machinery
-        return True
+    # @property
+    # def supports_function_calling_api(self) -> bool:
+    #     # force‐enable the function‐calling machinery
+    #     return True
 
     @llm_chat_callback()
     def chat(self, messages: List[dict], **kwargs: Any) -> CompletionResponse:
