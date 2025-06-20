@@ -30,9 +30,9 @@ llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-larg
 
 llm, system_prompt = get_llm(llm_choice)
 
-agent=True
+# agent=True
 
-def prepare_chat_engine(agent=agent, refresh=False):
+def prepare_chat_engine(agent=True, refresh=False):
     if refresh==True:
         index = build_index()
     else:
@@ -43,6 +43,7 @@ def prepare_chat_engine(agent=agent, refresh=False):
     # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
 
     if agent==True:
+        print('Agent == True')
 
         index_query_engine = index.as_query_engine(llm=llm)
 
@@ -82,6 +83,7 @@ def prepare_chat_engine(agent=agent, refresh=False):
         )
 
     else:
+        print('Agent == False')
         chat_engine = index.as_chat_engine(chat_mode="context", memory=no_memory, verbose=True) #, memory=memory)
 
 
@@ -91,7 +93,7 @@ def prepare_chat_engine(agent=agent, refresh=False):
         #     toolkits=[api_tool],    # make the live API tool available
         # )
 
-        # 4) Finally, build your chat engine in tool mode
+    print("Chat engine:", chat_engine)
 
     
 
