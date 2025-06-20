@@ -2,6 +2,8 @@ from typing import Any, Generator, List
 from pydantic import Field
 from llama_index.core.llms import (
     CustomLLM,
+    ChatResponse, 
+    ChatResponseGen,
     CompletionResponse,
     CompletionResponseGen,
     LLMMetadata,
@@ -114,7 +116,7 @@ class CustomOpenAILike(OpenAILike):
         resp.raise_for_status()
         data = resp.json()
         text = data["choices"][0]["message"]["content"]
-        return CompletionResponse(text=text)
+        return ChatResponse(text=text)
 
     @llm_chat_callback()
     def stream_chat(self, messages: List[dict], **kwargs: Any) -> CompletionResponseGen:
@@ -148,7 +150,7 @@ class CustomOpenAILike(OpenAILike):
             "temperature": self.temperature,
             "stream": True,
         }
-        
+
         url = f"{self.api_base}/chat/completions"
         resp = requests.post(url, headers=headers, json=payload, stream=True)
         resp.raise_for_status()
@@ -160,7 +162,7 @@ class CustomOpenAILike(OpenAILike):
                 break
             data = json.loads(chunk)
             delta = data["choices"][0]["delta"].get("content", "")
-            yield CompletionResponse(text=delta, delta=delta)
+            yield ChatResponse(text=delta, delta=delta)
 
 
 
