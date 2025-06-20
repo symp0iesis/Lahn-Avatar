@@ -94,28 +94,15 @@ def prepare_chat_engine(agent=True, refresh=False):
         # )
 
     import pprint
-    pprint.pprint(chat_engine.__dict__)
+    pprint.pprint(vars(chat_engine.agent_worker))
 
-    # 2) registered tools:
+    # 2) The tools list should be on the worker—print their names & descriptions
     print("\nRegistered tools:")
-    for tool in chat_engine._agent.tools:
-        print(f" - {tool.name}: {tool.description.splitlines()[0]}")
+    for tool in chat_engine.agent_worker.tools:
+        print(f" • {tool.name}: {tool.description.splitlines()[0]}")
 
+    print([attr for attr in dir(chat_engine.agent_worker) if 'tool' in attr.lower()])
 
-    print("Chat engine:", chat_engine)
-    print("Engine attrs:", dir(chat_engine))
-
-    print("\n_llm:",           chat_engine._llm)
-    print("_memory:",        chat_engine._memory)
-    print("_retriever:",     chat_engine._retriever)
-
-    # 3) Check your toolkits
-    print("\n_toolkits:",     getattr(chat_engine, "_toolkits", None))
-
-    # 4) If you want to see just their names & descriptions:
-    print("\nRegistered tools:")
-    for tk in getattr(chat_engine, "_toolkits", []):
-        print(f" • {tk.name}: {tk.description.splitlines()[0]}")
 
     
 
