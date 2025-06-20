@@ -96,12 +96,17 @@ def prepare_chat_engine(agent=True, refresh=False):
     print("Chat engine:", chat_engine)
     print("Engine attrs:", dir(chat_engine))
 
-    # print("  chat_mode:", chat_engine.chat_mode)
-    print("  memory:",    chat_engine.memory)
-    print("  toolkits:",  chat_engine.toolkits)
+    print("\n_llm:",           chat_engine._llm)
+    print("_memory:",        chat_engine._memory)
+    print("_retriever:",     chat_engine._retriever)
 
-    for tk in chat_engine.toolkits:
-        print(f"    • {tk.name!r}: {tk.description.splitlines()[0]}")
+    # 3) Check your toolkits
+    print("\n_toolkits:",     getattr(chat_engine, "_toolkits", None))
+
+    # 4) If you want to see just their names & descriptions:
+    print("\nRegistered tools:")
+    for tk in getattr(chat_engine, "_toolkits", []):
+        print(f" • {tk.name}: {tk.description.splitlines()[0]}")
 
     
 
