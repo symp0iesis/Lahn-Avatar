@@ -235,7 +235,9 @@ def build_index():
     convert_docx_to_txt_and_cleanup(DATA_DIR)
 
     print('Creating Vector store from data sources...')
-    documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
+    
+    if len(os.listdir(DATA_DIR))>0:
+        documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
 
     links_path = Path(DATA_DIR) / "General_News/Online News (Links).txt"
     if links_path.exists():
@@ -283,7 +285,7 @@ def build_index():
 
 
 def build_or_load_index(llm, refresh=False):
-    Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+    Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
     # GWDGEmbedding(
     #     api_key=API_KEY,
     #     api_base=API_BASE,
