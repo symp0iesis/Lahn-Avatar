@@ -76,7 +76,7 @@ def prepare_chat_engine(agent=True, refresh=False):
         # )
 
         chat_engine = index.as_chat_engine(
-            chat_mode="context",      
+            chat_mode=ChatMode.BEST,      
             memory=no_memory,
             toolkits=[index_tool, api_tool],
             verbose=True     
@@ -92,6 +92,15 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     memory=None,
         #     toolkits=[api_tool],    # make the live API tool available
         # )
+
+    import pprint
+    pprint.pprint(chat_engine.__dict__)
+
+    # 2) registered tools:
+    print("\nRegistered tools:")
+    for tool in chat_engine._agent.tools:
+        print(f" - {tool.name}: {tool.description.splitlines()[0]}")
+
 
     print("Chat engine:", chat_engine)
     print("Engine attrs:", dir(chat_engine))
