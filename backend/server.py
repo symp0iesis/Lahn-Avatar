@@ -31,6 +31,8 @@ llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-larg
 
 llm, system_prompt = get_llm(llm_choice)
 
+print('LLM metadata model name: ', llm.metadata.model_name)
+
 # agent=True
 
 def prepare_chat_engine(agent=True, refresh=False):
