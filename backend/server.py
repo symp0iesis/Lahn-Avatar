@@ -112,7 +112,6 @@ def prepare_chat_engine(agent=True, refresh=False):
     #     print("Tool description:", t.metadata.description)
     #     print("—" * 40)
 
-
     
 
     return chat_engine
