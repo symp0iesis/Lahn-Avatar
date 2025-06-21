@@ -42,7 +42,6 @@ import requests
 from pydantic import Field
 from typing import Any, List
 from llama_index.llms.openai_like import OpenAILike
-from llama_index.core.llms.base import ToolCall #CompletionResponse, CompletionResponseGen, LLMMetadata, llm_chat_callback
 
 class CustomOpenAILike(OpenAILike):
     """
