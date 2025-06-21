@@ -137,10 +137,10 @@ def get_llm(model_name=None, system_prompt=None):
 
 
         llm =  OpenAI(
-            model=model_name,        # your HRZ model name
-            temperature=0.5,
-            system_prompt=system_prompt,
-            context_window=128000,
+            # model=model_name,        # your HRZ model name
+            # temperature=0.5,
+            # system_prompt=system_prompt,
+            # context_window=128000,
 
             # point at your custom endpoint:
             api_key=API_KEY,             # e.g. 'sk-…'

@@ -77,7 +77,7 @@ def refresh_embeddings():
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    global llm_choice
+    global llm_choice, system_prompt
     print('Chat request received.')
     data = request.get_json()
     prompt = data.get("prompt", "")
@@ -101,11 +101,14 @@ def chat():
             ]
         chat_history += {'role':'user', 'content':prompt}
 
+    chat_history = [{'role':'system', 'content':system_prompt}] + chat_history
+
 
 
     chat_completion = client.chat.completions.create(
           messages=chat_history,
           model= llm_choice,
+          temperature=0.5
       )
 
 
