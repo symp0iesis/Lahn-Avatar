@@ -116,7 +116,7 @@ def prepare_chat_engine(agent=True, refresh=False):
 
         # memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
-        agent = initialize_agent(
+        chat_engine = initialize_agent(
             tools=tools,
             llm=llm,
             agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
