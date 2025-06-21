@@ -21,11 +21,13 @@ from llama_index.readers.web import SimpleWebPageReader
 
 
 from openai import OpenAI
-from llama_index.llms.openai import OpenAI as LlamaindexOpenAI
+# from llama_index.llms.openai import OpenAI as LlamaindexOpenAI
 
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 # from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+
+from gwdg_llm import GWDGChatLLM
 
 
 load_dotenv()
@@ -127,7 +129,7 @@ def select_model():
     return "llama-3.1-sauerkrautlm-70b-instruct" if choice == "2" else "mistral-large-instruct"
 
 
-def get_llm(model_name=None, system_prompt=None):
+def get_llm(mode='openai',model_name=None, system_prompt=None):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, 'system_prompt.txt')
     if system_prompt == None:
@@ -136,53 +138,37 @@ def get_llm(model_name=None, system_prompt=None):
     # system_prompt += '\n You MUST ALWAYS call a function to answer any question. DO NOT respond directly. You have no knowledge or memory outside what you retrieve using the provided tools.\n'
 
     # if model_name != None:
+    if mode == 'openai':
 
-
-    llm =  OpenAI(
-        # model=model_name,        # your HRZ model name
-        # temperature=0.5,
-        # system_prompt=system_prompt,
-        # context_window=128000,
-
-        # point at your custom endpoint:
-        api_key=API_KEY,             # e.g. 'sk-…'
-        base_url=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
-        # api_type="open_ai",          # use the “open_ai” protocol
-        # api_version=None,            # leave None unless your server needs a version
-    )
-
-
-    # else:
-    #     llm = AzureOpenAI(
-    #         model="gpt-4o",
-    #         engine="gpt-4o",
-    #         deployment_name="gpt-4o",
-    #         api_version=AZURE_VERSION,  
-    #         api_key= AZURE_KEY, 
-    #         azure_endpoint= AZURE_BASE,
-    #         system_prompt=system_prompt,
-    #         callback_manager=callback_manager,
-    #         verbose=True
-    #     )
-
-    llamaindex_llm =  LlamaindexOpenAI(
-            model=model_name,        # your HRZ model name
-            temperature=0.5,
-            system_prompt=system_prompt,
-            context_window=128000,
+        llm =  OpenAI(
+            # model=model_name,        # your HRZ model name
+            # temperature=0.5,
+            # system_prompt=system_prompt,
+            # context_window=128000,
 
             # point at your custom endpoint:
             api_key=API_KEY,             # e.g. 'sk-…'
-            api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+            base_url=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
             # api_type="open_ai",          # use the “open_ai” protocol
             # api_version=None,            # leave None unless your server needs a version
         )
+
+
+    else:
+
+        llm = GWDGChatLLM(
+                model=model_name,
+                api_base=API_BASE,
+                api_key=API_KEY,
+                temperature=0.5,
+                system_prompt=system_prompt
+            )
 
     # print('LLM details: ', llm.model_dump())
 
     # Settings.llm = llm
 
-    return llm, llamaindex_llm, system_prompt
+    return llm, system_prompt
 
 
 def create_session_log():

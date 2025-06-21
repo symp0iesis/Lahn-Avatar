@@ -22,7 +22,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # === Load LLM once at startup ===
 llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
 
-llm, llamaindex_llm, system_prompt = get_llm(llm_choice)
+llm, system_prompt = get_llm('openai', llm_choice)
 
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
@@ -43,6 +43,8 @@ def prepare_query_engine(refresh=False):
     else:
         index = build_or_load_index()
 
+    query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
+
     index_query_engine = index.as_query_engine(llm=llamaindex_llm,similarity_top_k=10)
 
     return index_query_engine
@@ -50,7 +52,7 @@ def prepare_query_engine(refresh=False):
 
 query_engine = prepare_query_engine()
 
-debate_summary_llm, _ , _= get_llm("mistral-large-instruct", system_prompt= '')
+debate_summary_llm, _= get_llm('gwdg', "mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
 
 
@@ -58,10 +60,10 @@ print('LLM initialized.')
 
 @app.route("/api/refresh-prompt", methods=["POST"])
 def refresh_prompt():
-    global system_prompt, llm, llamaindex_llm
+    global system_prompt, llm
     print('Refresh prompt request received.')
     fetch_system_prompt_from_gdoc()
-    llm, llamaindex_llm, system_prompt = get_llm(llm_choice)
+    llm,  system_prompt = get_llm('openai', llm_choice)
     return 'Done.'
 
 
