@@ -130,7 +130,7 @@ def chat():
         response = response[response.find('user_query="')+12:]
         query = response[:response.find('")')]
         print('Query: ', query)
-        analysis = api_tool(query)
+        analysis = api_tool(query).response
         print('Analysis: ', analysis)
         results += '\nHere is the output of analyze_sensor_data(): '+analysis
 
@@ -139,7 +139,7 @@ def chat():
         response = response[response.find('user_query="')+12:]
         query = response[:response.find('")')]
         print('Query: ', query)
-        context = query_engine.query(query)
+        context = query_engine.query(query).response
         print('Context: ', context)
         results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
