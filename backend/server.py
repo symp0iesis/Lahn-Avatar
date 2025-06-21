@@ -105,6 +105,7 @@ def chat():
     print('Chat history: ', chat_history)
     # print('To append: ', {'role':'user', 'content':prompt})
     # chat_history.append({'role':'user', 'content':prompt})
+    chat_history.insert(0, {'role':'user', 'content':'Hallo'})
     chat_history.insert(0, {'role':'system', 'content':system_prompt})
 
     # print('After adding system and user prompts: ', chat_history)
