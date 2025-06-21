@@ -130,7 +130,7 @@ def chat():
         response = response[response.find('user_query="')+12:]
         query = response[:response.find('")')]
         print('Query: ', query)
-        analysis = api_tool(query).response
+        analysis = str(api_tool(query))
         print('Analysis: ', analysis)
         results += '\nHere is the output of analyze_sensor_data(): '+analysis
 
