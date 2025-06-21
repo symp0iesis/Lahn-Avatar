@@ -70,14 +70,14 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     description=LahnSensorsTool.description,
         # )
 
-        # chat_engine = OpenAIAgent.from_tools(
-        #     tools=[index_tool, api_tool], #], #
-        #     llm=llm,
-        #     # service_context=service_context,
-        #     memory=no_memory,
-        #     verbose=True,         # optionally see function‐call traces
-        #     fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
-        # )
+        chat_engine = OpenAIAgent.from_tools(
+            tools=[index_tool, api_tool], #], #
+            llm=llm,
+            # service_context=service_context,
+            memory=no_memory,
+            verbose=True,         # optionally see function‐call traces
+            fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
+        )
 
         # chat_engine = AgentRunner.from_llm(
         #     tools=[index_tool, api_tool],    # <-- here’s where you pass your full list
@@ -86,14 +86,14 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     verbose=True,
         # )
 
-        chat_engine = index.as_chat_engine(
-            chat_mode="best",      
-            memory=no_memory,
-            similarity_top_k=11,
-            # toolkits=[index_tool, api_tool],
-            # fallback_to_llm=True,
-            verbose=True     
-        )
+        # chat_engine = index.as_chat_engine(
+        #     chat_mode="best",      
+        #     memory=no_memory,
+        #     similarity_top_k=11,
+        #     # toolkits=[index_tool, api_tool],
+        #     # fallback_to_llm=True,
+        #     verbose=True     
+        # )
 
         # chat_engine = ReActAgent.from_tools(
         #     tools=[index_tool, api_tool], #], #
