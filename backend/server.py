@@ -105,6 +105,8 @@ def chat():
 
     chat_history = [{'role':'system', 'content':system_prompt}] + chat_history
 
+    print('Chat history: ', chat_history)
+
 
 
     chat_completion = llm.chat.completions.create(
