@@ -87,10 +87,7 @@ def chat():
 
     if prompt == "__INIT__":
         prompt = "Hallo"
-        chat_history=[{'role':'user', 'content':prompt}]
-
-    elif len(conversation) == 0:
-        pass
+        # chat_history=[{'role':'user', 'content':prompt}]
 
     elif not prompt: #Needed?
         return jsonify({"reply": "Please say something."}), 400
