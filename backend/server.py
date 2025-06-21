@@ -48,26 +48,26 @@ def prepare_chat_engine(agent=True, refresh=False):
     if agent==True:
         print('Agent == True')
 
-        # index_query_engine = index.as_query_engine(llm=llm,similarity_top_k=6,)
+        index_query_engine = index.as_query_engine(llm=llm,similarity_top_k=6,)
 
         # Wrap that query engine in a QueryEngineTool:
-        # index_tool = QueryEngineTool.from_defaults(
-        #     query_engine=index_query_engine,
-        #     name="general_index",  
-        #     description=(
-        #         "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
-        #         "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
-        #         "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
-        #         "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
-        #     ),
-        # )
+        index_tool = QueryEngineTool.from_defaults(
+            query_engine=index_query_engine,
+            name="general_index",  
+            description=(
+                "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
+                "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
+                "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
+                "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
+            ),
+        )
 
 
-        # api_tool = QueryEngineTool.from_defaults(
-        #     query_engine=LahnSensorsTool(llm),
-        #     name=LahnSensorsTool.name,
-        #     description=LahnSensorsTool.description,
-        # )
+        api_tool = QueryEngineTool.from_defaults(
+            query_engine=LahnSensorsTool(llm),
+            name=LahnSensorsTool.name,
+            description=LahnSensorsTool.description,
+        )
 
         # chat_engine = OpenAIAgent.from_tools(
         #     tools=[index_tool, api_tool], #], #
@@ -78,24 +78,24 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
         # )
 
-        chat_engine = index.as_chat_engine(
-            chat_mode="context",      
-            memory=no_memory,
-            similarity_top_k=6,
-            # toolkits=[index_tool, api_tool],
-            # fallback_to_llm=True,
-            verbose=True     
-        )
-
-        # chat_engine = ReActAgent.from_tools(
-        #     tools=[index_tool, api_tool], #], #
-        #     llm=llm,
-        #     # service_context=service_context,
+        # chat_engine = index.as_chat_engine(
+        #     chat_mode="context",      
         #     memory=no_memory,
-        #     # max_iterations=3,
-        #     # verbose=True,         # optionally see function‐call traces
-        #     fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
+        #     similarity_top_k=6,
+        #     # toolkits=[index_tool, api_tool],
+        #     # fallback_to_llm=True,
+        #     verbose=True     
         # )
+
+        chat_engine = ReActAgent.from_tools(
+            tools=[index_tool, api_tool], #], #
+            llm=llm,
+            # service_context=service_context,
+            memory=no_memory,
+            # max_iterations=3,
+            # verbose=True,         # optionally see function‐call traces
+            fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
+        )
 
 
     else:
