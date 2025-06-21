@@ -21,7 +21,7 @@ from llama_index.readers.web import SimpleWebPageReader
 
 
 from openai import OpenAI
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai import LlamaindexOpenAI
 
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
@@ -135,37 +135,37 @@ def get_llm(model_name=None, system_prompt=None):
 
     # system_prompt += '\n You MUST ALWAYS call a function to answer any question. DO NOT respond directly. You have no knowledge or memory outside what you retrieve using the provided tools.\n'
 
-    if model_name != None:
+    # if model_name != None:
 
 
-        llm =  OpenAI(
-            # model=model_name,        # your HRZ model name
-            # temperature=0.5,
-            # system_prompt=system_prompt,
-            # context_window=128000,
+    llm =  OpenAI(
+        # model=model_name,        # your HRZ model name
+        # temperature=0.5,
+        # system_prompt=system_prompt,
+        # context_window=128000,
 
-            # point at your custom endpoint:
-            api_key=API_KEY,             # e.g. 'sk-…'
-            base_url=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
-            # api_type="open_ai",          # use the “open_ai” protocol
-            # api_version=None,            # leave None unless your server needs a version
-        )
+        # point at your custom endpoint:
+        api_key=API_KEY,             # e.g. 'sk-…'
+        base_url=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+        # api_type="open_ai",          # use the “open_ai” protocol
+        # api_version=None,            # leave None unless your server needs a version
+    )
 
 
-    else:
-        llm = AzureOpenAI(
-            model="gpt-4o",
-            engine="gpt-4o",
-            deployment_name="gpt-4o",
-            api_version=AZURE_VERSION,  
-            api_key= AZURE_KEY, 
-            azure_endpoint= AZURE_BASE,
-            system_prompt=system_prompt,
-            callback_manager=callback_manager,
-            verbose=True
-        )
+    # else:
+    #     llm = AzureOpenAI(
+    #         model="gpt-4o",
+    #         engine="gpt-4o",
+    #         deployment_name="gpt-4o",
+    #         api_version=AZURE_VERSION,  
+    #         api_key= AZURE_KEY, 
+    #         azure_endpoint= AZURE_BASE,
+    #         system_prompt=system_prompt,
+    #         callback_manager=callback_manager,
+    #         verbose=True
+    #     )
 
-    llamaindex_llm =  OpenAI(
+    llamaindex_llm =  LlamaindexOpenAI(
             model=model_name,        # your HRZ model name
             temperature=0.5,
             system_prompt=system_prompt,

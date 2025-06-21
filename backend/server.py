@@ -37,13 +37,13 @@ api_tool = QueryEngineTool.from_defaults(
 
 
 def prepare_query_engine(refresh=False):
-    global llm
+    global llamaindex_llm
     if refresh==True:
         index = build_index()
     else:
         index = build_or_load_index()
 
-    index_query_engine = index.as_query_engine(llm=llm,similarity_top_k=10)
+    index_query_engine = index.as_query_engine(llm=llamaindex_llm,similarity_top_k=10)
 
     return index_query_engine
 
@@ -77,7 +77,7 @@ def refresh_embeddings():
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    global llm_choice, system_prompt
+    global llm, llm_choice, system_prompt
     print('Chat request received.')
     data = request.get_json()
     prompt = data.get("prompt", "")
