@@ -119,11 +119,40 @@ def chat():
       )
 
 
-    print('User message:', prompt)
+    print('\nUser message:', prompt)
     response = chat_completion.choices[0].message.content
     print('Response: ', response)
 
     results = ''
+
+    # if 'get_relevant_Lahn_context' in response:
+        print('Obtaining information for the LLM...')
+        # response = response[response.find('user_query="')+12:]
+        query = prompt #response[:response.find('")')]
+        # print('Query: ', query)
+        context = query_engine.query(query).response
+        print('Context: ', context)
+        # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
+
+        chat_completion = llm.chat.completions.create(
+              messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call get_relevant_Lahn_context() if environmental data readings are relevant to the user\'s query.'}],
+              model= llm_choice,
+          )
+
+        response = chat_completion.choices[0].message.content
+
+
+
+    # if 'get_relevant_Lahn_context' in response:
+    #     print('Fetching relevant Lahn context...')
+    #     response = response[response.find('user_query="')+12:]
+    #     query = response[:response.find('")')]
+    #     print('Query: ', query)
+    #     context = query_engine.query(query).response
+    #     print('Context: ', context)
+    #     results += '\nHere is the output of get_relevant_Lahn_context(): '+context
+
+
 
     if 'analyze_sensor_data' in response:
         print('Analyzing sensor data...')
@@ -133,15 +162,6 @@ def chat():
         analysis = str(api_tool(query))
         print('Analysis: ', analysis)
         results += '\nHere is the output of analyze_sensor_data(): '+analysis
-
-    if 'get_relevant_Lahn_context' in response:
-        print('Fetching relevant Lahn context...')
-        response = response[response.find('user_query="')+12:]
-        query = response[:response.find('")')]
-        print('Query: ', query)
-        context = query_engine.query(query).response
-        print('Context: ', context)
-        results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
     if len(results)>0:
         chat_completion = llm.chat.completions.create(
