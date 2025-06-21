@@ -103,12 +103,12 @@ def chat():
     chat_history.insert(0, {'role':'user', 'content':'Hallo'})
     chat_history.insert(0, {'role':'system', 'content':system_prompt})
 
-    print('Chat history: ', chat_history)
+    # print('Chat history: ', chat_history)
 
     # print('After adding system and user prompts: ', chat_history)
 
-    print('Chat history: ', chat_history)
-    print('model: ', llm_choice)
+    # print('Chat history: ', chat_history)
+    # print('model: ', llm_choice)
 
 
 
