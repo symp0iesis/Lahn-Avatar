@@ -84,6 +84,7 @@ def chat():
     data = request.get_json()
     prompt = data.get("prompt", "")
     conversation = data.get("history", "")
+    chat_history = []
 
     if prompt == "__INIT__":
         prompt = "Hallo"
@@ -99,11 +100,10 @@ def chat():
             for m in conversation
             ]
 
-    print('Chat history: ', chat_history)
-    # print('To append: ', {'role':'user', 'content':prompt})
-    # chat_history.append({'role':'user', 'content':prompt})
     chat_history.insert(0, {'role':'user', 'content':'Hallo'})
     chat_history.insert(0, {'role':'system', 'content':system_prompt})
+
+    print('Chat history: ', chat_history)
 
     # print('After adding system and user prompts: ', chat_history)
 
