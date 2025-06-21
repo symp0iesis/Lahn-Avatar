@@ -105,7 +105,7 @@ class CustomOpenAILike(OpenAILike):
         }
 
         print('Payload: ', payload)
-        
+
         url = f"{self.api_base}/chat/completions"
         resp = requests.post(url, headers=headers, json=payload)
         resp.raise_for_status()
@@ -531,7 +531,7 @@ class LangChainGWDGLLM(BaseChatModel):
 
     def _generate(self, messages: List, stop=None, run_manager=None, **kwargs) -> ChatResult:
         prompt = self._combine_messages(messages)
-        response = self.gwdg_llm.complete(prompt)
+        response = self.gwdg_llm.chat(prompt)
         return ChatResult(
             generations=[ChatGeneration(message=AIMessage(content=response.text))]
         )
