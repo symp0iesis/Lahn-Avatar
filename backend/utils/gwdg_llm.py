@@ -103,6 +103,9 @@ class CustomOpenAILike(OpenAILike):
             ],
             "temperature": self.temperature,
         }
+
+        print('Payload: ', payload)
+        
         url = f"{self.api_base}/chat/completions"
         resp = requests.post(url, headers=headers, json=payload)
         resp.raise_for_status()
