@@ -102,9 +102,12 @@ def chat():
             for m in conversation
             ]
 
-    chat_history += {'role':'user', 'content':prompt}
+    print('Chat history: ', chat_history)
+    print('To append: ', {'role':'user', 'content':prompt})
+    chat_history.append({'role':'user', 'content':prompt})
+    chat_history.insert(0, {'role':'system', 'content':system_prompt})
 
-    chat_history = [{'role':'system', 'content':system_prompt}] + chat_history
+    print('After adding system and user prompts: ', chat_history)
 
     print('Chat history: ', chat_history)
     print('model: ', llm_choice)
