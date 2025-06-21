@@ -501,6 +501,39 @@ class GWDGChatLLM(CustomLLM):
         yield CompletionResponse(text=full_response.text, delta=full_response.text)
 
 
+
+from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.outputs import ChatResult, ChatGeneration
+from typing import List
+from your_module import GWDGChatLLM  # wherever your wrapper is
+
+class LangChainGWDGLLM(BaseChatModel):
+    def __init__(self, gwdg_llm: GWDGChatLLM):
+        self.gwdg_llm = gwdg_llm
+
+    @property
+    def _llm_type(self) -> str:
+        return "gwdg-chat-model"
+
+    def _combine_messages(self, messages: List) -> str:
+        # Combine user + system messages into a single user prompt string
+        combined = []
+        for m in messages:
+            if isinstance(m, SystemMessage):
+                self.gwdg_llm.system_prompt = m.content
+            elif isinstance(m, HumanMessage):
+                combined.append(m.content)
+        return "\n".join(combined)
+
+    def _generate(self, messages: List, stop=None, run_manager=None, **kwargs) -> ChatResult:
+        prompt = self._combine_messages(messages)
+        response = self.gwdg_llm.complete(prompt)
+        return ChatResult(
+            generations=[ChatGeneration(message=AIMessage(content=response.text))]
+        )
+
+
 class GWDGEmbedding(BaseEmbedding):
 
     api_key: str = Field(...)
