@@ -40,15 +40,15 @@ print('LLM metadata model name: ', llm.metadata.model_name)
 # agent=True
 
 
-# from langchain.agents import Tool as LangChainTool
+from langchain.agents import Tool as LangChainTool
 
-# def llamaindex_tool_to_langchain(tool):
-#     return LangChainTool(
-#         name=tool.metadata.name,
-#         description=tool.metadata.description,
-#         func=lambda q: str(tool.query_engine.query(q)),
-#         return_direct=False,
-#     )
+def llamaindex_tool_to_langchain(tool):
+    return LangChainTool(
+        name=tool.metadata.name,
+        description=tool.metadata.description,
+        func=lambda q: str(tool.query_engine.query(q)),
+        return_direct=False,
+    )
 
 
 import openai
