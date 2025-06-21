@@ -234,22 +234,22 @@ def chat():
 
     else:
         # if agent==True:
-        chat_history = format_history_as_string(conversation)
+        # chat_history = format_history_as_string(conversation)
         # else:
         #     # system = [ ChatMessage(role="system", content=system_prompt) ]
         #     # chat_history = system + 
 
-        #     chat_history = [
-        #         ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
-        #         for m in conversation
-        #         ]
+            chat_history = [
+                ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+                for m in conversation
+                ]
         
         prompt = chat_history
 
 
     print('User message:', prompt)
     # response = chat_engine.chat(prompt)
-    response = chat_engine.run(prompt)
+    response = chat_engine.invoke({'input':prompt, 'chat_history': chat_history})
     print('Avatar response:', response.response)
 
     return jsonify({"reply": response.response})
