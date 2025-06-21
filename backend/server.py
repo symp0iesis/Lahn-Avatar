@@ -249,7 +249,7 @@ def chat():
 
         dict_history = [
             {"role": msg.role.value, "content": msg.content}
-            for msg in llama_chat_history  # LlamaIndex ChatMessages
+            for msg in chat_history  # LlamaIndex ChatMessages
         ]
 
         chat_history = convert_to_messages(dict_history)
