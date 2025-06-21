@@ -133,6 +133,10 @@ def prepare_chat_engine(agent=True, refresh=False):
             temperature=0.5,
         )
 
+        from langchain.agents import create_openai_functions_agent, AgentExecutor
+        from langchain.prompts.chat import ChatPromptTemplate
+        from langchain.chains import LLMChain
+
         llm_chain = LLMChain(llm=chat_model, prompt=prompt)
 
         agent = create_openai_functions_agent(llm=chat_model, tools=tools, prompt=prompt)
