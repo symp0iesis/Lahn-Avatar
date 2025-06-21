@@ -16,7 +16,7 @@ from llama_index.core.agent.workflow import FunctionAgent
 
 from llama_index.core.agent import FunctionCallingAgent
 
-
+from langchain_core.messages.utils import convert_to_messages
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool, NoMemory
@@ -96,6 +96,8 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
         # )
 
+
+
         langchain_index_tool = llamaindex_tool_to_langchain(index_tool)
         langchain_api_tool = llamaindex_tool_to_langchain(api_tool)
 
@@ -112,9 +114,7 @@ def prepare_chat_engine(agent=True, refresh=False):
         )
 
         from langchain.agents import initialize_agent, AgentType
-        # from langchain.memory import ConversationBufferMemory
 
-        # memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
         chat_engine = initialize_agent(
             tools=tools,
@@ -123,6 +123,8 @@ def prepare_chat_engine(agent=True, refresh=False):
             verbose=True,
             memory=None,
         )
+
+
 
         # chat_engine = FunctionCallingAgent.from_tools(
         #     tools=[index_tool, api_tool],
@@ -244,6 +246,13 @@ def chat():
             ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
             for m in conversation
             ]
+
+        dict_history = [
+            {"role": msg.role.value, "content": msg.content}
+            for msg in llama_chat_history  # LlamaIndex ChatMessages
+        ]
+
+        chat_history = convert_to_messages(dict_history)
         
         # prompt = chat_history
 
