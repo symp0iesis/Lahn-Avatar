@@ -115,24 +115,39 @@ def prepare_chat_engine(agent=True, refresh=False):
         from langchain.chat_models import ChatOpenAI
         API_KEY = os.getenv("GWDG_API_KEY")
 
+        from langchain.prompts.chat import (
+            ChatPromptTemplate,
+            SystemMessagePromptTemplate,
+            HumanMessagePromptTemplate,
+        )
+
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            ("human", "{input}"),
+        ])
+
         llm = ChatOpenAI(
             model="gemma-3-27b-it",  # whatever you're using
             openai_api_base="https://llm.hrz.uni-giessen.de/api/",
             openai_api_key=API_KEY,
             temperature=0.5,
-            system_prompt=system_prompt
         )
 
-        from langchain.agents import initialize_agent, AgentType
+        llm_chain = LLMChain(llm=chat_model, prompt=prompt)
+
+        agent = create_openai_functions_agent(llm=chat_model, tools=tools, prompt=prompt)
+        chat_engine = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+        # from langchain.agents import initialize_agent, AgentType
 
 
-        chat_engine = initialize_agent(
-            tools=tools,
-            llm=llm,
-            agent=AgentType.OPENAI_FUNCTIONS,
-            verbose=True,
-            memory=None,
-        )
+        # chat_engine = initialize_agent(
+        #     tools=tools,
+        #     llm=llm,
+        #     agent=AgentType.OPENAI_FUNCTIONS,
+        #     verbose=True,
+        #     memory=None,
+        # )
 
 
 
