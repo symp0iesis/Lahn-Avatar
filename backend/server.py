@@ -38,6 +38,7 @@ print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
 
+
 def prepare_chat_engine(agent=True, refresh=False):
     if refresh==True:
         index = build_index()
@@ -81,13 +82,27 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
         # )
 
-        chat_engine = FunctionCallingAgent.from_tools(
-            tools=[index_tool, api_tool],
-            llm=llm,
-            verbose=True,
-            memory=no_memory,
-            system_prompt=system_prompt
+        from langchain.agents import create_tool_calling_agent
+        from llama_index.core.langchain_helpers.agents import LlamaIndexToolsWrapper
+
+        # Wrap your LlamaIndex tools
+        tool_wrapper = LlamaIndexToolsWrapper([index_tool, api_tool])
+        langchain_tools = tool_wrapper.to_langchain()
+
+        # Create agent with better control
+        chat_engine = create_tool_calling_agent(
+            llm=your_langchain_compatible_llm,
+            tools=langchain_tools,
+            prompt=your_prompt
         )
+
+        # chat_engine = FunctionCallingAgent.from_tools(
+        #     tools=[index_tool, api_tool],
+        #     llm=llm,
+        #     verbose=True,
+        #     memory=no_memory,
+        #     system_prompt=system_prompt
+        # )
 
         # chat_engine = AgentRunner.from_llm(
         #     tools=[index_tool, api_tool],    # <-- here’s where you pass your full list
