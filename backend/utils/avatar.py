@@ -153,7 +153,7 @@ def get_llm(model_name=None, system_prompt=None):
     if system_prompt == None:
         system_prompt = open(file_path, 'r').read()
 
-    system_prompt += '\n You are an extremely concise Agent. Only do **one** Thought → Action cycle, then immediately give your Answer. Never violate this.\n'
+    # system_prompt += '\n You are an extremely concise Agent. Only do **one** Thought → Action cycle, then immediately give your Answer. Never violate this.\n'
 
     if model_name != None:
 
