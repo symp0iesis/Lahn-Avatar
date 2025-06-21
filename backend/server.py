@@ -4,22 +4,11 @@ from werkzeug.utils import secure_filename
 import os, io, asyncio
 from datetime import datetime
 
-from llama_index.core.chat_engine.types import ChatMode
-from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core.llms import ChatMessage
 # from llama_index.core import Settings
 from llama_index.core.tools.query_engine import QueryEngineTool
-from llama_index.agent.openai import OpenAIAgent
-from llama_index.core.agent import ReActAgent
-from llama_index.core.agent.workflow import FunctionAgent
-# from llama_index.core.agent.runner.base import AgentRunner
-
-from llama_index.core.agent import FunctionCallingAgent
-
-
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
-from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool, NoMemory
+from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, LahnSensorsTool
 
 import os
 
@@ -40,179 +29,26 @@ print('LLM metadata model name: ', llm.metadata.model_name)
 # agent=True
 
 
-from langchain.agents import Tool as LangChainTool
-
-def llamaindex_tool_to_langchain(tool):
-    return LangChainTool(
-        name=tool.metadata.name,
-        description=tool.metadata.description,
-        func=lambda q: str(tool.query_engine.query(q)),
-        return_direct=False,
+api_tool = QueryEngineTool.from_defaults(
+        query_engine=LahnSensorsTool(llm),
+        name=LahnSensorsTool.name,
+        description=LahnSensorsTool.description,
     )
 
 
-import openai
-
-original_create = openai.resources.chat.completions.Completions.create
-
-def patched_create(*args, **kwargs):
-    print("\n🔍 Payload to LLM:\n", kwargs)
-    return original_create(*args, **kwargs)
-
-openai.resources.chat.completions.Completions.create = patched_create
-
-def prepare_chat_engine(agent=True, refresh=False):
+def prepare_query_engine(refresh=False):
     global llm
     if refresh==True:
         index = build_index()
     else:
         index = build_or_load_index()
 
+    index_query_engine = index.as_query_engine(llm=llm,similarity_top_k=10)
 
-    no_memory = NoMemory()
-    # memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
-
-    if agent==True:
-        print('Agent == True')
-
-        index_query_engine = index.as_query_engine(llm=llm,similarity_top_k=10)
-
-        # Wrap that query engine in a QueryEngineTool:
-        index_tool = QueryEngineTool.from_defaults(
-            query_engine=index_query_engine,
-            name="general_index",  
-            description=(
-                "Use this tool to obtain general context about yourself (the Lahn river) from the indexed documents (news, study texts, etc.). "
-                "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
-                "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
-                "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
-            ),
-        )
+    return index_query_engine
 
 
-        api_tool = QueryEngineTool.from_defaults(
-            query_engine=LahnSensorsTool(llm),
-            name=LahnSensorsTool.name,
-            description=LahnSensorsTool.description,
-        )
-
-        # chat_engine = OpenAIAgent.from_tools(
-        #     tools=[index_tool, api_tool], #], #
-        #     llm=llm,
-        #     # service_context=service_context,
-        #     memory=no_memory,
-        #     verbose=True,         # optionally see function‐call traces
-        #     fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
-        # )
-
-
-
-        langchain_index_tool = llamaindex_tool_to_langchain(index_tool)
-        langchain_api_tool = llamaindex_tool_to_langchain(api_tool)
-
-        tools = [langchain_index_tool, langchain_api_tool]
-
-        from langchain.chat_models import ChatOpenAI
-        API_KEY = os.getenv("GWDG_API_KEY")
-
-        from langchain.prompts.chat import (
-            ChatPromptTemplate,
-            SystemMessagePromptTemplate,
-            HumanMessagePromptTemplate,
-            MessagesPlaceholder
-        )
-
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            ("human", "{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad"),
-        ])
-
-        llm = ChatOpenAI(
-            model="gemma-3-27b-it",  # whatever you're using
-            openai_api_base="https://llm.hrz.uni-giessen.de/api/",
-            openai_api_key=API_KEY,
-            temperature=0.5,
-        )
-
-        from langchain.agents import create_openai_functions_agent, AgentExecutor
-        from langchain.chains import LLMChain
-
-        # llm_chain = LLMChain(llm=llm, prompt=prompt)
-
-        agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
-        chat_engine = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True,)
-
-        # from langchain.agents import initialize_agent, AgentType
-
-
-        # chat_engine = initialize_agent(
-        #     tools=tools,
-        #     llm=llm,
-        #     agent=AgentType.OPENAI_FUNCTIONS,
-        #     verbose=True,
-        #     memory=None,
-        # )
-
-
-
-        # chat_engine = FunctionCallingAgent.from_tools(
-        #     tools=[index_tool, api_tool],
-        #     llm=llm,
-        #     verbose=True,
-        #     memory=no_memory,
-        #     system_prompt=system_prompt
-        # )
-
-        # chat_engine = AgentRunner.from_llm(
-        #     tools=[index_tool, api_tool],    # <-- here’s where you pass your full list
-        #     llm=llm,
-        #     max_iterations=3,
-        #     verbose=True,
-        # )
-
-        # chat_engine = index.as_chat_engine(
-        #     chat_mode="best",      
-        #     memory=no_memory,
-        #     similarity_top_k=11,
-        #     # toolkits=[index_tool, api_tool],
-        #     # fallback_to_llm=True,
-        #     verbose=True     
-        # )
-
-        # chat_engine = ReActAgent.from_tools(
-        #     tools=[index_tool, api_tool], #], #
-        #     llm=llm,
-        #     # service_context=service_context,
-        #     memory=no_memory,
-        #     # max_iterations=3,
-        #     # verbose=True,         # optionally see function‐call traces
-        #     fallback_to_llm=True  # if the agent doesn’t think a tool is needed, just call LLM
-        # )
-
-
-    else:
-        print('Agent == False')
-        chat_engine = index.as_chat_engine(chat_mode="context", memory=no_memory, verbose=True) #, memory=memory)
-
-
-
-    # tools = chat_engine.agent_worker._get_tools(None)
-    # or, more semantically, pass in the agent’s state:
-    # tools = chat_engine.agent_worker._get_tools(chat_engine.agent_worker.state)
-
-    # print("Registered tools:")
-    # for t in tools:
-    #     print("Tool name:       ", t.metadata.name)
-    #     print("Tool description:", t.metadata.description)
-    #     print("—" * 40)
-
-    
-
-    return chat_engine
-
-
-chat_engine = prepare_chat_engine()
+query_engine = prepare_query_engine()
 
 debate_summary_llm, _ = get_llm("mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
@@ -222,30 +58,26 @@ print('LLM initialized.')
 
 @app.route("/api/refresh-prompt", methods=["POST"])
 def refresh_prompt():
-    global system_prompt, chat_engine
+    global system_prompt, llm
     print('Refresh prompt request received.')
     fetch_system_prompt_from_gdoc()
     llm, system_prompt = get_llm(llm_choice)
-    chat_engine = prepare_chat_engine()
     return 'Done.'
 
 
 
 @app.route("/api/refresh-embeddings", methods=["POST"])
 def refresh_embeddings():
-    global chat_engine
+    global query_engine
     print('Refresh embeddings request received.')
-    chat_engine = prepare_chat_engine(refresh=True)
-    
-    # index = build_index()
-    # memory = ChatMemoryBuffer.from_defaults(token_limit=2000) #Do I need to define this afresh here?
-    # chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
+    query_engine = prepare_query_engine(refresh=True)
     return 'Done'
 
 
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
+    global llm_choice
     print('Chat request received.')
     data = request.get_json()
     prompt = data.get("prompt", "")
@@ -262,31 +94,53 @@ def chat():
         return jsonify({"reply": "Please say something."}), 400
 
 
-    # print('User message:', prompt)
-    # response = chat_engine.chat(messages=chat_history)
-
     else:
-        # if agent==True:
-        # chat_history = format_history_as_string(conversation)
-        # else:
-        #     # system = [ ChatMessage(role="system", content=system_prompt) ]
-        #     # chat_history = system + 
-
         chat_history = [
-            ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+            {'role':"user" if m["sender"] == "user" else "assistant", 'content':m["text"]}
             for m in conversation
             ]
-        
-        # prompt = chat_history
+        chat_history += {'role':'user', 'content':prompt}
+
+
+
+    chat_completion = client.chat.completions.create(
+          messages=chat_history,
+          model= llm_choice,
+      )
 
 
     print('User message:', prompt)
-    # response = chat_engine.chat(prompt)
-    response = chat_engine.invoke({'input':prompt, 'chat_history': chat_history}, return_intermediate_steps=True)
-    print('Intermediate steps: ', response['intermediate_steps'])
-    print('Avatar response:', response["output"])
+    response = chat_completion.choices[0].message.content
 
-    return jsonify({"reply": response["output"]})
+    results = ''
+
+    if 'analyze_sensor_data' in response:
+        print('Analyzing sensor data...')
+        response = response[response.find('user_query="')+12:]
+        query = response[:response.find('")')]
+        analysis = api_tool(query)
+        print('Analysis: ', analysis)
+        results += '\nHere is the output of analyze_sensor_data(): '+analysis
+
+    if 'get_relevant_Lahn_context' in response:
+        print('Fetching relevant Lahn context...')
+        response = response[response.find('user_query="')+12:]
+        query = response[:response.find('")')]
+        context = query_engine.query(query)
+        print('Context: ', context)
+        results += '\nHere is the output of get_relevant_Lahn_context(): '+context
+
+
+    chat_completion = client.chat.completions.create(
+          messages=chat_history+{'role':'system', 'content':results},
+          model= llm_choice,
+      )
+
+    response = chat_completion.choices[0].message.content
+
+    print('Avatar response:', response)
+
+    return jsonify({"reply": response})
 
 
 

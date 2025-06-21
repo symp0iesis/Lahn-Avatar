@@ -19,9 +19,17 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
 
+from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai_like import OpenAILike
+from llama_index.core.callbacks import CallbackManager
+
+from llama_index.core.callbacks.llama_debug import LlamaDebugHandler
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 # from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+
+from .gwdg_llm import GWDGChatLLM, GWDGEmbedding, HrzOpenAI, CustomOpenAILike
 
 
 load_dotenv()
@@ -123,6 +131,22 @@ def select_model():
     return "llama-3.1-sauerkrautlm-70b-instruct" if choice == "2" else "mistral-large-instruct"
 
 
+class DebugOpenAILike(OpenAILike):
+    def chat(self, messages, **kwargs):
+        print("\n=== PAYLOAD TO .chat() ===")
+        print("Messages:")
+        for m in messages:
+            print(m)
+        print("Other kwargs:")
+        for k, v in kwargs.items():
+            print(f"{k}: {v}")
+        print("==========================\n")
+        return super().chat(messages, **kwargs)
+
+
+callback_manager = CallbackManager([LlamaDebugHandler()])
+
+
 def get_llm(model_name=None, system_prompt=None):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, 'system_prompt.txt')
@@ -133,6 +157,28 @@ def get_llm(model_name=None, system_prompt=None):
 
     if model_name != None:
 
+        # llm = CustomOpenAILike(
+        #     model=model_name,           # your custom model
+        #     api_base=API_BASE,                # HRZ endpoint
+        #     api_key=API_KEY,
+        #     is_chat_model=True,               # it uses the chat/completions endpoint
+        #     is_function_calling_model=True,   # enable function/tool calling
+        #     context_window=32000,              # set your real context size
+        #     system_prompt=system_prompt,      
+        # )
+
+
+        # Instantiate your LLM using the subclass:
+        # return HrzOpenAI(
+        #     model=model_name,
+        #     system_prompt=system_prompt,
+        #     temperature=0.7,
+        #     api_key=API_KEY,
+        #     api_base=API_BASE,
+        #     api_type="open_ai",
+        #     api_version="",
+        #     deployment_id=model_name,
+        # )
 
         llm =  OpenAI(
             model=model_name,        # your HRZ model name
@@ -147,6 +193,14 @@ def get_llm(model_name=None, system_prompt=None):
             # api_version=None,            # leave None unless your server needs a version
         )
 
+
+        # llm = GWDGChatLLM(
+        #     model=model_name,
+        #     api_base=API_BASE,
+        #     api_key=API_KEY,
+        #     temperature=0.5,
+        #     system_prompt=system_prompt
+        # )
 
     else:
         llm = AzureOpenAI(
