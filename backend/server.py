@@ -40,17 +40,26 @@ print('LLM metadata model name: ', llm.metadata.model_name)
 # agent=True
 
 
-from langchain.agents import Tool as LangChainTool
+# from langchain.agents import Tool as LangChainTool
 
-def llamaindex_tool_to_langchain(tool):
-    return LangChainTool(
-        name=tool.metadata.name,
-        description=tool.metadata.description,
-        func=lambda q: str(tool.query_engine.query(q)),
-        return_direct=False,
-    )
+# def llamaindex_tool_to_langchain(tool):
+#     return LangChainTool(
+#         name=tool.metadata.name,
+#         description=tool.metadata.description,
+#         func=lambda q: str(tool.query_engine.query(q)),
+#         return_direct=False,
+#     )
 
 
+import openai
+
+original_create = openai.resources.chat.completions.Completions.create
+
+def patched_create(*args, **kwargs):
+    print("\n🔍 Payload to LLM:\n", kwargs)
+    return original_create(*args, **kwargs)
+
+openai.resources.chat.completions.Completions.create = patched_create
 
 def prepare_chat_engine(agent=True, refresh=False):
     global llm
@@ -124,7 +133,7 @@ def prepare_chat_engine(agent=True, refresh=False):
             memory=None,
         )
 
-        
+
 
         # chat_engine = FunctionCallingAgent.from_tools(
         #     tools=[index_tool, api_tool],
