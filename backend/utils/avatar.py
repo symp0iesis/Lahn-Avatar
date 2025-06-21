@@ -198,7 +198,7 @@ def get_llm(model_name=None, system_prompt=None):
             model=model_name,
             api_base=API_BASE,
             api_key=API_KEY,
-            temperature=0.7,
+            temperature=0.5,
             system_prompt=system_prompt
         )
 
@@ -297,7 +297,7 @@ def build_or_load_index(llm, refresh=False):
     # )
 
     Settings.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-    
+
     # GWDGEmbedding(
     #     api_key=API_KEY,
     #     api_base=API_BASE,
