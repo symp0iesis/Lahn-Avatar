@@ -120,6 +120,7 @@ def prepare_chat_engine(agent=True, refresh=False):
             openai_api_base="https://llm.hrz.uni-giessen.de/api/",
             openai_api_key=API_KEY,
             temperature=0.5,
+            system_prompt=system_prompt
         )
 
         from langchain.agents import initialize_agent, AgentType
