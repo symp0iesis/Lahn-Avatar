@@ -19,7 +19,9 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
 
+
 from openai import OpenAI
+from llama_index.llms.openai import OpenAI
 
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
@@ -163,11 +165,24 @@ def get_llm(model_name=None, system_prompt=None):
             verbose=True
         )
 
+    llamaindex_llm =  OpenAI(
+            model=model_name,        # your HRZ model name
+            temperature=0.5,
+            system_prompt=system_prompt,
+            context_window=128000,
+
+            # point at your custom endpoint:
+            api_key=API_KEY,             # e.g. 'sk-…'
+            api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+            # api_type="open_ai",          # use the “open_ai” protocol
+            # api_version=None,            # leave None unless your server needs a version
+        )
+
     # print('LLM details: ', llm.model_dump())
 
     # Settings.llm = llm
 
-    return llm, system_prompt
+    return llm, llamaindex_llm, system_prompt
 
 
 def create_session_log():

@@ -22,7 +22,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # === Load LLM once at startup ===
 llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
 
-llm, system_prompt = get_llm(llm_choice)
+llm, llamaindex_llm, system_prompt = get_llm(llm_choice)
 
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
@@ -30,7 +30,7 @@ llm, system_prompt = get_llm(llm_choice)
 
 
 api_tool = QueryEngineTool.from_defaults(
-        query_engine=LahnSensorsTool(llm),
+        query_engine=LahnSensorsTool(llamaindex_llm),
         name=LahnSensorsTool.name,
         description=LahnSensorsTool.description,
     )
