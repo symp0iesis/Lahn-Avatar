@@ -87,7 +87,7 @@ def prepare_chat_engine(agent=True, refresh=False):
         # )
 
         chat_engine = index.as_chat_engine(
-            chat_mode="context",      
+            chat_mode="best",      
             memory=no_memory,
             similarity_top_k=11,
             # toolkits=[index_tool, api_tool],
