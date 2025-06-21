@@ -161,7 +161,8 @@ class CustomOpenAILike(OpenAILike):
 from llama_index.core.llms.function_calling import FunctionCallingLLM #, LLMMetadata
 from llama_index.core.base.llms.types import ChatMessage, ChatResponse, MessageRole
 from llama_index.core.tools import BaseTool
-from llama_index.core.tools.types import ToolCall, ToolOutput
+from llama_index.core.tools import ToolOutput
+from llama_index.core.llms.types import ToolCall  
 from llama_index.core.llms.callbacks import llm_completion_callback, llm_chat_callback
 from pydantic import Field
 from typing import Any, List, Optional, Sequence, Dict
