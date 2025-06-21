@@ -82,7 +82,7 @@ def prepare_chat_engine(agent=True, refresh=False):
             query_engine=index_query_engine,
             name="general_index",  
             description=(
-                "Use this tool to obtain general context about the river from the indexed documents (news, study texts, etc.). "
+                "Use this tool to obtain general context about yourself (the Lahn river) from the indexed documents (news, study texts, etc.). "
                 "It will retrieve and summarize relevant snippets from the RAG data sources. This grounds your responses in reliable context about the Lahn river."
                 "If the user's message is not related to sensor readings from the user, use this tool to generate your response."
                 "Even when their message involves sensor readings, use this tool to obtain historical context on the river, which is relevant to providing a Lahn-specific interpretation of those readings."
