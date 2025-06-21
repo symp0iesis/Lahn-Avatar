@@ -282,7 +282,8 @@ def chat():
 
     print('User message:', prompt)
     # response = chat_engine.chat(prompt)
-    response = chat_engine.invoke({'input':prompt, 'chat_history': chat_history})
+    response = chat_engine.invoke({'input':prompt, 'chat_history': chat_history}, return_intermediate_steps=True)
+    print('Intermediate steps: ', response['intermediate_steps'])
     print('Avatar response:', response["output"])
 
     return jsonify({"reply": response["output"]})
