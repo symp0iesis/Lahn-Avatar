@@ -119,11 +119,13 @@ def prepare_chat_engine(agent=True, refresh=False):
             ChatPromptTemplate,
             SystemMessagePromptTemplate,
             HumanMessagePromptTemplate,
+            MessagesPlaceholder
         )
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
             ("human", "{input}"),
+            MessagesPlaceholder(variable_name="agent_scratchpad"),
         ])
 
         llm = ChatOpenAI(
