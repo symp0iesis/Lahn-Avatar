@@ -506,7 +506,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.outputs import ChatResult, ChatGeneration
 from typing import List
-from your_module import GWDGChatLLM  # wherever your wrapper is
+# from your_module import GWDGChatLLM  # wherever your wrapper is
 
 class LangChainGWDGLLM(BaseChatModel):
     def __init__(self, gwdg_llm: GWDGChatLLM):
