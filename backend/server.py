@@ -53,6 +53,7 @@ def llamaindex_tool_to_langchain(tool):
 
 
 def prepare_chat_engine(agent=True, refresh=False):
+    global llm
     if refresh==True:
         index = build_index()
     else:
