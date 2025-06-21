@@ -221,6 +221,7 @@ def chat():
 
     if prompt == "__INIT__":
         prompt = "Hallo"
+        chat_history=[]
 
     elif len(conversation) == 0:
         pass
@@ -239,12 +240,12 @@ def chat():
         #     # system = [ ChatMessage(role="system", content=system_prompt) ]
         #     # chat_history = system + 
 
-            chat_history = [
-                ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
-                for m in conversation
-                ]
+        chat_history = [
+            ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
+            for m in conversation
+            ]
         
-        prompt = chat_history
+        # prompt = chat_history
 
 
     print('User message:', prompt)
