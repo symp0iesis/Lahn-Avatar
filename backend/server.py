@@ -27,7 +27,7 @@ llm, system_prompt = get_llm('openai', llm_choice)
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
-query_llm, _ = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
+query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query:')
 
 api_tool = QueryEngineTool.from_defaults(
         query_engine=LahnSensorsTool(query_llm),
