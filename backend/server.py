@@ -126,20 +126,20 @@ def chat():
     results = ''
 
     # if 'get_relevant_Lahn_context' in response:
-        print('Obtaining information for the LLM...')
-        # response = response[response.find('user_query="')+12:]
-        query = prompt #response[:response.find('")')]
-        # print('Query: ', query)
-        context = query_engine.query(query).response
-        print('Context: ', context)
-        # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
+    print('Obtaining information for the LLM...')
+    # response = response[response.find('user_query="')+12:]
+    query = prompt #response[:response.find('")')]
+    # print('Query: ', query)
+    context = query_engine.query(query).response
+    print('Context: ', context)
+    # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
-        chat_completion = llm.chat.completions.create(
-              messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call get_relevant_Lahn_context() if environmental data readings are relevant to the user\'s query.'}],
-              model= llm_choice,
-          )
+    chat_completion = llm.chat.completions.create(
+          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call get_relevant_Lahn_context() if environmental data readings are relevant to the user\'s query.'}],
+          model= llm_choice,
+      )
 
-        response = chat_completion.choices[0].message.content
+    response = chat_completion.choices[0].message.content
 
 
 
