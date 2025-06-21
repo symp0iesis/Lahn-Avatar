@@ -105,7 +105,7 @@ def chat():
 
 
 
-    chat_completion = client.chat.completions.create(
+    chat_completion = llm.chat.completions.create(
           messages=chat_history,
           model= llm_choice,
           temperature=0.5
@@ -134,7 +134,7 @@ def chat():
         results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
 
-    chat_completion = client.chat.completions.create(
+    chat_completion = llm.chat.completions.create(
           messages=chat_history+{'role':'system', 'content':results},
           model= llm_choice,
       )
