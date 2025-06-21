@@ -135,11 +135,11 @@ def chat():
         print('Context: ', context)
         results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
-
-    chat_completion = llm.chat.completions.create(
-          messages=chat_history+{'role':'system', 'content':results},
-          model= llm_choice,
-      )
+    if len(results)>0:
+        chat_completion = llm.chat.completions.create(
+              messages=chat_history+[{'role':'system', 'content':results}],
+              model= llm_choice,
+          )
 
     response = chat_completion.choices[0].message.content
 
