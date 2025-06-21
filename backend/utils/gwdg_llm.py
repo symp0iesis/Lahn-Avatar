@@ -510,7 +510,7 @@ from typing import List
 
 class LangChainGWDGLLM(BaseChatModel):
     def __init__(self, gwdg_llm: GWDGChatLLM):
-        self.gwdg_llm = gwdg_llm
+        object.__setattr__(self, "gwdg_llm", gwdg_llm)
 
     @property
     def _llm_type(self) -> str:
