@@ -29,7 +29,7 @@ from llama_index.core.callbacks.llama_debug import LlamaDebugHandler
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 # from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 
-from .gwdg_llm import GWDGChatLLM, GWDGEmbedding, HrzOpenAI, CustomOpenAILike, LangChainGWDGLLM
+from .gwdg_llm import GWDGChatLLM, GWDGEmbedding, HrzOpenAI, CustomOpenAILike
 
 
 load_dotenv()
@@ -194,15 +194,13 @@ def get_llm(model_name=None, system_prompt=None):
         # )
 
 
-        llm = LangChainGWDGLLM (
-                GWDGChatLLM(
-                model=model_name,
-                api_base=API_BASE,
-                api_key=API_KEY,
-                temperature=0.5,
-                system_prompt=system_prompt
-                )
-            )
+        llm = GWDGChatLLM(
+            model=model_name,
+            api_base=API_BASE,
+            api_key=API_KEY,
+            temperature=0.5,
+            system_prompt=system_prompt
+        )
 
     else:
         llm = AzureOpenAI(
@@ -219,7 +217,7 @@ def get_llm(model_name=None, system_prompt=None):
 
     print('LLM details: ', llm.model_dump())
 
-    # Settings.llm = llm
+    Settings.llm = llm
 
     return llm, system_prompt
 

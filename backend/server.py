@@ -16,7 +16,7 @@ from llama_index.core.agent.workflow import FunctionAgent
 
 from llama_index.core.agent import FunctionCallingAgent
 
-from langchain_core.messages.utils import convert_to_messages
+
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool, NoMemory
@@ -35,7 +35,7 @@ llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-larg
 
 llm, system_prompt = get_llm(llm_choice)
 
-# print('LLM metadata model name: ', llm.metadata.model_name)
+print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
 
@@ -119,12 +119,12 @@ def prepare_chat_engine(agent=True, refresh=False):
         chat_engine = initialize_agent(
             tools=tools,
             llm=llm,
-            agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+            agent=AgentType.OPENAI_FUNCTIONS,
             verbose=True,
             memory=None,
         )
 
-
+        
 
         # chat_engine = FunctionCallingAgent.from_tools(
         #     tools=[index_tool, api_tool],
@@ -246,13 +246,6 @@ def chat():
             ChatMessage(role="user" if m["sender"] == "user" else "assistant", content=m["text"])
             for m in conversation
             ]
-
-        dict_history = [
-            {"role": msg.role.value, "content": msg.content}
-            for msg in chat_history  # LlamaIndex ChatMessages
-        ]
-
-        chat_history = convert_to_messages(dict_history)
         
         # prompt = chat_history
 
