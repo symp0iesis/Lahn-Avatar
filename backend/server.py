@@ -81,6 +81,7 @@ def prepare_chat_engine(agent=True, refresh=False):
         chat_engine = index.as_chat_engine(
             chat_mode="context",      
             memory=no_memory,
+            similarity_top_k=5,
             # toolkits=[index_tool, api_tool],
             # fallback_to_llm=True,
             verbose=True     
