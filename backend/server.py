@@ -50,7 +50,7 @@ def prepare_query_engine(refresh=False):
 
 query_engine = prepare_query_engine()
 
-debate_summary_llm, _ = get_llm("mistral-large-instruct", system_prompt= '')
+debate_summary_llm, _ , _= get_llm("mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
 
 
@@ -58,10 +58,10 @@ print('LLM initialized.')
 
 @app.route("/api/refresh-prompt", methods=["POST"])
 def refresh_prompt():
-    global system_prompt, llm
+    global system_prompt, llm, llamaindex_llm
     print('Refresh prompt request received.')
     fetch_system_prompt_from_gdoc()
-    llm, system_prompt = get_llm(llm_choice)
+    llm, llamaindex_llm, system_prompt = get_llm(llm_choice)
     return 'Done.'
 
 
