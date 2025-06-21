@@ -27,7 +27,7 @@ from openai import OpenAI
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 # from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 
-from gwdg_llm import GWDGChatLLM
+from .gwdg_llm import GWDGChatLLM
 
 
 load_dotenv()
