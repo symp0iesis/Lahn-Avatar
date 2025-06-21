@@ -198,7 +198,7 @@ def get_llm(model_name=None, system_prompt=None):
             model=model_name,
             api_base=API_BASE,
             api_key=API_KEY,
-            temperature=0.7,
+            temperature=0.1,
             system_prompt=system_prompt
         )
 
