@@ -101,11 +101,13 @@ def chat():
             {'role':"user" if m["sender"] == "user" else "assistant", 'content':m["text"]}
             for m in conversation
             ]
-        chat_history += {'role':'user', 'content':prompt}
+
+    chat_history += {'role':'user', 'content':prompt}
 
     chat_history = [{'role':'system', 'content':system_prompt}] + chat_history
 
     print('Chat history: ', chat_history)
+    print('model: ', llm_choice)
 
 
 
@@ -118,6 +120,7 @@ def chat():
 
     print('User message:', prompt)
     response = chat_completion.choices[0].message.content
+    print('Response: ', response)
 
     results = ''
 
@@ -125,6 +128,7 @@ def chat():
         print('Analyzing sensor data...')
         response = response[response.find('user_query="')+12:]
         query = response[:response.find('")')]
+        print('Query: ', query)
         analysis = api_tool(query)
         print('Analysis: ', analysis)
         results += '\nHere is the output of analyze_sensor_data(): '+analysis
@@ -133,6 +137,7 @@ def chat():
         print('Fetching relevant Lahn context...')
         response = response[response.find('user_query="')+12:]
         query = response[:response.find('")')]
+        print('Query: ', query)
         context = query_engine.query(query)
         print('Context: ', context)
         results += '\nHere is the output of get_relevant_Lahn_context(): '+context
