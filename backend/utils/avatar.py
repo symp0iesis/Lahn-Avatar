@@ -27,7 +27,7 @@ from llama_index.core.callbacks import CallbackManager
 from llama_index.core.callbacks.llama_debug import LlamaDebugHandler
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+# from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 
 from .gwdg_llm import GWDGChatLLM, GWDGEmbedding, HrzOpenAI, CustomOpenAILike
 
@@ -295,7 +295,9 @@ def build_or_load_index(llm, refresh=False):
     #     azure_endpoint=AZURE_BASE,
     #     api_version=AZURE_VERSION,
     # )
-    HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+
+    Settings.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    
     # GWDGEmbedding(
     #     api_key=API_KEY,
     #     api_base=API_BASE,
