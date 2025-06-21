@@ -27,25 +27,25 @@ llm, system_prompt = get_llm('openai', llm_choice)
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
-
+query_llm, _ = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
 api_tool = QueryEngineTool.from_defaults(
-        query_engine=LahnSensorsTool(llamaindex_llm),
+        query_engine=LahnSensorsTool(query_llm),
         name=LahnSensorsTool.name,
         description=LahnSensorsTool.description,
     )
 
 
 def prepare_query_engine(refresh=False):
-    global llamaindex_llm
+    global query_llm
     if refresh==True:
         index = build_index()
     else:
         index = build_or_load_index()
 
-    query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
+    # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
-    index_query_engine = index.as_query_engine(llm=llamaindex_llm,similarity_top_k=10)
+    index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10)
 
     return index_query_engine
 
