@@ -134,12 +134,11 @@ def prepare_chat_engine(agent=True, refresh=False):
         )
 
         from langchain.agents import create_openai_functions_agent, AgentExecutor
-        from langchain.prompts.chat import ChatPromptTemplate
         from langchain.chains import LLMChain
 
-        llm_chain = LLMChain(llm=llm, prompt=prompt)
+        # llm_chain = LLMChain(llm=llm, prompt=prompt)
 
-        agent = create_openai_functions_agent(llm=chat_model, tools=tools, prompt=prompt)
+        agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
         chat_engine = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
         # from langchain.agents import initialize_agent, AgentType
