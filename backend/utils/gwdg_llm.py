@@ -42,7 +42,7 @@ import requests
 from pydantic import Field
 from typing import Any, List
 from llama_index.llms.openai_like import OpenAILike
-# from llama_index.core.llms.base import CompletionResponse, CompletionResponseGen, LLMMetadata, llm_chat_callback
+from llama_index.core.llms.base import ToolCall #CompletionResponse, CompletionResponseGen, LLMMetadata, llm_chat_callback
 
 class CustomOpenAILike(OpenAILike):
     """
@@ -158,7 +158,7 @@ class CustomOpenAILike(OpenAILike):
             delta = data["choices"][0]["delta"].get("content", "")
             yield ChatResponse(text=delta, delta=delta)
 
-from llama_index.core.llms.function_calling import FunctionCallingLLM #, LLMMetadata
+from llama_index.core.llms.function_calling import FunctionCallingLLM , LLMMetadata
 from llama_index.core.base.llms.types import ChatMessage, ChatResponse, MessageRole
 from llama_index.core.tools import BaseTool
 from llama_index.core.tools import ToolOutput
