@@ -158,7 +158,7 @@ class CustomOpenAILike(OpenAILike):
             delta = data["choices"][0]["delta"].get("content", "")
             yield ChatResponse(text=delta, delta=delta)
 
-from llama_index.core.llms import FunctionCallingLLM, LLMMetadata
+from llama_index.core.llms.function_calling import FunctionCallingLLM #, LLMMetadata
 from llama_index.core.base.llms.types import ChatMessage, ChatResponse, MessageRole
 from llama_index.core.tools import BaseTool
 from llama_index.core.tools.types import ToolCall, ToolOutput
