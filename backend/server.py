@@ -21,6 +21,7 @@ from llama_index.core.agent import FunctionCallingAgent
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, format_history_as_string, LahnSensorsTool, NoMemory
 
+import os
 
 # === Initialize Flask ===
 app = Flask(__name__)
@@ -37,6 +38,18 @@ llm, system_prompt = get_llm(llm_choice)
 print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
+
+
+from langchain.agents import Tool as LangChainTool
+
+def llamaindex_tool_to_langchain(tool):
+    return LangChainTool(
+        name=tool.metadata.name,
+        description=tool.metadata.description,
+        func=lambda q: str(tool.query_engine.query(q)),
+        return_direct=False,
+    )
+
 
 
 def prepare_chat_engine(agent=True, refresh=False):
@@ -82,18 +95,32 @@ def prepare_chat_engine(agent=True, refresh=False):
         #     fallback_to_llm=False  # if the agent doesn’t think a tool is needed, just call LLM
         # )
 
-        from langchain.agents import create_tool_calling_agent
-        from llama_index.core.langchain_helpers.agents import LlamaIndexToolsWrapper
+        langchain_index_tool = llamaindex_tool_to_langchain(index_tool)
+        langchain_api_tool = llamaindex_tool_to_langchain(api_tool)
 
-        # Wrap your LlamaIndex tools
-        tool_wrapper = LlamaIndexToolsWrapper([index_tool, api_tool])
-        langchain_tools = tool_wrapper.to_langchain()
+        tools = [langchain_index_tool, langchain_api_tool]
 
-        # Create agent with better control
-        chat_engine = create_tool_calling_agent(
-            llm=your_langchain_compatible_llm,
-            tools=langchain_tools,
-            prompt=your_prompt
+        from langchain.chat_models import ChatOpenAI
+        API_KEY = os.getenv("GWDG_API_KEY")
+
+        llm = ChatOpenAI(
+            model="gemma-3-27b-it",  # whatever you're using
+            openai_api_base="https://llm.hrz.uni-giessen.de/api/",
+            openai_api_key=API_KEY,
+            temperature=0.5,
+        )
+
+        from langchain.agents import initialize_agent, AgentType
+        # from langchain.memory import ConversationBufferMemory
+
+        # memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+        agent = initialize_agent(
+            tools=tools,
+            llm=llm,
+            agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+            verbose=True,
+            memory=None,
         )
 
         # chat_engine = FunctionCallingAgent.from_tools(
@@ -220,7 +247,8 @@ def chat():
 
 
     print('User message:', prompt)
-    response = chat_engine.chat(prompt)
+    # response = chat_engine.chat(prompt)
+    response = chat_engine.run(prompt)
     print('Avatar response:', response.response)
 
     return jsonify({"reply": response.response})
