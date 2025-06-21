@@ -163,7 +163,7 @@ def get_llm(model_name=None, system_prompt=None):
             verbose=True
         )
 
-    print('LLM details: ', llm.model_dump())
+    # print('LLM details: ', llm.model_dump())
 
     Settings.llm = llm
 
