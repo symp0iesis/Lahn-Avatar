@@ -56,7 +56,7 @@ def prepare_chat_engine(agent=True, refresh=False):
     if refresh==True:
         index = build_index()
     else:
-        index = build_or_load_index(llm)
+        index = build_or_load_index()
 
 
     no_memory = NoMemory()

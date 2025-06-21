@@ -287,7 +287,7 @@ def build_index():
 
 
 
-def build_or_load_index(llm, refresh=False):
+def build_or_load_index(refresh=False):
     # Settings.embed_model = AzureOpenAIEmbedding(
     #     model="text-embedding-3-large",
     #     deployment_name="text-embedding-3-large",
