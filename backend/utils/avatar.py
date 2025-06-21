@@ -144,7 +144,7 @@ def get_llm(model_name=None, system_prompt=None):
 
             # point at your custom endpoint:
             api_key=API_KEY,             # e.g. 'sk-…'
-            api_base=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
+            base_url=API_BASE,           # "https://llm.hrz.uni-giessen.de/api/"
             # api_type="open_ai",          # use the “open_ai” protocol
             # api_version=None,            # leave None unless your server needs a version
         )
