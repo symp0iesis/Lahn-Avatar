@@ -198,7 +198,7 @@ def get_llm(model_name=None, system_prompt=None):
             model=model_name,
             api_base=API_BASE,
             api_key=API_KEY,
-            temperature=0.1,
+            temperature=0.7,
             system_prompt=system_prompt
         )
 
@@ -288,14 +288,14 @@ def build_index():
 
 
 def build_or_load_index(llm, refresh=False):
-    Settings.embed_model = AzureOpenAIEmbedding(
-        model="text-embedding-3-large",
-        deployment_name="text-embedding-3-large",
-        api_key=AZURE_KEY,
-        azure_endpoint=AZURE_BASE,
-        api_version=AZURE_VERSION,
-    )
-    # HuggingFaceEmbedding(model_name="BAAI/bge-m3")
+    # Settings.embed_model = AzureOpenAIEmbedding(
+    #     model="text-embedding-3-large",
+    #     deployment_name="text-embedding-3-large",
+    #     api_key=AZURE_KEY,
+    #     azure_endpoint=AZURE_BASE,
+    #     api_version=AZURE_VERSION,
+    # )
+    HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
     # GWDGEmbedding(
     #     api_key=API_KEY,
     #     api_base=API_BASE,
