@@ -86,8 +86,8 @@ def chat():
     conversation = data.get("history", "")
     chat_history = []
 
-    if prompt == "__INIT__":
-        prompt = "Hallo"
+    # if prompt == "__INIT__":
+    #     prompt = "Hallo"
 
     else:
         chat_history = [
@@ -97,7 +97,7 @@ def chat():
 
     print('Conversation data from API call: ', conversation)
 
-    chat_history.insert(0, {'role':'user', 'content':'Hallo'})
+    # chat_history.insert(0, {'role':'user', 'content':'Hallo'})
     chat_history.insert(0, {'role':'system', 'content':system_prompt})
 
     print('Extracted chat history: ', chat_history)
