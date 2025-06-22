@@ -89,11 +89,11 @@ def chat():
     # if prompt == "__INIT__":
     #     prompt = "Hallo"
 
-    else:
-        chat_history = [
-            {'role':"user" if m["sender"] == "user" else "assistant", 'content':m["text"]}
-            for m in conversation
-            ]
+    # else:
+    chat_history = [
+        {'role':"user" if m["sender"] == "user" else "assistant", 'content':m["text"]}
+        for m in conversation
+        ]
 
     print('Conversation data from API call: ', conversation)
 
