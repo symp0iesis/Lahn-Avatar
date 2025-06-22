@@ -112,18 +112,18 @@ def chat():
 
 
 
-    chat_completion = llm.chat.completions.create(
-          messages=chat_history,
-          model= llm_choice,
-          temperature=0.5
-      )
+    # chat_completion = llm.chat.completions.create(
+    #       messages=chat_history,
+    #       model= llm_choice,
+    #       temperature=0.5
+    #   )
 
-
-    print('\nUser message:', prompt)
-    response = chat_completion.choices[0].message.content
-    print('Response: ', response)
+    # response = chat_completion.choices[0].message.content
+    
 
     results = ''
+
+    print('\nUser message:', prompt)
 
     # if 'get_relevant_Lahn_context' in response:
     print('Obtaining information for the LLM...')
@@ -141,17 +141,7 @@ def chat():
 
     response = chat_completion.choices[0].message.content
 
-
-
-    # if 'get_relevant_Lahn_context' in response:
-    #     print('Fetching relevant Lahn context...')
-    #     response = response[response.find('user_query="')+12:]
-    #     query = response[:response.find('")')]
-    #     print('Query: ', query)
-    #     context = query_engine.query(query).response
-    #     print('Context: ', context)
-    #     results += '\nHere is the output of get_relevant_Lahn_context(): '+context
-
+    print('Avatar response: ', response)
 
 
     if 'analyze_sensor_data' in response:
@@ -169,9 +159,9 @@ def chat():
               model= llm_choice,
           )
 
-    response = chat_completion.choices[0].message.content
+        response = chat_completion.choices[0].message.content
 
-    print('Avatar response:', response)
+        print('Avatar response after getting sensor data:', response)
 
     return jsonify({"reply": response})
 
