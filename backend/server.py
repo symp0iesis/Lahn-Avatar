@@ -88,11 +88,6 @@ def chat():
 
     if prompt == "__INIT__":
         prompt = "Hallo"
-        # chat_history=[{'role':'user', 'content':prompt}]
-
-    elif not prompt: #Needed?
-        return jsonify({"reply": "Please say something."}), 400
-
 
     else:
         chat_history = [
@@ -100,26 +95,11 @@ def chat():
             for m in conversation
             ]
 
+    print('Conversation data from API call: ', conversation)
+    print('Extracted chat history: ', chat_history)
+
     chat_history.insert(0, {'role':'user', 'content':'Hallo'})
     chat_history.insert(0, {'role':'system', 'content':system_prompt})
-
-    # print('Chat history: ', chat_history)
-
-    # print('After adding system and user prompts: ', chat_history)
-
-    # print('Chat history: ', chat_history)
-    # print('model: ', llm_choice)
-
-
-
-    # chat_completion = llm.chat.completions.create(
-    #       messages=chat_history,
-    #       model= llm_choice,
-    #       temperature=0.5
-    #   )
-
-    # response = chat_completion.choices[0].message.content
-    
 
     results = ''
 
@@ -132,7 +112,8 @@ def chat():
     # print('Query: ', query)
     context = query_engine.query(query).response
     print('Context: ', context)
-    # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
+
+    
 
     chat_completion = llm.chat.completions.create(
           messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call get_relevant_Lahn_context() if environmental data readings are relevant to the user\'s query.'}],
