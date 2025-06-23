@@ -121,7 +121,7 @@ def chat():
     chat_completion = llm.chat.completions.create(
           messages= messages_being_sent_to_avatar,
           model= llm_choice,
-          temperature=0.2
+          temperature=0
       )
 
     response = chat_completion.choices[0].message.content
@@ -143,10 +143,13 @@ def chat():
         chat_completion_2 = llm.chat.completions.create(
               messages=chat_history+[{'role':'system', 'content':results}],
               model= llm_choice,
-              temperature=0.2
+              temperature=0
           )
 
         response_2 = chat_completion_2.choices[0].message.content
+        if 'analyze_sensor_data' in response_2:
+            print('Duplicate function call for some reason')
+            response_2 = analysis
 
         print('Avatar response after getting sensor data:', response_2)
 
