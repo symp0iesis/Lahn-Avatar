@@ -105,7 +105,7 @@ def chat():
 
     # print('Chat history: ', chat_history)
 
-    # print('After adding system and user prompts: ', chat_history)
+    print('After adding system and user prompts: ', chat_history)
 
     # print('Chat history: ', chat_history)
     # print('model: ', llm_choice)
