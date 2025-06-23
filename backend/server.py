@@ -109,7 +109,7 @@ def chat():
     # if 'get_relevant_Lahn_context' in response:
     print('Obtaining information for the LLM...')
     # response = response[response.find('user_query="')+12:]
-    query = prompt #response[:response.find('")')]
+    query = format_history_as_string(conversation) #prompt #response[:response.find('")')]
     # print('Query: ', query)
     context = query_engine.query(query).response
     print('Context: ', context)
