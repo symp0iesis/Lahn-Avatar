@@ -20,7 +20,7 @@ UPLOAD_DIR = "data/uploaded_experiences"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
-llm_choice = "llama-3.3-70b-instruct" #"gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
+llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small" #"llama-3.3-70b-instruct" #
 
 llm, system_prompt = get_llm('openai', llm_choice)
 
@@ -121,8 +121,8 @@ def chat():
     chat_completion = llm.chat.completions.create(
           messages= messages_being_sent_to_avatar,
           model= llm_choice,
-          # temperature=0,
-          # top_p=0.85
+          temperature=0,
+          top_p=0.85
       )
 
     response = chat_completion.choices[0].message.content
@@ -137,7 +137,7 @@ def chat():
         print('Query: ', query)
         analysis = str(api_tool(query))
         print('Analysis: ', analysis)
-        results += '\nHere is the output of analyze_sensor_data(): '+analysis +' Respond to the user accordingly. Do not provide any qualitative evaluation of this data, just focus on the quantitative result. And do not return a function call.'
+        results += '\nHere is the output of analyze_sensor_data(): '+analysis +' Respond to the user accordingly. Do not provide any subjective Lahn-specific evaluation of this data, just focus on the quantitative result and purely scientific implications. And do not return a function call.'
 
         # return jsonify({"reply": analysis})
 
