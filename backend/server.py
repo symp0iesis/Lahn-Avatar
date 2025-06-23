@@ -45,7 +45,7 @@ def prepare_query_engine(refresh=False):
 
     # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
-    index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
+    index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=8, verbose=True)
 
     return index_query_engine
 
@@ -139,15 +139,18 @@ def chat():
         results += '\nHere is the output of analyze_sensor_data(): '+analysis
 
     if len(results)>0:
-        chat_completion = llm.chat.completions.create(
+        print('Passing analysis results to LLM: ', chat_history+[{'role':'system', 'content':results}])
+        chat_completion_2 = llm.chat.completions.create(
               messages=chat_history+[{'role':'system', 'content':results}],
               model= llm_choice,
               temperature=0.5
           )
 
-        response = chat_completion.choices[0].message.content
+        response_2 = chat_completion_2.choices[0].message.content
 
-        print('Avatar response after getting sensor data:', response)
+        print('Avatar response after getting sensor data:', response_2)
+
+        return jsonify({"reply": response_2})
 
     return jsonify({"reply": response})
 
