@@ -137,27 +137,27 @@ def chat():
         print('Query: ', query)
         analysis = str(api_tool(query))
         print('Analysis: ', analysis)
-        results += '\nHere is the output of analyze_sensor_data(): '+analysis
+        results += '\nHere is the output of analyze_sensor_data(): '+analysis +' Do not provide any qualitative evaluation of this data, just focus on the quantitative result.'
 
-        return jsonify({"reply": analysis})
+        # return jsonify({"reply": analysis})
 
-    # if len(results)>0:
-    #     print('Passing analysis results to LLM: ', chat_history+[{'role':'system', 'content':results}])
-    #     chat_completion_2 = llm.chat.completions.create(
-    #           messages=chat_history+[{'role':'system', 'content':results}],
-    #           model= llm_choice,
-    #           temperature=0,
-    #           top_p=0.85
-    #       )
+    if len(results)>0:
+        print('Passing analysis results to LLM: ', chat_history+[{'role':'system', 'content':results}])
+        chat_completion_2 = llm.chat.completions.create(
+              messages=chat_history+[{'role':'system', 'content':results}],
+              model= llm_choice,
+              temperature=0,
+              top_p=0.85
+          )
 
-    #     response_2 = chat_completion_2.choices[0].message.content
-    #     if 'analyze_sensor_data' in response_2:
-    #         print('Duplicate function call for some reason')
-    #         response_2 = analysis
+        response_2 = chat_completion_2.choices[0].message.content
+        if 'analyze_sensor_data' in response_2:
+            print('Duplicate function call for some reason')
+            response_2 = analysis
 
-    #     print('Avatar response after getting sensor data:', response_2)
+        print('Avatar response after getting sensor data:', response_2)
 
-    #     return jsonify({"reply": response_2})
+        return jsonify({"reply": response_2})
 
     return jsonify({"reply": response})
 
