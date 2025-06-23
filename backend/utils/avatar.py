@@ -184,6 +184,12 @@ def build_index():
     subprocess.run(cmd, shell=True)
     print('Just cleared data/ . Contents: ', os.listdir('data'))
 
+    system_prompt = fetch_system_prompt_from_gdoc(save=False)
+    system_prompt = system_prompt[:system_prompt.find('You also have access to sensory data for the river')]
+    with open('data/system_prompt.txt', 'w') as f:
+        f.write(system_prompt)
+        print(' Added updated system prompt to embeddings.')
+
 
     print('Refreshing from Google Drive...')
     download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
