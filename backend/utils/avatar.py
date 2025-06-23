@@ -18,6 +18,7 @@ from llama_index.core.indices.vector_store import VectorStoreIndex
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
+from llama_index.node_parser import SentenceSplitter
 
 
 from openai import OpenAI
@@ -243,7 +244,12 @@ def build_index():
         user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
         documents += user_experiences
 
-    index = VectorStoreIndex.from_documents(documents)
+
+    parser = SentenceSplitter(chunk_size=512, chunk_overlap=64)
+    nodes = parser.get_nodes_from_documents(documents)
+
+    # index = VectorStoreIndex.from_documents(documents)
+    index = VectorStoreIndex(nodes)
     index.storage_context.persist(persist_dir=STORAGE_DIR)
 
     all_nodes = list(index.docstore.docs.values())

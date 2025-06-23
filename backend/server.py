@@ -45,7 +45,7 @@ def prepare_query_engine(refresh=False):
 
     # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
-    index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10)
+    index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
 
     return index_query_engine
 
