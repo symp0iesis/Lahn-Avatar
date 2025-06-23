@@ -18,7 +18,7 @@ from llama_index.core.indices.vector_store import VectorStoreIndex
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
-from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.node_parser import SemanticSplitterNodeParser
 
 
 from openai import OpenAI
@@ -245,7 +245,7 @@ def build_index():
         documents += user_experiences
 
 
-    parser = SentenceSplitter(chunk_size=200, chunk_overlap=32, tokenizer="nltk")
+    parser = SemanticSplitterNodeParser(chunk_size=200, chunk_overlap=32)
     nodes = parser.get_nodes_from_documents(documents)
 
     # index = VectorStoreIndex.from_documents(documents)
