@@ -72,13 +72,6 @@ def refresh_prompt():
 def refresh_embeddings():
     global query_engine
     print('Refresh embeddings request received.')
-
-    system_prompt = fetch_system_prompt_from_gdoc(save=False)
-    system_prompt = system_prompt[:system_prompt.find('You also have access to sensory data for the river')]
-    with open('data/system_prompt.txt', 'w') as f:
-        f.write(system_prompt)
-        print(' Added updated system prompt to embeddings.')
-
     query_engine = prepare_query_engine(refresh=True)
     return 'Done'
 

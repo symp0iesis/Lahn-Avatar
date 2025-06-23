@@ -203,7 +203,7 @@ def build_index():
         for i, doc in enumerate(documents):
             print(f"\n--- Document {i+1} ---")
             print("File:", doc.metadata.get('file_path', 'Unknown'))
-            print("Content preview:", doc.text[:300], "...\n")
+            print("Content preview:", doc.text, "...\n")
 
 
     links_path = Path(DATA_DIR) / "General_News/Online News (Links).txt"
@@ -245,6 +245,12 @@ def build_index():
 
     index = VectorStoreIndex.from_documents(documents)
     index.storage_context.persist(persist_dir=STORAGE_DIR)
+
+    all_nodes = list(index.docstore.docs.values())
+    for i, node in enumerate(all_nodes):
+        print(f"\nNode {i}:")
+        print(node.text)
+
     print('Done')
 
     return index
