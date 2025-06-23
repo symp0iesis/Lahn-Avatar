@@ -121,7 +121,8 @@ def chat():
     chat_completion = llm.chat.completions.create(
           messages= messages_being_sent_to_avatar,
           model= llm_choice,
-          temperature=0
+          temperature=0,
+          top_p=0.85
       )
 
     response = chat_completion.choices[0].message.content
@@ -138,22 +139,25 @@ def chat():
         print('Analysis: ', analysis)
         results += '\nHere is the output of analyze_sensor_data(): '+analysis
 
-    if len(results)>0:
-        print('Passing analysis results to LLM: ', chat_history+[{'role':'system', 'content':results}])
-        chat_completion_2 = llm.chat.completions.create(
-              messages=chat_history+[{'role':'system', 'content':results}],
-              model= llm_choice,
-              temperature=0
-          )
+        return jsonify({"reply": analysis})
 
-        response_2 = chat_completion_2.choices[0].message.content
-        if 'analyze_sensor_data' in response_2:
-            print('Duplicate function call for some reason')
-            response_2 = analysis
+    # if len(results)>0:
+    #     print('Passing analysis results to LLM: ', chat_history+[{'role':'system', 'content':results}])
+    #     chat_completion_2 = llm.chat.completions.create(
+    #           messages=chat_history+[{'role':'system', 'content':results}],
+    #           model= llm_choice,
+    #           temperature=0,
+    #           top_p=0.85
+    #       )
 
-        print('Avatar response after getting sensor data:', response_2)
+    #     response_2 = chat_completion_2.choices[0].message.content
+    #     if 'analyze_sensor_data' in response_2:
+    #         print('Duplicate function call for some reason')
+    #         response_2 = analysis
 
-        return jsonify({"reply": response_2})
+    #     print('Avatar response after getting sensor data:', response_2)
+
+    #     return jsonify({"reply": response_2})
 
     return jsonify({"reply": response})
 
