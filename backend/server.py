@@ -27,10 +27,11 @@ llm, system_prompt = get_llm('openai', llm_choice)
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
+sensor_query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations :')
 query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query:')
 
 api_tool = QueryEngineTool.from_defaults(
-        query_engine=LahnSensorsTool(query_llm),
+        query_engine=LahnSensorsTool(sensor_query_llm),
         name=LahnSensorsTool.name,
         description=LahnSensorsTool.description,
     )
