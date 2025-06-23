@@ -121,8 +121,8 @@ def chat():
     chat_completion = llm.chat.completions.create(
           messages= messages_being_sent_to_avatar,
           model= llm_choice,
-          temperature=0,
-          top_p=0.85
+          # temperature=0,
+          # top_p=0.85
       )
 
     response = chat_completion.choices[0].message.content
