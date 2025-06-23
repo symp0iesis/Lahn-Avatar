@@ -18,7 +18,7 @@ from llama_index.core.indices.vector_store import VectorStoreIndex
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
-from llama_index.node_parser import SentenceSplitter
+from llama_index.core.node_parser import SentenceSplitter
 
 
 from openai import OpenAI
