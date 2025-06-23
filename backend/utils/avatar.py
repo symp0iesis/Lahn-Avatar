@@ -244,13 +244,15 @@ def build_index():
         user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
         documents += user_experiences
 
-
+    print('Creating nodes...')
     parser = SemanticSplitterNodeParser(embed_model= Settings.embed_model, chunk_size=200, chunk_overlap=32)
     nodes = parser.get_nodes_from_documents(documents)
 
     for node in nodes:
         # Fix common formatting issue: remove excessive line breaks
         node.text = " ".join(node.text.split())
+
+    print('Creating index...')
 
     # index = VectorStoreIndex.from_documents(documents)
     index = VectorStoreIndex(nodes)
@@ -276,7 +278,7 @@ def build_or_load_index(refresh=False):
     #     api_version=AZURE_VERSION,
     # )
 
-    Settings.embed_model = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-large") #"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    Settings.embed_model = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-base") #"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
     # GWDGEmbedding(
     #     api_key=API_KEY,
