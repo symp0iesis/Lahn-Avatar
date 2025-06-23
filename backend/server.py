@@ -72,6 +72,13 @@ def refresh_prompt():
 def refresh_embeddings():
     global query_engine
     print('Refresh embeddings request received.')
+    
+    system_prompt = fetch_system_prompt_from_gdoc(safe=False)
+    system_prompt = system_prompt[:system_prompt.find('You also have access to sensory data for the river')]
+    with open('data/system_prompt.txt', 'w') as f:
+        f.write(system_prompt)
+        print(' Added updated system prompt to embeddings.')
+
     query_engine = prepare_query_engine(refresh=True)
     return 'Done'
 
@@ -117,10 +124,11 @@ def chat():
 
     messages_being_sent_to_avatar = chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call get_relevant_Lahn_context() if environmental data readings are relevant to the user\'s query.'}]
     print('Messages being sent to avatar: ', messages_being_sent_to_avatar)
-    
+
     chat_completion = llm.chat.completions.create(
           messages= messages_being_sent_to_avatar,
           model= llm_choice,
+          temperature=0.5
       )
 
     response = chat_completion.choices[0].message.content
@@ -141,6 +149,7 @@ def chat():
         chat_completion = llm.chat.completions.create(
               messages=chat_history+[{'role':'system', 'content':results}],
               model= llm_choice,
+              temperature=0.5
           )
 
         response = chat_completion.choices[0].message.content

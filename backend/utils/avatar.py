@@ -57,7 +57,7 @@ def download_drive_folder(folder_id, output_dir="./data"):
     subprocess.run(cmd, shell=True)
 
 
-def fetch_system_prompt_from_gdoc():
+def fetch_system_prompt_from_gdoc(save=True):
     print(' Updating system prompt...')
     url = "https://docs.google.com/document/d/1NYOOy8KkaLDBwvHvEVg1hVDY5yvHeLACUpCEkJVM8Kw/export?format=txt"
     response = requests.get(url)
@@ -65,11 +65,14 @@ def fetch_system_prompt_from_gdoc():
     prompt = response.text.strip()
     # prompt = prompt[:prompt.find('General Internal Impressions')]
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, 'system_prompt.txt')
-    with open(file_path, 'w') as f:
-        f.write(prompt)
-    print(' Done.')
+    if save==True:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(base_dir, 'system_prompt.txt')
+        with open(file_path, 'w') as f:
+            f.write(prompt)
+        print(' Done.')
+    else:
+        return prompt
 
 
 def convert_docx_to_txt_and_cleanup(folder_path):
