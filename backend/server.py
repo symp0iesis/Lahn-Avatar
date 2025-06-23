@@ -137,7 +137,7 @@ def chat():
         print('Query: ', query)
         analysis = str(api_tool(query))
         print('Analysis: ', analysis)
-        results += '\nHere is the output of analyze_sensor_data(): '+analysis +' Do not provide any qualitative evaluation of this data, just focus on the quantitative result.'
+        results += '\nHere is the output of analyze_sensor_data(): '+analysis +' Respond to the user accordingly. Do not provide any qualitative evaluation of this data, just focus on the quantitative result. And do not return a function call.'
 
         # return jsonify({"reply": analysis})
 
