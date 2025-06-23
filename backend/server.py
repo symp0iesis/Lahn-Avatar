@@ -95,12 +95,12 @@ def chat():
         for m in conversation
         ]
 
-    print('Conversation data from API call: ', conversation)
+    # print('Conversation data from API call: ', conversation)
 
     # chat_history.insert(0, {'role':'user', 'content':'Hallo'})
     chat_history.insert(0, {'role':'system', 'content':system_prompt})
 
-    print('Extracted chat history: ', chat_history)
+    # print('Extracted chat history: ', chat_history)
 
     results = ''
 
@@ -116,7 +116,7 @@ def chat():
 
 
     messages_being_sent_to_avatar = chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call get_relevant_Lahn_context() if environmental data readings are relevant to the user\'s query.'}]
-    print('Messages being sent to avatar: ', messages_being_sent_to_avatar)
+    # print('Messages being sent to avatar: ', messages_being_sent_to_avatar)
 
     chat_completion = llm.chat.completions.create(
           messages= messages_being_sent_to_avatar,
