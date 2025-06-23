@@ -14,7 +14,7 @@ llama-index-readers-youtube-transcript
 llama-index-llms-azure-openai
 llama-index-experimental
 llama-index-llms-openai-like
-
+matplotlib
 
 
 numpy==1.26.4
