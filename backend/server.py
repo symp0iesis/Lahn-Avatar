@@ -121,7 +121,7 @@ def chat():
     chat_completion = llm.chat.completions.create(
           messages= messages_being_sent_to_avatar,
           model= llm_choice,
-          temperature=0.5
+          temperature=0.2
       )
 
     response = chat_completion.choices[0].message.content
@@ -143,7 +143,7 @@ def chat():
         chat_completion_2 = llm.chat.completions.create(
               messages=chat_history+[{'role':'system', 'content':results}],
               model= llm_choice,
-              temperature=0.5
+              temperature=0.2
           )
 
         response_2 = chat_completion_2.choices[0].message.content
