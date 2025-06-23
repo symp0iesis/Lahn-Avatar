@@ -245,7 +245,7 @@ def build_index():
         documents += user_experiences
 
 
-    parser = SemanticSplitterNodeParser(chunk_size=200, chunk_overlap=32)
+    parser = SemanticSplitterNodeParser(embed_model= Settings.embed_model, chunk_size=200, chunk_overlap=32)
     nodes = parser.get_nodes_from_documents(documents)
 
     # index = VectorStoreIndex.from_documents(documents)
