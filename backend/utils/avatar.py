@@ -276,7 +276,7 @@ def build_or_load_index(refresh=False):
     #     api_version=AZURE_VERSION,
     # )
 
-    Settings.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    Settings.embed_model = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-large") #"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
     # GWDGEmbedding(
     #     api_key=API_KEY,
