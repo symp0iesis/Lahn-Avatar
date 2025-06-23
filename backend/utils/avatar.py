@@ -245,7 +245,7 @@ def build_index():
         documents += user_experiences
 
 
-    parser = SentenceSplitter(chunk_size=512, chunk_overlap=64)
+    parser = SentenceSplitter(chunk_size=200, chunk_overlap=32, tokenizer="nltk")
     nodes = parser.get_nodes_from_documents(documents)
 
     # index = VectorStoreIndex.from_documents(documents)
