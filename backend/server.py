@@ -8,7 +8,7 @@ from datetime import datetime
 from llama_index.core.tools.query_engine import QueryEngineTool
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
-from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, LahnSensorsTool
+from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, LahnSensorsTool, format_history_as_string
 
 import os
 
@@ -27,10 +27,11 @@ llm, system_prompt = get_llm('openai', llm_choice)
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
+sensor_query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations :')
 query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query:')
 
 api_tool = QueryEngineTool.from_defaults(
-        query_engine=LahnSensorsTool(query_llm),
+        query_engine=LahnSensorsTool(sensor_query_llm),
         name=LahnSensorsTool.name,
         description=LahnSensorsTool.description,
     )
@@ -45,7 +46,7 @@ def prepare_query_engine(refresh=False):
 
     # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
-    index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10)
+    index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
 
     return index_query_engine
 
@@ -86,49 +87,31 @@ def chat():
     conversation = data.get("history", "")
     chat_history = []
 
-    if prompt == "__INIT__":
-        prompt = "Hallo"
-        # chat_history=[{'role':'user', 'content':prompt}]
+    # if prompt == "__INIT__":
+    #     prompt = "Hallo"
+    #     # chat_history=[{'role':'user', 'content':prompt}]
 
-    elif not prompt: #Needed?
-        return jsonify({"reply": "Please say something."}), 400
+    # else:
+    chat_history = [
+        {'role':"user" if m["sender"] == "user" else "assistant", 'content':m["text"]}
+        for m in conversation
+        ]
 
-
-    else:
-        chat_history = [
-            {'role':"user" if m["sender"] == "user" else "assistant", 'content':m["text"]}
-            for m in conversation
-            ]
-
-    chat_history.insert(0, {'role':'user', 'content':'Hallo'})
+    # chat_history.insert(0, {'role':'user', 'content':'Hallo'})
     chat_history.insert(0, {'role':'system', 'content':system_prompt})
 
     # print('Chat history: ', chat_history)
 
-    print('After adding system and user prompts: ', chat_history)
-
-    # print('Chat history: ', chat_history)
-    # print('model: ', llm_choice)
-
-
-
-    # chat_completion = llm.chat.completions.create(
-    #       messages=chat_history,
-    #       model= llm_choice,
-    #       temperature=0.5
-    #   )
-
+    # print('After adding system and user prompts: ', chat_history)
 
     print('\nUser message:', prompt)
-    # response = chat_completion.choices[0].message.content
-    # print('Response: ', response)
 
     results = ''
 
     # if 'get_relevant_Lahn_context' in response:
     print('Obtaining information for the LLM...')
     # response = response[response.find('user_query="')+12:]
-    query = prompt #response[:response.find('")')]
+    query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
     # print('Query: ', query)
     context = query_engine.query(query).response
     print('Context: ', context)
@@ -137,21 +120,12 @@ def chat():
     chat_completion = llm.chat.completions.create(
           messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call get_relevant_Lahn_context() if environmental data readings are relevant to the user\'s query.'}],
           model= llm_choice,
+          top_p=0.8
       )
 
     response = chat_completion.choices[0].message.content
 
-
-
-    # if 'get_relevant_Lahn_context' in response:
-    #     print('Fetching relevant Lahn context...')
-    #     response = response[response.find('user_query="')+12:]
-    #     query = response[:response.find('")')]
-    #     print('Query: ', query)
-    #     context = query_engine.query(query).response
-    #     print('Context: ', context)
-    #     results += '\nHere is the output of get_relevant_Lahn_context(): '+context
-
+    print('Avatar response: ', response)
 
 
     if 'analyze_sensor_data' in response:
@@ -161,17 +135,29 @@ def chat():
         print('Query: ', query)
         analysis = str(api_tool(query))
         print('Analysis: ', analysis)
-        results += '\nHere is the output of analyze_sensor_data(): '+analysis
+        results += '\nHere is the output of analyze_sensor_data(): '+analysis +' Respond to the user accordingly. Do not provide any subjective Lahn-specific evaluation of this data, just focus on the quantitative result. And do not return a function call.'
 
     if len(results)>0:
-        chat_completion = llm.chat.completions.create(
+        print('Passing analysis results to LLM: ', chat_history+[{'role':'system', 'content':results}])
+        chat_completion_2 = llm.chat.completions.create(
               messages=chat_history+[{'role':'system', 'content':results}],
               model= llm_choice,
+              top_p=0.8
           )
 
-    response = chat_completion.choices[0].message.content
+        response_2 = chat_completion_2.choices[0].message.content
+        if 'analyze_sensor_data' in response_2:
+            print('Duplicate function call for some reason')
+            response_2 = analysis
 
-    print('Avatar response:', response)
+        print('Avatar response after getting sensor data:', response_2)
+
+        return jsonify({"reply": response_2.replace('*','')})
+
+    # response = chat_completion.choices[0].message.content
+    response = response.replace('*','')
+
+    # print('Avatar response:', response)
 
     return jsonify({"reply": response})
 
