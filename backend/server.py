@@ -112,16 +112,16 @@ def chat():
 
 
 
-    chat_completion = llm.chat.completions.create(
-          messages=chat_history,
-          model= llm_choice,
-          temperature=0.5
-      )
+    # chat_completion = llm.chat.completions.create(
+    #       messages=chat_history,
+    #       model= llm_choice,
+    #       temperature=0.5
+    #   )
 
 
     print('\nUser message:', prompt)
-    response = chat_completion.choices[0].message.content
-    print('Response: ', response)
+    # response = chat_completion.choices[0].message.content
+    # print('Response: ', response)
 
     results = ''
 
