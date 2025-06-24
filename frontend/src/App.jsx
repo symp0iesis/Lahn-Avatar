@@ -48,12 +48,12 @@ export default function LahnAvatarChat() {
     }
   };
 
-  useEffect(() => {
-    if (!isDebateMode && !initialFetchRef.current) {
-      initialFetchRef.current = true;
-      fetchMessage({ prompt: "__INIT__" });
-    }
-  }, [isDebateMode]);
+  // useEffect(() => {
+  //   if (!isDebateMode && !initialFetchRef.current) {
+  //     initialFetchRef.current = true;
+  //     fetchMessage({ prompt: "__INIT__" });
+  //   }
+  // }, [isDebateMode]);
 
   useEffect(() => {
     if (isDebateMode && selectedTopic && !hasFetchedDebateInit) {
