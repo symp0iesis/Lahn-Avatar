@@ -248,9 +248,9 @@ def build_index():
     parser = SemanticSplitterNodeParser(embed_model= Settings.embed_model, chunk_size=200, chunk_overlap=32)
     nodes = parser.get_nodes_from_documents(documents)
 
-    # for node in nodes:
-    #     # Fix common formatting issue: remove excessive line breaks
-    #     node.text = " ".join(node.text.split())
+    for node in nodes:
+        # Fix common formatting issue: remove excessive line breaks
+        node.text = " ".join(node.text.split())
 
     print('Creating index...')
 
