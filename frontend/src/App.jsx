@@ -85,27 +85,27 @@ export default function LahnAvatarChat() {
     }
   }, [debateMessages]);
 
-  const handleRefreshPrompt = async () => {
-    setRefreshPromptState("loading");
-    try {
-      await fetch("https://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-prompt", { method: "POST" });
-      setRefreshPromptState("done");
-      setTimeout(() => setRefreshPromptState("idle"), 1500);
-    } catch {
-      setRefreshPromptState("idle");
-    }
-  };
+  // const handleRefreshPrompt = async () => {
+  //   setRefreshPromptState("loading");
+  //   try {
+  //     await fetch("https://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-prompt", { method: "POST" });
+  //     setRefreshPromptState("done");
+  //     setTimeout(() => setRefreshPromptState("idle"), 1500);
+  //   } catch {
+  //     setRefreshPromptState("idle");
+  //   }
+  // };
 
-  const handleRefreshEmbeddings = async () => {
-    setRefreshEmbeddingsState("loading");
-    try {
-      await fetch("https://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-embeddings", { method: "POST" });
-      setRefreshEmbeddingsState("done");
-      setTimeout(() => setRefreshEmbeddingsState("idle"), 1500);
-    } catch {
-      setRefreshEmbeddingsState("idle");
-    }
-  };
+  // const handleRefreshEmbeddings = async () => {
+  //   setRefreshEmbeddingsState("loading");
+  //   try {
+  //     await fetch("https://lahn-server.eastus.cloudapp.azure.com:5001/api/refresh-embeddings", { method: "POST" });
+  //     setRefreshEmbeddingsState("done");
+  //     setTimeout(() => setRefreshEmbeddingsState("idle"), 1500);
+  //   } catch {
+  //     setRefreshEmbeddingsState("idle");
+  //   }
+  // };
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -144,7 +144,7 @@ export default function LahnAvatarChat() {
           <Switch checked={isDebateMode} onCheckedChange={setIsDebateMode} />
           <span className="font-poetic text-stone-700">Debate Mode</span>
         </div>
-        <Button
+        {/*<Button
           onClick={handleRefreshPrompt}
           disabled={refreshPromptState === "loading"}
           variant="outline"
@@ -165,7 +165,7 @@ export default function LahnAvatarChat() {
             : refreshEmbeddingsState === "loading"
             ? "Refreshing..."
             : "✓ Done"}
-        </Button>
+        </Button>*/}
       </div>
 
       {isDebateMode && (
