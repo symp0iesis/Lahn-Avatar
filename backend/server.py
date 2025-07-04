@@ -23,7 +23,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
 
 llm, system_prompt = get_llm('openai', llm_choice)
-query_llm_, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation. Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. That is where your job stops. : ')
+query_llm_, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation. Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. That is where your job stops. Reply only with the question and nothing else. : ')
 
 # print('LLM metadata model name: ', llm.metadata.model_name)
 

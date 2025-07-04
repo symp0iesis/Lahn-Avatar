@@ -7,7 +7,7 @@ import LahnAvatarChat from "./App.jsx";
 // import VoiceChat from "./VoiceChat.jsx";
 import ExperienceUploadPage from "./ExperienceUploadPage.jsx";
 // import Mirror from "./Mirror.jsx"
-// import Layout from "./Layout.jsx"; // <-- new layout component with sidebar
+import Layout from "./Layout.jsx"; // <-- new layout component with sidebar
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
