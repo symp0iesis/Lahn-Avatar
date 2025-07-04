@@ -242,7 +242,7 @@ def prepare_text_index(RAW_TEXT):
 # ------------------------------------------------------------------
 # 3. Dual-language search
 # ------------------------------------------------------------------
-def search_text_index(bm25, query:str, k_each:int=5):
+def search_text_index(bm25, chunks, query:str, k_each:int=5):
     lang_orig  = "de" if detect(query) == "de" else "en"
     lang_trans = "en" if lang_orig == "de" else "de"
 
@@ -349,12 +349,13 @@ def build_index():
     text_index, chunks = prepare_text_index(context)
 
     pickle.dump(text_index, open(STORAGE_DIR+'/text_index.pkl','wb'))
+    pickle.dump(chunks, open(STORAGE_DIR+'/chunks.pkl','wb'))
     index = text_index
 
 
     print('Done')
 
-    return index
+    return index, chunks
 
 
 
@@ -384,6 +385,7 @@ def build_or_load_index(refresh=False):
     index_ready = (
         os.path.exists(STORAGE_DIR)
         and os.path.exists(os.path.join(STORAGE_DIR, "text_index.pkl"))
+        and os.path.exists(os.path.join(STORAGE_DIR, "chunks.pkl"))
     )
 
     if index_ready and not refresh:
@@ -392,12 +394,13 @@ def build_or_load_index(refresh=False):
         # return load_index_from_storage(storage_context)
 
         index = pickle.load(open(STORAGE_DIR+'/text_index.pkl','rb'))
-        return index
+        chunks = pickle.load(open(STORAGE_DIR+'/chunks.pkl','rb'))
+        return index, chunks
 
     #Index needs to be built and loaded
-    index = build_index()
+    index, chunks = build_index()
     
-    return index
+    return index, chunks
 
 
 def main():

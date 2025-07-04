@@ -40,19 +40,19 @@ api_tool = QueryEngineTool.from_defaults(
 def prepare_query_engine(refresh=False):
     global query_llm
     if refresh==True:
-        index = build_index()
+        index, chunks = build_index()
     else:
-        index = build_or_load_index()
+        index, chunks = build_or_load_index()
 
     # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
     # index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
     index_query_engine = search_text_index
 
-    return index_query_engine, index
+    return index_query_engine, index, chunks
 
 
-query_engine, index = prepare_query_engine()
+query_engine, index, chunks = prepare_query_engine()
 
 debate_summary_llm, _= get_llm('gwdg', "mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
@@ -74,7 +74,7 @@ def refresh_prompt():
 def refresh_embeddings():
     global query_engine, index
     print('Refresh embeddings request received.')
-    query_engine, index = prepare_query_engine(refresh=True)
+    query_engine, index, chunks = prepare_query_engine(refresh=True)
     return 'Done'
 
 
@@ -115,7 +115,7 @@ def chat():
     query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
     # print('Query: ', query)
     # context = query_engine.query(query).response
-    context = query_engine(index, query)
+    context = query_engine(index, chunks, query)
     print('Context: ', context)
     context = '\n'.join(context)
     # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
