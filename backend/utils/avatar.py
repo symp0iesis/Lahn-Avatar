@@ -298,10 +298,10 @@ def build_index():
     if len(os.listdir(DATA_DIR))>0:
         documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
         print(f"{len(documents)} documents loaded from {DATA_DIR}")
-        for i, doc in enumerate(documents):
-            print(f"\n--- Document {i+1} ---")
-            print("File:", doc.metadata.get('file_path', 'Unknown'))
-            print("Content preview:", doc.text[:300], "...\n")
+        # for i, doc in enumerate(documents):
+        #     print(f"\n--- Document {i+1} ---")
+        #     print("File:", doc.metadata.get('file_path', 'Unknown'))
+        #     print("Content preview:", doc.text[:300], "...\n")
 
 
     links_path = Path(DATA_DIR) / "General_News/Online News (Links).txt"
