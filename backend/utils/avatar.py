@@ -293,7 +293,7 @@ def build_index():
     download_drive_folder(DRIVE_FOLDER_ID, DATA_DIR)
     convert_docx_to_txt_and_cleanup(DATA_DIR)
 
-    print('Creating Vector store from data sources...')
+    print('Creating Context store from data sources...')
 
     if len(os.listdir(DATA_DIR))>0:
         documents = SimpleDirectoryReader(DATA_DIR, recursive=True).load_data()
@@ -348,7 +348,7 @@ def build_index():
     context = '\n'.join([doc.text for doc in documents])
     text_index, chunks = prepare_text_index(context)
 
-    pickle.dump(text_index, open(STORAGE_DIR+'/text_index.pkl','w'))
+    pickle.dump(text_index, open(STORAGE_DIR+'/text_index.pkl','wb'))
     index = text_index
 
 
@@ -391,7 +391,7 @@ def build_or_load_index(refresh=False):
         # storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
         # return load_index_from_storage(storage_context)
 
-        index = pickle.load(open(STORAGE_DIR+'/text_index.pkl','r'))
+        index = pickle.load(open(STORAGE_DIR+'/text_index.pkl','rb'))
         return index
 
     #Index needs to be built and loaded
