@@ -15,11 +15,12 @@ createRoot(document.getElementById("root")).render(
 
 
     <Routes>
-      <Route path="/" element={<Layout />}/>
-      <Route index element={<LahnAvatarChat />} />
-      <Route path="chat" element={<LahnAvatarChat />} />
-      <Route path="experience" element={<ExperienceUploadPage />} />
-      <Route path="*" element={<LahnAvatarChat />} />
+      <Route path="/" element={<Layout />}>
+        <Route index element={<LahnAvatarChat />} />
+        <Route path="chat" element={<LahnAvatarChat />} />
+        <Route path="experience" element={<ExperienceUploadPage />} />
+        <Route path="*" element={<LahnAvatarChat />} />
+      </Route>
     </Routes>
       
     </BrowserRouter>
