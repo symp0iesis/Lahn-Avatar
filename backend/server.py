@@ -23,7 +23,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
 
 llm, system_prompt = get_llm('openai', llm_choice)
-query_llm_, _ = get_llm('openai', 'hrz-chat-small')
+query_llm_, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation. Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. That is where your job stops. : ')
 
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
@@ -114,16 +114,16 @@ def chat():
     print('Obtaining information for the LLM...')
     # response = response[response.find('user_query="')+12:]
     # query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
-    query_prompt = 'Context is needed to address the most recent message in this conversation. Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
+    query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
     print('Query prompt: ', query_prompt)
-    chat_completion = query_llm_.chat.completions.create(
-          messages=chat_history+[{'role':'system', 'content':query_prompt}],
-          model= 'hrz-chat-small',
-          temperature = 0.4,
-          # top_p=0.8
-      )
+    # chat_completion = query_llm_.complete(query_prompt)
+      #     messages=chat_history+[{'role':'system', 'content':query_prompt}],
+      #     model= 'hrz-chat-small',
+      #     temperature = 0.4,
+      #     # top_p=0.8
+      # )
 
-    query = chat_completion.choices[0].message.content
+    query = str(query_llm_.complete(query_prompt)) #chat_completion.choices[0].message.content
     print('Crafted Query: ', query)
     # context = query_engine.query(query).response
     context = query_engine(index, chunks, query)
