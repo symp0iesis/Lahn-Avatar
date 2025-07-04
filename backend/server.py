@@ -23,6 +23,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
 
 llm, system_prompt = get_llm('openai', llm_choice)
+query_llm_, _ = get_llm('openai', 'hrz-chat-small')
 
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
@@ -112,8 +113,16 @@ def chat():
     # if 'get_relevant_Lahn_context' in response:
     print('Obtaining information for the LLM...')
     # response = response[response.find('user_query="')+12:]
-    query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
-    # print('Query: ', query)
+    # query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
+    query_prompt = 'Context is needed to address the most recent message in this conversation. Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
+    chat_completion = query_llm_.chat.completions.create(
+          messages=chat_history+[{'role':'system', 'content':query_prompt}],
+          model= llm_choice,
+          top_p=0.8
+      )
+
+    query = chat_completion.choices[0].message.content
+    print('Crafted Query: ', query)
     # context = query_engine.query(query).response
     context = query_engine(index, chunks, query)
     print('Context: ', context)
@@ -122,7 +131,7 @@ def chat():
 
     chat_completion = llm.chat.completions.create(
           messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
-          model= llm_choice,
+          model= 'hrz-chat-small',
           top_p=0.8
       )
 
