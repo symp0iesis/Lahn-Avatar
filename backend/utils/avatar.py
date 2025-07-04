@@ -348,7 +348,7 @@ def build_index():
     context = '\n'.join([doc.text for doc in documents])
     text_index, chunks = prepare_text_index(context)
 
-    pickle.dump(text, open(STORAGE_DIR+'/text_index.pkl','w'))
+    pickle.dump(text_index, open(STORAGE_DIR+'/text_index.pkl','w'))
     index = text_index
 
 
