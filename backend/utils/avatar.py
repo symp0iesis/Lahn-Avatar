@@ -12,11 +12,11 @@ from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
 from llama_index.core.schema import Document as LlamaDocument
 
-from llama_index.core import StorageContext, load_index_from_storage, Settings
+# from llama_index.core import StorageContext, load_index_from_storage, Settings
 from llama_index.core.readers import SimpleDirectoryReader
-from llama_index.core.indices.vector_store import VectorStoreIndex
+# from llama_index.core.indices.vector_store import VectorStoreIndex
 from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core.settings import Settings
+# from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
 
 
@@ -121,6 +121,7 @@ def sanitize_filename(url):
     return f"{domain.replace('.', '_')}_{hashed}.txt"
 
 
+
 def select_model():
     print("Choose a model:")
     print("1. Mistral")
@@ -175,6 +176,112 @@ def create_session_log():
     os.makedirs(LOG_DIR, exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     return open(os.path.join(LOG_DIR, f"session_{timestamp}.txt"), "w")
+
+
+#wrt Text Index
+
+# pip install deep_translator langdetect rank_bm25 nltk unicodedata
+import re, unicodedata, pickle
+from langdetect import detect
+from deep_translator import GoogleTranslator   # or DeeplTranslator
+from nltk.tokenize import word_tokenize, sent_tokenize
+from rank_bm25 import BM25Okapi
+
+
+CHUNK_SIZE, OVERLAP = 200, 30
+# ------------------------------------------------------------------
+# 0. normalisers / helpers
+# ------------------------------------------------------------------
+def normalise(txt:str) -> str:
+    txt = re.sub(r"\s+", " ", txt.lower().strip())
+    return unicodedata.normalize("NFKD", txt)
+
+def tokenize(text:str, lang:str) -> list[str]:
+    lang_flag = "german" if lang=="de" else "english"
+    return word_tokenize(text, language=lang_flag)
+
+# ------------------------------------------------------------------
+# 1. translation helper with cache
+# ------------------------------------------------------------------
+_trans_cache: dict[tuple[str,str], str] = {}   # (text, target_lang) → translated
+
+def translate(text:str, target_lang:str) -> str:
+    """
+    Translate 'text' to target language ('de' or 'en') using deep_translator.
+    Caches results to avoid hitting rate limits.
+    """
+    key = (text, target_lang)
+    if key in _trans_cache:
+        return _trans_cache[key]
+
+    translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
+    _trans_cache[key] = translated
+    return translated
+
+
+def prepare_text_index(RAW_TEXT):
+    sentences = sent_tokenize(normalise(RAW_TEXT), language="german")
+    chunks, cur, wc = [], [], 0
+    for sent in sentences:
+        words = tokenize(sent, "de")      # punkt model is DE but works for EN too
+        cur.extend(words); wc += len(words)
+        if wc >= CHUNK_SIZE:
+            chunks.append(" ".join(cur))
+            cur, wc = cur[-OVERLAP:], len(cur)
+    if cur: chunks.append(" ".join(cur))
+
+    print(f"➡  Raw chunks: {len(chunks)}")
+    # ------------------------------------------------------------------
+    # 2. Build your BM-25 index (assumes you already have 'chunks')
+    # ------------------------------------------------------------------
+    #   chunks = ["..."]    # list of cleaned 200-word blocks
+    token_lists = [tokenize(c, detect(c)) for c in chunks]
+    bm25 = BM25Okapi(token_lists)
+    return bm25, chunks
+
+# ------------------------------------------------------------------
+# 3. Dual-language search
+# ------------------------------------------------------------------
+def search_text_index(bm25, query:str, k_each:int=5):
+    lang_orig  = "de" if detect(query) == "de" else "en"
+    lang_trans = "en" if lang_orig == "de" else "de"
+
+    # --- original language pass -----------------------------------
+    q_tokens_o = tokenize(normalise(query), lang_orig)
+    scores_o   = bm25.get_scores(q_tokens_o)
+    top_o      = scores_o.argsort()[-k_each:][::-1]
+
+    # --- translated pass ------------------------------------------
+    trans_q    = translate(query, lang_trans)
+    print('Translated query: ',trans_q)
+    q_tokens_t = tokenize(normalise(trans_q), lang_trans)
+    scores_t   = bm25.get_scores(q_tokens_t)
+    top_t      = scores_t.argsort()[-k_each:][::-1]
+
+    # --- merge, preferring best score if overlap ------------------
+    seen, results = {}, []
+    for idx in top_o:
+        seen[idx] = ("orig", float(scores_o[idx]))
+    for idx in top_t:
+        if idx in seen:
+            # keep the better score
+            seen[idx] = ("orig+trans", max(seen[idx][1], float(scores_t[idx])))
+        else:
+            seen[idx] = ("trans", float(scores_t[idx]))
+
+    # sort by score descending and trim to k_each*2
+    merged = sorted(seen.items(), key=lambda kv: kv[1][1], reverse=True)[: 2*k_each]
+    for idx, (tag, score) in merged[:6]:
+        # results.append((tag, score, chunks[idx]))
+        results.append(chunks[idx])
+    return results
+
+# ------------------------------------------------------------------
+# 4. demo
+# ------------------------------------------------------------------
+# for tag, score, snippet in search_dual("Tell me about fish and their sizes"):
+#     print(f"[{tag}] {score:6.2f}  {snippet}")
+
 
 def build_index():
     cmd = f"rm -r data/*"
@@ -234,8 +341,17 @@ def build_index():
         user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
         documents += user_experiences
 
-    index = VectorStoreIndex.from_documents(documents)
-    index.storage_context.persist(persist_dir=STORAGE_DIR)
+    # index = VectorStoreIndex.from_documents(documents)
+    # index.storage_context.persist(persist_dir=STORAGE_DIR)
+
+
+    context = '\n'.join([doc.text for doc in documents])
+    text_index, chunks = prepare_text_index(context)
+
+    pickle.dump(text, open(STORAGE_DIR+'/text_index.pkl','w'))
+    index = text_index
+
+
     print('Done')
 
     return index
@@ -251,7 +367,7 @@ def build_or_load_index(refresh=False):
     #     api_version=AZURE_VERSION,
     # )
 
-    Settings.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    # Settings.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
     # GWDGEmbedding(
     #     api_key=API_KEY,
@@ -259,16 +375,24 @@ def build_or_load_index(refresh=False):
     #     model="e5-mistral-7b-instruct"
     # )
 
+    # index_ready = (
+    #     os.path.exists(STORAGE_DIR)
+    #     and os.path.exists(os.path.join(STORAGE_DIR, "docstore.json"))
+    #     and os.path.exists(os.path.join(STORAGE_DIR, "index_store.json"))
+    # )
+
     index_ready = (
         os.path.exists(STORAGE_DIR)
-        and os.path.exists(os.path.join(STORAGE_DIR, "docstore.json"))
-        and os.path.exists(os.path.join(STORAGE_DIR, "index_store.json"))
+        and os.path.exists(os.path.join(STORAGE_DIR, "text_index.pkl"))
     )
 
     if index_ready and not refresh:
         print('Loading index from storage...')
-        storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
-        return load_index_from_storage(storage_context)
+        # storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
+        # return load_index_from_storage(storage_context)
+
+        index = pickle.load(open(STORAGE_DIR+'/text_index.pkl','r'))
+        return index
 
     #Index needs to be built and loaded
     index = build_index()

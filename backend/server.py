@@ -7,7 +7,7 @@ from datetime import datetime
 # from llama_index.core import Settings
 from llama_index.core.tools.query_engine import QueryEngineTool
 
-from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc
+from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc, search_text_index
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, LahnSensorsTool, format_history_as_string
 
 import os
@@ -27,7 +27,7 @@ llm, system_prompt = get_llm('openai', llm_choice)
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
-sensor_query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations :')
+sensor_query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations. Always include the following setup **before any resampling or time-based operations**: df[\'created_at\'] = pd.to_datetime(df[\'created_at\'])  df = df.set_index(\'created_at\') :')
 query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query:')
 
 api_tool = QueryEngineTool.from_defaults(
@@ -46,12 +46,13 @@ def prepare_query_engine(refresh=False):
 
     # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
-    index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
+    # index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
+    index_query_engine = search_text_index
 
-    return index_query_engine
+    return index_query_engine, index
 
 
-query_engine = prepare_query_engine()
+query_engine, index = prepare_query_engine()
 
 debate_summary_llm, _= get_llm('gwdg', "mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
@@ -71,9 +72,9 @@ def refresh_prompt():
 
 @app.route("/api/refresh-embeddings", methods=["POST"])
 def refresh_embeddings():
-    global query_engine
+    global query_engine, index
     print('Refresh embeddings request received.')
-    query_engine = prepare_query_engine(refresh=True)
+    query_engine, index = prepare_query_engine(refresh=True)
     return 'Done'
 
 
@@ -113,12 +114,14 @@ def chat():
     # response = response[response.find('user_query="')+12:]
     query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
     # print('Query: ', query)
-    context = query_engine.query(query).response
+    # context = query_engine.query(query).response
+    context = query_engine(index, query)
     print('Context: ', context)
+    context = '\n'.join(context)
     # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
     chat_completion = llm.chat.completions.create(
-          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call get_relevant_Lahn_context() if environmental data readings are relevant to the user\'s query.'}],
+          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
           model= llm_choice,
           top_p=0.8
       )
@@ -150,9 +153,11 @@ def chat():
             print('Duplicate function call for some reason')
             response_2 = analysis
 
+        response_2 = response_2.replace('*','')
+
         print('Avatar response after getting sensor data:', response_2)
 
-        return jsonify({"reply": response_2.replace('*','')})
+        return jsonify({"reply": response_2})
 
     # response = chat_completion.choices[0].message.content
     response = response.replace('*','')
