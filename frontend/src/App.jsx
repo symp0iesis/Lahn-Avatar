@@ -42,7 +42,12 @@ export default function LahnAvatarChat() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            ...payload,
+            ...(isDebateMode && selectedTopic
+              ? { topic: selectedTopic }
+              : {})
+            }),
         }
       );
       const { reply } = await resp.json();
@@ -54,20 +59,6 @@ export default function LahnAvatarChat() {
     }
   };
 
-  // useEffect(() => {
-  //   if (!isDebateMode && !initialFetchRef.current) {
-  //     initialFetchRef.current = true;
-  //     fetchMessage({ prompt: "__INIT__" });
-  //   }
-  // }, [isDebateMode]);
-
-  // useEffect(() => {
-  //   if (isDebateMode && selectedTopic && !hasFetchedDebateInit) {
-  //     setHasFetchedDebateInit(true);
-  //     setDebateMessages([]);
-  //     fetchMessage({ history: debateMessages, prompt: `Let's talk about ${selectedTopic}` });
-  //   }
-  // }, [isDebateMode]);
 
   useEffect(() => {
     const last = debateMessages[debateMessages.length - 1];
