@@ -17,6 +17,7 @@ llama-index-experimental
 #llama-index-llms-openai-like
 
 langdetect
+deep-translator
 
 
 numpy==1.26.4
