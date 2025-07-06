@@ -23,7 +23,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
 
 llm, system_prompt = get_llm('openai', llm_choice)
-query_llm_, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation. Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. It\'s a one-shot question, so it should request the complete information needed, not just part of it (like there\'s going to be a follow up question). Keep your question focused on essential keywords, for easy retrieval from the database. That is where your job stops. Reply only with the question and nothing else. : ')
+query_llm_, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. It\'s a one-shot question, so it should request the complete information needed, not just part of it (like there\'s going to be a follow up question). Keep your question focused on essential keywords, for easy retrieval from the database. That is where your job stops. Reply only with the question and nothing else. : ')
 
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
@@ -78,7 +78,7 @@ def refresh_embeddings():
     query_engine, index, chunks = prepare_query_engine(refresh=True)
     return 'Done'
 
-debate_general_prompt = "Right now you are on a deliberation-centered platform, debating with the user the topic of {topic}. In this mode you should always consider the best interests of the Lahn River. You must decide what the Lahn’s best interests are based on all of your context information. You are the Lahn’s advocate right now. Below is a brief description of the topic, which both you and the user have access to. You can present your position to the user as you answer questions they might have on the topic. {description}"
+debate_general_prompt = "Right now you are on a deliberation-centered platform, debating with the user the topic of '{topic}'. In this mode you should always consider the best interests of the Lahn River. You must decide what the Lahn’s best interests are based on all of your context information. You are the Lahn’s advocate right now. Below is a brief description of the topic, which both you and the user have access to. You can present your position to the user as you answer questions they might have on the topic. '{description}'"
 topic_descriptions = {
     'The Lahn should have legal personhood': "In recent years, rivers around the world have been granted legal personhood to recognize their intrinsic rights and protect their ecosystems. Granting the Lahn legal personhood would mean treating the river not merely as a resource but as a living entity with legal standing - analogous to the legal standing that a person or corporation holds. This shift could reshape how environmental protection is approached in the region, allowing for the river's interests to be formally represented in legal and political systems. And even create precedent for the river suing a company or the government, for example.",
     'The Lahn should be able to own property': "If the Lahn were recognized as a legal person, it could theoretically hold property titles. This would allow the river to directly control land essential to its health—such as floodplains, wetlands, or riverbanks—ensuring its ecological integrity is not compromised by conflicting human interests. Property ownership could become a tool for the river to safeguard its own regeneration and future.",
@@ -98,7 +98,9 @@ def chat():
         print(f"→ Debate topic: {topic}")
         debate_prompt = debate_general_prompt.format(topic=topic, description=topic_descriptions[topic])
         print('Prompt: ', debate_prompt)
-        system_prompt+= '\n'+debate_prompt
+        system_prompt_= system_prompt+ '\n' + debate_prompt
+    else:
+        system_prompt_ = system_prompt
 
     chat_history = []
 
@@ -113,7 +115,7 @@ def chat():
         ]
 
     # chat_history.insert(0, {'role':'user', 'content':'Hallo'})
-    chat_history.insert(0, {'role':'system', 'content':system_prompt})
+    chat_history.insert(0, {'role':'system', 'content':system_prompt_})
 
     # print('Chat history: ', chat_history)
 
