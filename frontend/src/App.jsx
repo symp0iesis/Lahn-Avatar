@@ -61,13 +61,13 @@ export default function LahnAvatarChat() {
   //   }
   // }, [isDebateMode]);
 
-  useEffect(() => {
-    if (isDebateMode && selectedTopic && !hasFetchedDebateInit) {
-      setHasFetchedDebateInit(true);
-      setDebateMessages([]);
-      fetchMessage({ history: debateMessages, prompt: `Let's talk about ${selectedTopic}` });
-    }
-  }, [isDebateMode, selectedTopic]);
+  // useEffect(() => {
+  //   if (isDebateMode && selectedTopic && !hasFetchedDebateInit) {
+  //     setHasFetchedDebateInit(true);
+  //     setDebateMessages([]);
+  //     fetchMessage({ history: debateMessages, prompt: `Let's talk about ${selectedTopic}` });
+  //   }
+  // }, [isDebateMode]);
 
   useEffect(() => {
     const last = debateMessages[debateMessages.length - 1];
