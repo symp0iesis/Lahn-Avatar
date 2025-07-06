@@ -11,7 +11,7 @@ export default function Layout() {
       {/* Hamburger button */}
       {!isOpen && (
         <button
-          className="hidden p-2 m-2 bg-white rounded-md shadow-md z-10"
+          className="p-2 m-2 bg-white rounded-md shadow-md z-10"
           onClick={() => setIsOpen(true)}
         >
           <Menu size={24} />
@@ -22,7 +22,7 @@ export default function Layout() {
       <nav
         className={
           `
-            hidden fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-emerald-100 to-stone-100 p-5 shadow-md
+            fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-emerald-100 to-stone-100 p-5 shadow-md
             transform transition-transform duration-200 ease-in-out
             ${isOpen ? "translate-x-0" : "-translate-x-full"}
             flex flex-col gap-4
