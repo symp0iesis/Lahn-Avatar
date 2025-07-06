@@ -16,8 +16,11 @@ llama-index-llms-azure-openai
 llama-index-experimental
 #llama-index-llms-openai-like
 
+
+#For text-based retrieval
 langdetect
 deep-translator
+rank-bm25
 
 
 numpy==1.26.4
