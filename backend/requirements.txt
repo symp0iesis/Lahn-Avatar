@@ -16,6 +16,8 @@ llama-index-llms-azure-openai
 llama-index-experimental
 #llama-index-llms-openai-like
 
+langdetect
+
 
 numpy==1.26.4
 
