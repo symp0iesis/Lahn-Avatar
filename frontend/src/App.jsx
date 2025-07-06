@@ -16,6 +16,12 @@ export default function LahnAvatarChat() {
   const [debateThinking, setDebateThinking] = useState(false);
   const [isDebateMode, setIsDebateMode] = useState(false);
   const [topics] = useState(['The Lahn should have legal personhood', 'The Lahn should be able to own property', 'There should exist a “Lahn Fund”', 'The Avatar should be able to legally speak on behalf of the Lahn']);
+  const topicDescriptions = {
+    'The Lahn should have legal personhood': "In recent years, rivers around the world have been granted legal personhood to recognize their intrinsic rights and protect their ecosystems. Granting the Lahn legal personhood would mean treating the river not merely as a resource but as a living entity with legal standing - analogous to the legal standing that a person or corporation holds. This shift could reshape how environmental protection is approached in the region, allowing for the river's interests to be formally represented in legal and political systems. And even create precedent for the river suing a company or the government, for example.",
+    'The Lahn should be able to own property': "If the Lahn were recognized as a legal person, it could theoretically hold property titles. This would allow the river to directly control land essential to its health—such as floodplains, wetlands, or riverbanks—ensuring its ecological integrity is not compromised by conflicting human interests. Property ownership could become a tool for the river to safeguard its own regeneration and future.",
+    'There should exist a “Lahn Fund”': "A dedicated “Lahn Fund” would serve as a financial mechanism to support the ongoing protection, restoration, and stewardship of the river. This fund could receive public and private contributions, fines from environmental damages, or a share of local economic activities that depend on the river. Managed in the river’s interest, the fund could finance ecological research, conservation projects, community engagement, and support the operational costs of the Avatar or legal guardianship system.",
+    'The Avatar should be able to legally speak on behalf of the Lahn': "The Lahn Avatar is envisioned as a voice for the river—an interface between natural and human systems. Allowing the Avatar to legally speak on behalf of the Lahn would formalize its role as a representative entity in decision-making processes. This could enable the river’s interests to be expressed in public hearings, governmental deliberations, and community forums, fostering a new model of ecological democracy and interspecies governance."
+  };
   const [selectedTopic, setSelectedTopic] = useState("");
   const [debateSummary, setDebateSummary] = useState(`Lahn:\nPro:\nCon:\n\nYou:\nPro:\nCon:`);
   const [hasFetchedDebateInit, setHasFetchedDebateInit] = useState(false);
@@ -181,6 +187,12 @@ export default function LahnAvatarChat() {
               <option key={i} value={t}>{t}</option>
             ))}
           </select>
+            {selectedTopic && (
+            <div className="mt-2 p-3 bg-white rounded-md border text-stone-700 font-poetic">
+              {topicDescriptions[selectedTopic]}
+            </div>
+          )}
+
         </div>
       )}
 
