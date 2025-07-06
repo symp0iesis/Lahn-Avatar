@@ -7,7 +7,7 @@ import LahnAvatarChat from "./App.jsx";
 // import VoiceChat from "./VoiceChat.jsx";
 import ExperienceUploadPage from "./ExperienceUploadPage.jsx";
 // import Mirror from "./Mirror.jsx"
-import Layout from "./Layout.jsx"; // <-- new layout component with sidebar
+// import Layout from "./Layout.jsx"; // <-- new layout component with sidebar
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -15,12 +15,12 @@ createRoot(document.getElementById("root")).render(
 
 
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<LahnAvatarChat />} />
-        <Route path="chat" element={<LahnAvatarChat />} />
-        <Route path="experience" element={<ExperienceUploadPage />} />
-        <Route path="*" element={<LahnAvatarChat />} />
-      </Route>
+      {/*<Route path="/" element={<Layout />}>*/}
+      <Route index element={<LahnAvatarChat />} />
+      <Route path="chat" element={<LahnAvatarChat />} />
+      <Route path="experience" element={<ExperienceUploadPage />} />
+      <Route path="*" element={<LahnAvatarChat />} />
+      {/*</Route>*/}
     </Routes>
       
     </BrowserRouter>
