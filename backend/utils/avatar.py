@@ -186,6 +186,17 @@ from langdetect import detect
 from deep_translator import GoogleTranslator   # or DeeplTranslator
 from nltk.tokenize import word_tokenize, sent_tokenize
 from rank_bm25 import BM25Okapi
+import nltk
+
+def ensure_punkt_tab():
+    try:
+        # this will raise LookupError if not found
+        nltk.data.find('tokenizers/punkt_tab')
+    except LookupError:
+        print("punkt_tab not found—downloading…")
+        nltk.download('punkt_tab')
+    else:
+        print("punkt_tab already available.")
 
 
 CHUNK_SIZE, OVERLAP = 200, 30
@@ -220,6 +231,7 @@ def translate(text:str, target_lang:str) -> str:
 
 
 def prepare_text_index(RAW_TEXT):
+    ensure_punkt_tab()
     sentences = sent_tokenize(normalise(RAW_TEXT), language="german")
     chunks, cur, wc = [], [], 0
     for sent in sentences:
