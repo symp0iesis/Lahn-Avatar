@@ -102,6 +102,8 @@ def chat():
     else:
         system_prompt_ = system_prompt
 
+    print('System prompt: ', system_prompt_)
+
     chat_history = []
 
     # if prompt == "__INIT__":
