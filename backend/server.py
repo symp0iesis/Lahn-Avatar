@@ -8,7 +8,7 @@ from datetime import datetime
 from llama_index.core.tools.query_engine import QueryEngineTool
 
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc, search_text_index
-from utils.utils import whisper_processor, whisper_model, transcribe_audio, azure_speech_response_func, LahnSensorsTool, format_history_as_string
+from utils.utils import whisper_processor, whisper_model, transcribe_audio, LahnSensorsTool, format_history_as_string #, azure_speech_response_func,
 
 import os
 
@@ -97,7 +97,7 @@ def chat():
     if topic:
         print(f"→ Debate topic: {topic}")
         debate_prompt = debate_general_prompt.format(topic=topic, description=topic_descriptions[topic])
-        print('Prompt: ', debate_prompt)
+        # print('Prompt: ', debate_prompt)
         system_prompt_= system_prompt+ '\n' + debate_prompt
     else:
         system_prompt_ = system_prompt
@@ -237,48 +237,48 @@ def debate_summary():
 
 
 
-@app.route("/api/voice-chat", methods=["POST"])
-def voice_chat():
-    if "audio" not in request.files:
-        return jsonify({"error": "No audio uploaded"}), 400
+# @app.route("/api/voice-chat", methods=["POST"])
+# def voice_chat():
+#     if "audio" not in request.files:
+#         return jsonify({"error": "No audio uploaded"}), 400
 
-    audio_file = request.files["audio"]
-    ext = audio_file.mimetype.split("/")[-1] 
-    audio_path = 'data/temp.'+ext
-    audio_file.save(audio_path)
+#     audio_file = request.files["audio"]
+#     ext = audio_file.mimetype.split("/")[-1] 
+#     audio_path = 'data/temp.'+ext
+#     audio_file.save(audio_path)
 
-    # audio_b64 = base64.b64encode(request.files["audio"].read()).decode()
+#     # audio_b64 = base64.b64encode(request.files["audio"].read()).decode()
 
-    try:
-        # run async function to get reply
-        reply_text, reply_wav = asyncio.run(azure_speech_response_func(audio_path))
-        # save reply to disk
-        out_path = os.path.join("data", "reply.wav")
-        with open(out_path, "wb") as f:
-            f.write(reply_wav)
-        return jsonify({
-            "reply_text": reply_text,
-            "reply_audio_url": "https://lahn-server.eastus.cloudapp.azure.com:5001/api/reply-audio"
-        })
-    except Exception as e:
-        print("❌ Voice chat error:", e)
-        return jsonify({"error": "Voice chat failed"}), 500
-    finally:
-        os.remove(audio_path)
+#     try:
+#         # run async function to get reply
+#         reply_text, reply_wav = asyncio.run(azure_speech_response_func(audio_path))
+#         # save reply to disk
+#         out_path = os.path.join("data", "reply.wav")
+#         with open(out_path, "wb") as f:
+#             f.write(reply_wav)
+#         return jsonify({
+#             "reply_text": reply_text,
+#             "reply_audio_url": "https://lahn-server.eastus.cloudapp.azure.com:5001/api/reply-audio"
+#         })
+#     except Exception as e:
+#         print("❌ Voice chat error:", e)
+#         return jsonify({"error": "Voice chat failed"}), 500
+#     finally:
+#         os.remove(audio_path)
 
 
 
-@app.route("/api/reply-audio")
-def reply_audio():
-    # Serve the latest reply audio file
-    audio_path = os.path.join("data", "reply.wav")
-    if not os.path.exists(audio_path):
-        return "", 404
-    # Create response with CORS headers
-    response = make_response(send_file(audio_path, mimetype="audio/wav"))
-    response.headers["Access-Control-Allow-Origin"] = "*"  # or specify frontend origin
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
+# @app.route("/api/reply-audio")
+# def reply_audio():
+#     # Serve the latest reply audio file
+#     audio_path = os.path.join("data", "reply.wav")
+#     if not os.path.exists(audio_path):
+#         return "", 404
+#     # Create response with CORS headers
+#     response = make_response(send_file(audio_path, mimetype="audio/wav"))
+#     response.headers["Access-Control-Allow-Origin"] = "*"  # or specify frontend origin
+#     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+#     return response
 
 
 

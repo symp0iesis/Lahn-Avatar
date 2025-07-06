@@ -1,4 +1,5 @@
-#virtualenv
+
+#LLM related
 
 llama-index
 gdown
@@ -13,13 +14,15 @@ llama-index-readers-web
 llama-index-readers-youtube-transcript
 llama-index-llms-azure-openai
 llama-index-experimental
-llama-index-llms-openai-like
-
+#llama-index-llms-openai-like
 
 
 numpy==1.26.4
 
-#webserver
+
+
+
+#For webserver
 
 flask
 flask-cors
@@ -28,12 +31,13 @@ flask-cors
 
 #speech-to-speech
 
-soundfile
+#soundfile
 #sounddevice 
 #websockets 
 #simpleaudio 
 #numpy 
-aiohttp
+#aiohttp
 
 
+#For Experience Upload
 torchaudio
