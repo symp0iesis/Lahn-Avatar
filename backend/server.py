@@ -24,13 +24,13 @@ llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-larg
 llm_second_choice = "hrz-chat-small"
 
 llm, system_prompt = get_llm('openai', llm_choice)
-text_query_llm, _ = get_llm('gwdg', 'mistral-large-instruct', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Return a string containing 6 total keywords: 3 relevant keywords  (to be queried in the database) that aim to extract the needed context, and another 3 keywords corresponding to the translations (into German or English, depending on the source language) of the earlier keywords. Your job is not to predict what any party will say, but to return these keywords, so they can be used to extract information relevant for the concerned party to make their decision. That is where your job stops. Reply only with the keywords and nothing else. The keywords should be especially relevant to the most recent message, since that is what context is needed on. : ')
+text_query_llm, _ = get_llm('gwdg', 'mistral-large-instruct', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Return a one-line string containing 6 total keywords: 3 relevant keywords  (to be queried in the database) that aim to extract the needed context, and another 3 keywords corresponding to the translations (into German or English, depending on the source language) of the earlier keywords. Your job is not to predict what any party will say, but to return these keywords, so they can be used to extract information relevant for the concerned party to make their decision. That is where your job stops. Reply only with the keywords and nothing else. The keywords should be especially relevant to the most recent message, since that is what context is needed on. : ')
 
 # print('LLM metadata model name: ', llm.metadata.model_name) #.
 
 # agent=True
 sensor_query_llm, _ = get_llm('gwdg', llm_choice, system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations. Always include the following setup **before any resampling or time-based operations**: df[\'created_at\'] = pd.to_datetime(df[\'created_at\'])  df = df.set_index(\'created_at\') :')
-vector_query_llm, _ = get_llm('gwdg', llm_choice, system_prompt= 'Provide an accurate response to the given query:')
+vector_query_llm, _ = get_llm('gwdg', llm_second_choice, system_prompt= 'Provide an accurate response to the given query:')
 
 api_tool = QueryEngineTool.from_defaults(
         query_engine=LahnSensorsTool(sensor_query_llm),
@@ -123,6 +123,7 @@ def chat():
     results = ''
 
     print('Obtaining information for the LLM...')
+    print('Fetching context from vector index...')
     query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
     context_from_vector_index = vector_index_query_engine.query(query).response
     print('\n\nContext from vector index: ', context_from_vector_index)

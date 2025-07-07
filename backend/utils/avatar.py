@@ -258,6 +258,7 @@ def search_text_index(bm25, chunks, query:str, k_each:int=5):
 
     # --- original language pass -----------------------------------
     q_tokens_o = tokenize(normalise(query), lang_orig)
+    print('Query recieved by Text Index searcher: ', query)
     print('Tokens to search with BM25: ', q_tokens_o)
     scores_o   = bm25.get_scores(q_tokens_o)
     top_o      = scores_o.argsort()[-k_each:][::-1]
