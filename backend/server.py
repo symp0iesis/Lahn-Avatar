@@ -48,13 +48,13 @@ def prepare_query_engine(refresh=False):
 
     # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
-    vector_index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
+    vector_index_query_engine = vector_index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
     text_index_query_engine = search_text_index
 
-    return vector_index_query_engine, text_index_query_engine, index, chunks
+    return vector_index_query_engine, text_index_query_engine, text_index, chunks
 
 
-vector_index_query_engine, text_query_engine, index, chunks = prepare_query_engine()
+vector_index_query_engine, text_query_engine, text_index, chunks = prepare_query_engine()
 
 debate_summary_llm, _= get_llm('gwdg', "mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
@@ -74,9 +74,9 @@ def refresh_prompt():
 
 @app.route("/api/refresh-embeddings", methods=["POST"])
 def refresh_embeddings():
-    global query_engine, index
+    global vector_index_query_engine, text_index_query_engine, text_index
     print('Refresh embeddings request received.')
-    vector_index_query_engine, text_query_engine, index, chunks = prepare_query_engine(refresh=True)
+    vector_index_query_engine, text_query_engine, text_index, chunks = prepare_query_engine(refresh=True)
     return 'Done'
 
 debate_general_prompt = "Right now you are on a deliberation-centered platform, debating with the user the topic of '{topic}'. In this mode you should always consider the best interests of the Lahn River. You must decide what the Lahn’s best interests are based on all of your context information. You are the Lahn’s advocate right now. Below is a brief description of the topic, which both you and the user have access to. You can present your position to the user as you answer questions they might have on the topic. '{description}'"
@@ -134,7 +134,7 @@ def chat():
 
     query = str(query_llm_.complete(query_prompt))
     print('Crafted Query: ', query)
-    context_from_text_index = text_index_query_engine(index, chunks, query)
+    context_from_text_index = text_index_query_engine(text_index, chunks, query)
     print('Context from text index: ', context_from_text_index)
     context_from_text_index = '\n'.join(context_from_text_index)
 
