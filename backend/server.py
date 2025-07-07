@@ -24,7 +24,7 @@ llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-larg
 llm_second_choice = "hrz-chat-small"
 
 llm, system_prompt = get_llm('openai', llm_choice)
-text_query_llm, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Return a string containing 5 relevant keywords (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to return these keywords to be used for extracting information relevant for them to make their decision. That is where your job stops. Reply only with the keywords and nothing else. : ')
+text_query_llm, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Return a string containing 5 relevant keywords (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to return these keywords to be used for extracting information relevant for them to make their decision. That is where your job stops. Reply only with the keywords and nothing else. The keywords should be especially relevant to the most recent message, since that is what context is needed on. : ')
 
 # print('LLM metadata model name: ', llm.metadata.model_name) #.
 
