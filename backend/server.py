@@ -138,11 +138,11 @@ def chat():
     print('\n\nContext from text index: ', context_from_text_index)
     context_from_text_index = '\n'.join(context_from_text_index)
 
-    total_context = 'Context from text-based retrieval: \n' +context_from_text_index + '\n------------\nContext from vector-based retrieval: \n' + context_from_vector_index
+    total_context = '\nContext from text-based retrieval: \n' +context_from_text_index + '\n------------\nContext from vector-based retrieval: \n' + context_from_vector_index
     # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
     chat_completion = llm.chat.completions.create(
-          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+total_context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
+          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn (Sometimes the text-retrieval has relevant information that the vector-retrieval doesn\'t, or vice versa. Look through each comprehensively, to extract the information you need: '+total_context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
           model= 'hrz-chat-small',
           top_p=0.8
       )
