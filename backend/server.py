@@ -30,7 +30,7 @@ text_query_llm, _ = get_llm('gwdg', 'mistral-large-instruct', system_prompt= 'Co
 
 # agent=True
 sensor_query_llm, _ = get_llm('gwdg', 'mistral-large-instruct', system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations. Always include the following setup **before any resampling or time-based operations**: df[\'created_at\'] = pd.to_datetime(df[\'created_at\'])  df = df.set_index(\'created_at\') :')
-vector_query_llm, _ = get_llm('gwdg', llm_second_choice, system_prompt= 'Provide an accurate response to the given query:')
+vector_query_llm, _ = get_llm('gwdg', llm_second_choice, system_prompt= 'Provide an accurate response to the given query. If you have no relevant information, just say "No response":')
 
 api_tool = QueryEngineTool.from_defaults(
         query_engine=LahnSensorsTool(sensor_query_llm),
@@ -143,8 +143,8 @@ def chat():
     # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
     chat_completion = llm.chat.completions.create(
-          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn (Sometimes the text-retrieval has relevant information that the vector-retrieval doesn\'t, or vice versa. Look through each comprehensively, to extract the information you need: '+total_context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
-          model= 'hrz-chat-small',
+          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn (Sometimes the text-retrieval has relevant information that the vector-retrieval doesn\'t, or vice versa. Look through each comprehensively, to extract the information you need. Even if the Vector-retrieval says there\'s no information available, still scrutinize the Text-retrieval results to fetch relevant info: '+total_context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
+          model= llm_choice,
           top_p=0.8
       )
 
