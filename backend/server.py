@@ -54,7 +54,7 @@ def prepare_query_engine(refresh=False):
     return vector_index_query_engine, text_index_query_engine, text_index, chunks
 
 
-vector_index_query_engine, text_query_engine, text_index, chunks = prepare_query_engine()
+vector_index_query_engine, text_index_query_engine, text_index, chunks = prepare_query_engine()
 
 debate_summary_llm, _= get_llm('gwdg', "mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
@@ -76,7 +76,7 @@ def refresh_prompt():
 def refresh_embeddings():
     global vector_index_query_engine, text_index_query_engine, text_index
     print('Refresh embeddings request received.')
-    vector_index_query_engine, text_query_engine, text_index, chunks = prepare_query_engine(refresh=True)
+    vector_index_query_engine, text_index_query_engine, text_index, chunks = prepare_query_engine(refresh=True)
     return 'Done'
 
 debate_general_prompt = "Right now you are on a deliberation-centered platform, debating with the user the topic of '{topic}'. In this mode you should always consider the best interests of the Lahn River. You must decide what the Lahn’s best interests are based on all of your context information. You are the Lahn’s advocate right now. Below is a brief description of the topic, which both you and the user have access to. You can present your position to the user as you answer questions they might have on the topic. '{description}'"
