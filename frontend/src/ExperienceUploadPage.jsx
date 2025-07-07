@@ -100,33 +100,6 @@ export default function ExperienceUploadPage() {
     cancelAnimationFrame(animationIdRef.current);
   };
 
-  {files.map((f, idx) => (
-    <div key={idx} className="mb-4">
-      <Label htmlFor={`experience-file-${idx}`} className="text-stone-700">
-        Upload File #{idx + 1}
-      </Label>
-      <input
-        id={`experience-file-${idx}`}
-        type="file"
-        onChange={e => {
-          const newFiles = [...files];
-          newFiles[idx] = e.target.files[0];
-          setFiles(newFiles);
-        }}
-        className="block w-full text-stone-800 border border-stone-300 rounded"
-      />
-    </div>
-  ))}
-
-  <button
-    type="button"
-    onClick={() => setFiles([...files, null])}
-    className="mb-4 px-3 py-1 bg-stone-200 rounded"
-  >
-    Add another file
-  </button>
-
-
 
   const handleSubmit = async () => {
     const formData = new FormData();
@@ -205,6 +178,33 @@ export default function ExperienceUploadPage() {
                 </div>
                 <canvas ref={canvasRef} width="500" height="60" className="rounded bg-stone-200" />
               </div>
+
+              {files.map((f, idx) => (
+              <div key={idx} className="mb-4">
+                <Label htmlFor={`experience-file-${idx}`} className="text-stone-700">
+                  Upload File #{idx + 1}
+                </Label>
+                <input
+                  id={`experience-file-${idx}`}
+                  type="file"
+                  onChange={e => {
+                    const newFiles = [...files];
+                    newFiles[idx] = e.target.files[0];
+                    setFiles(newFiles);
+                  }}
+                  className="block w-full text-stone-800 border border-stone-300 rounded"
+                />
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setFiles([...files, null])}
+              className="mb-4 px-3 py-1 bg-stone-200 rounded"
+              >
+              Add another file
+            </button>
+
 
               <Button
                 onClick={handleSubmit}
