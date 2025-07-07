@@ -258,26 +258,27 @@ def search_text_index(bm25, chunks, query:str, k_each:int=5):
 
     # --- original language pass -----------------------------------
     q_tokens_o = tokenize(normalise(query), lang_orig)
+    print('Tokens to search with BM25: ', q_tokens_o)
     scores_o   = bm25.get_scores(q_tokens_o)
     top_o      = scores_o.argsort()[-k_each:][::-1]
 
     # --- translated pass ------------------------------------------
-    trans_q    = translate(query, lang_trans)
-    print('Translated query: ',trans_q)
-    q_tokens_t = tokenize(normalise(trans_q), lang_trans)
-    scores_t   = bm25.get_scores(q_tokens_t)
-    top_t      = scores_t.argsort()[-k_each:][::-1]
+    # trans_q    = translate(query, lang_trans)
+    # print('Translated query: ',trans_q)
+    # q_tokens_t = tokenize(normalise(trans_q), lang_trans)
+    # scores_t   = bm25.get_scores(q_tokens_t)
+    # top_t      = scores_t.argsort()[-k_each:][::-1]
 
     # --- merge, preferring best score if overlap ------------------
     seen, results = {}, []
     for idx in top_o:
         seen[idx] = ("orig", float(scores_o[idx]))
-    for idx in top_t:
-        if idx in seen:
-            # keep the better score
-            seen[idx] = ("orig+trans", max(seen[idx][1], float(scores_t[idx])))
-        else:
-            seen[idx] = ("trans", float(scores_t[idx]))
+    # for idx in top_t:
+    #     if idx in seen:
+    #         # keep the better score
+    #         seen[idx] = ("orig+trans", max(seen[idx][1], float(scores_t[idx])))
+    #     else:
+    #         seen[idx] = ("trans", float(scores_t[idx]))
 
     # sort by score descending and trim to k_each*2
     merged = sorted(seen.items(), key=lambda kv: kv[1][1], reverse=True)[: 2*k_each]
