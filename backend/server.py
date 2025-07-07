@@ -24,7 +24,7 @@ llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-larg
 llm_second_choice = "hrz-chat-small"
 
 llm, system_prompt = get_llm('openai', llm_choice)
-text_query_llm, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. It\'s a one-shot question, so it should request the complete information needed, not just part of it (like there\'s going to be a follow up question). Keep your question focused on essential keywords, for easy retrieval from the database. That is where your job stops. Reply only with the question and nothing else. : ')
+text_query_llm, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Return a string containing 5 relevant keywords (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to return these keywords to be used for extracting information relevant for them to make their decision. That is where your job stops. Reply only with the keywords and nothing else. : ')
 
 # print('LLM metadata model name: ', llm.metadata.model_name) #.
 
@@ -118,18 +118,18 @@ def chat():
 
     # print('After adding system and user prompts: ', chat_history)
 
-    print('\nUser message:', prompt)
+    # print('\nUser message:', prompt)
 
     results = ''
 
     print('Obtaining information for the LLM...')
-    query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
+    query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
     context_from_vector_index = vector_index_query_engine.query(query).response
     print('\n\nContext from vector index: ', context_from_vector_index)
 
 
 
-    query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
+    query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
     print('Query prompt: ', query_prompt)
 
     query = str(text_query_llm.complete(query_prompt))
