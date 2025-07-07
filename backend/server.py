@@ -26,7 +26,7 @@ llm_second_choice = "hrz-chat-small"
 llm, system_prompt = get_llm('openai', llm_choice)
 text_query_llm, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. It\'s a one-shot question, so it should request the complete information needed, not just part of it (like there\'s going to be a follow up question). Keep your question focused on essential keywords, for easy retrieval from the database. That is where your job stops. Reply only with the question and nothing else. : ')
 
-# print('LLM metadata model name: ', llm.metadata.model_name)
+# print('LLM metadata model name: ', llm.metadata.model_name) #.
 
 # agent=True
 sensor_query_llm, _ = get_llm('gwdg', llm_choice, system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations. Always include the following setup **before any resampling or time-based operations**: df[\'created_at\'] = pd.to_datetime(df[\'created_at\'])  df = df.set_index(\'created_at\') :')
