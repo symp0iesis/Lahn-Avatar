@@ -112,7 +112,7 @@ export default function ExperienceUploadPage() {
       if (f) formData.append('files', f, f.name);
     });
 
-    const response = await fetch('https://lahn-server.eastus.cloudapp.azure.com:5001/api/experience-upload', {
+    const response = await fetch('/api/experience-upload', {
       method: 'POST',
       body: formData,
     });
