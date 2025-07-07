@@ -262,8 +262,8 @@ def search_text_index(bm25, chunks, query:str, k_each:int=5):
 
     # --- original language pass -----------------------------------
     q_tokens_o = tokenize(normalise(query), lang_orig)
-    print('Query recieved by Text Index searcher: ', query)
-    print('Keywords group 1: ', ', '.join(keyword_list))
+    print('Query recieved by Text Index searcher: ', ', '.join(keyword_list))
+    print('Keywords group 1: ', query)
     print('Keywords group 2: ', trans_q)
 
     print('Group 1 tokens to search with BM25: ', q_tokens_o)
