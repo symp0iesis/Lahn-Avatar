@@ -17,6 +17,8 @@ export default function ExperienceUploadPage() {
   const animationIdRef = useRef(null);
   const streamRef = useRef(null);
   const analyserRef = useRef(null);
+  const [files, setFiles] = useState([null]);
+
 
   const handleTextChange = (e) => setText(e.target.value);
 
@@ -98,12 +100,44 @@ export default function ExperienceUploadPage() {
     cancelAnimationFrame(animationIdRef.current);
   };
 
+  {files.map((f, idx) => (
+    <div key={idx} className="mb-4">
+      <Label htmlFor={`experience-file-${idx}`} className="text-stone-700">
+        Upload File #{idx + 1}
+      </Label>
+      <input
+        id={`experience-file-${idx}`}
+        type="file"
+        onChange={e => {
+          const newFiles = [...files];
+          newFiles[idx] = e.target.files[0];
+          setFiles(newFiles);
+        }}
+        className="block w-full text-stone-800 border border-stone-300 rounded"
+      />
+    </div>
+  ))}
+
+  <button
+    type="button"
+    onClick={() => setFiles([...files, null])}
+    className="mb-4 px-3 py-1 bg-stone-200 rounded"
+  >
+    Add another file
+  </button>
+
+
+
   const handleSubmit = async () => {
     const formData = new FormData();
     formData.append('text', text);
     if (audioBlob) {
       formData.append('audio', audioBlob, 'recording.webm');
     }
+
+    files.forEach(f => {
+      if (f) formData.append('files', f, f.name);
+    });
 
     const response = await fetch('https://lahn-server.eastus.cloudapp.azure.com:5001/api/experience-upload', {
       method: 'POST',

@@ -304,7 +304,7 @@ def search_text_index(bm25, chunks, query:str, k_each:int=5):
 
 
 def build_index():
-    cmd = f"rm -r data/*"
+    cmd = f"shopt -s extglob; rm -rf data/!(uploaded_experiences)"
     subprocess.run(cmd, shell=True)
     print('Just cleared data/ . Contents: ', os.listdir('data'))
 
@@ -358,8 +358,10 @@ def build_index():
     experiences_folder_path = Path(DATA_DIR) / "uploaded_experiences/text"
     # experiences_folder_is_empty = not os.listdir(str(Path(DATA_DIR) / "uploaded_experiences/text"))
     if experiences_folder_path.exists() and len(os.listdir(str(experiences_folder_path)))>0:
-        user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
-        documents += user_experiences
+        new_uploads = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences"), recursive=True).load_data()
+        documents += new_uploads
+        # user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
+        # documents += user_experiences
 
     vector_index = VectorStoreIndex.from_documents(documents)
     vector_index.storage_context.persist(persist_dir=STORAGE_DIR)

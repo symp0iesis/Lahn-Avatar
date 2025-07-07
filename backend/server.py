@@ -146,7 +146,7 @@ def chat():
           messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn (Sometimes the text-retrieval has relevant information that the vector-retrieval doesn\'t, or vice versa. Look through each comprehensively, to extract the information you need. Even if the Vector-retrieval says there\'s no information available, still scrutinize the Text-retrieval results to fetch relevant info: '+total_context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
           model= llm_choice,
           # temperature=0.1
-          top_p=0.8
+          top_p=0.7
       )
 
     response = chat_completion.choices[0].message.content
@@ -231,6 +231,57 @@ def debate_summary():
     return jsonify({"summary": summary})
 
 
+#Would want to differentiate between general user and Admin uploads----
+@app.route("/api/experience-upload", methods=["POST"])
+def experience_upload():
+    print("Experience upload received.")
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
+
+    os.makedirs(UPLOAD_DIR+'/text', exist_ok=True)
+    # Save the text message (if any)
+    text = request.form.get("text", "")
+    if text.strip():
+        with open(os.path.join(UPLOAD_DIR+'/text', f"{timestamp}_message.txt"), "w", encoding="utf-8") as f:
+            f.write(text.strip())
+
+    uploaded_files = request.files.getlist('files')
+
+    saved_paths = []
+    for f in uploaded_files:
+        # skip empty inputs
+        if not f or f.filename == '':
+            continue
+
+        # 3) Sanitize the filename
+        filename = secure_filename(f.filename)
+
+        # 4) Build the absolute path and save
+        dest = os.path.join(UPLOAD_DIR, filename)
+        f.save(dest)
+
+        saved_paths.append(dest)
+
+
+    # Save and transcribe the uploaded audio file
+    if "audio" in request.files:
+        audio_file = request.files["audio"]
+        if audio_file and audio_file.filename:
+            safe_name = secure_filename(audio_file.filename)
+            file_ext = os.path.splitext(safe_name)[1]
+            audio_path = os.path.join(UPLOAD_DIR, f"{timestamp}_audio{file_ext}")
+            audio_file.save(audio_path)
+
+            try:
+                transcript = transcribe_audio(audio_path)
+                with open(os.path.join(UPLOAD_DIR+'/text', f"{timestamp}_transcript.txt"), "w", encoding="utf-8") as f:
+                    f.write(transcript.strip())
+                print("📝 Transcription saved.")
+            except Exception as e:
+                print("❌ Failed to transcribe:", e)
+                return jsonify({"status": "error", "message": "Audio saved, but transcription failed."}), 500
+
+    return jsonify({"status": "success", "message": "Experience saved."})
+
 
 # @app.route("/api/voice-chat", methods=["POST"])
 # def voice_chat():
@@ -275,39 +326,6 @@ def debate_summary():
 #     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
 #     return response
 
-
-
-@app.route("/api/experience-upload", methods=["POST"])
-def experience_upload():
-    print("Experience upload received.")
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
-
-    os.makedirs(UPLOAD_DIR+'/text', exist_ok=True)
-    # Save the text message (if any)
-    text = request.form.get("text", "")
-    if text.strip():
-        with open(os.path.join(UPLOAD_DIR+'/text', f"{timestamp}_message.txt"), "w", encoding="utf-8") as f:
-            f.write(text.strip())
-
-    # Save and transcribe the uploaded audio file
-    if "audio" in request.files:
-        audio_file = request.files["audio"]
-        if audio_file and audio_file.filename:
-            safe_name = secure_filename(audio_file.filename)
-            file_ext = os.path.splitext(safe_name)[1]
-            audio_path = os.path.join(UPLOAD_DIR, f"{timestamp}_audio{file_ext}")
-            audio_file.save(audio_path)
-
-            try:
-                transcript = transcribe_audio(audio_path)
-                with open(os.path.join(UPLOAD_DIR+'/text', f"{timestamp}_transcript.txt"), "w", encoding="utf-8") as f:
-                    f.write(transcript.strip())
-                print("📝 Transcription saved.")
-            except Exception as e:
-                print("❌ Failed to transcribe:", e)
-                return jsonify({"status": "error", "message": "Audio saved, but transcription failed."}), 500
-
-    return jsonify({"status": "success", "message": "Experience saved."})
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False, port=5001)
