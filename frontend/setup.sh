@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+sudo apt-get install ffmpeg
+
+
 # Exit immediately on error
 set -e
 

@@ -192,7 +192,7 @@ export default function ExperienceUploadPage() {
                     newFiles[idx] = e.target.files[0];
                     setFiles(newFiles);
                   }}
-                  className="block w-full text-stone-800 border border-stone-300 rounded"
+                  className="block w-full text-stone-800 border border-stone-300 rounded p-2 file:bg-stone-200 file:px-3 file:py-1 file:rounded"
                 />
               </div>
             ))}
@@ -200,7 +200,7 @@ export default function ExperienceUploadPage() {
             <button
               type="button"
               onClick={() => setFiles([...files, null])}
-              className="mb-4 px-3 py-1 bg-stone-200 rounded"
+              className="mb-6 bg-stone-100 text-stone-800 hover:bg-stone-200"
               >
               Add another file
             </button>
