@@ -132,7 +132,7 @@ def chat():
     query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
     print('Query prompt: ', query_prompt)
 
-    query = str(text_query_llm_.complete(query_prompt))
+    query = str(text_query_llm.complete(query_prompt))
     print('Crafted Query: ', query)
     context_from_text_index = text_index_query_engine(text_index, chunks, query)
     print('Context from text index: ', context_from_text_index)
