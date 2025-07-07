@@ -197,13 +197,13 @@ export default function ExperienceUploadPage() {
               </div>
             ))}
 
-            <button
+            <Button
               type="button"
               onClick={() => setFiles([...files, null])}
-              className="mb-6 bg-stone-100 text-stone-800 hover:bg-stone-200"
+              className="block w-full mb-6 bg-stone-100 text-stone-800 hover:bg-stone-200"
               >
               Add another file
-            </button>
+            </Button>
 
 
               <Button
