@@ -103,7 +103,7 @@ def chat():
     else:
         system_prompt_ = system_prompt
 
-    print('System prompt: ', system_prompt_)
+    print('\nSystem prompt: ', system_prompt_[-300:])
 
     chat_history = []
 
@@ -125,7 +125,7 @@ def chat():
     print('Obtaining information for the LLM...')
     query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
     context_from_vector_index = vector_index_query_engine.query(query).response
-    print('Context from vector index: ', context_from_vector_index)
+    print('\n\nContext from vector index: ', context_from_vector_index)
 
 
 
@@ -135,7 +135,7 @@ def chat():
     query = str(text_query_llm.complete(query_prompt))
     print('Crafted Query: ', query)
     context_from_text_index = text_index_query_engine(text_index, chunks, query)
-    print('Context from text index: ', context_from_text_index)
+    print('\n\nContext from text index: ', context_from_text_index)
     context_from_text_index = '\n'.join(context_from_text_index)
 
     total_context = 'Context from text-based retrieval: \n' +context_from_text_index + '\n------------\nContext from vector-based retrieval: \n' + context_from_vector_index
@@ -149,7 +149,7 @@ def chat():
 
     response = chat_completion.choices[0].message.content
 
-    print('Avatar response: ', response)
+    print('\nAvatar response: ', response)
 
 
     if 'analyze_sensor_data' in response:
