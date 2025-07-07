@@ -40,7 +40,7 @@ api_tool = QueryEngineTool.from_defaults(
 
 
 def prepare_query_engine(refresh=False):
-    global query_llm
+    global vector_query_llm
     if refresh==True:
         vector_index, text_index, chunks = build_index()
     else:
@@ -48,7 +48,7 @@ def prepare_query_engine(refresh=False):
 
     # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
-    vector_index_query_engine = vector_index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
+    vector_index_query_engine = vector_index.as_query_engine(llm=vector_query_llm,similarity_top_k=10, verbose=True)
     text_index_query_engine = search_text_index
 
     return vector_index_query_engine, text_index_query_engine, text_index, chunks
@@ -132,7 +132,7 @@ def chat():
     query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
     print('Query prompt: ', query_prompt)
 
-    query = str(query_llm_.complete(query_prompt))
+    query = str(text_query_llm_.complete(query_prompt))
     print('Crafted Query: ', query)
     context_from_text_index = text_index_query_engine(text_index, chunks, query)
     print('Context from text index: ', context_from_text_index)
