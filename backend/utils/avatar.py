@@ -12,9 +12,9 @@ from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
 from llama_index.core.schema import Document as LlamaDocument
 
-# from llama_index.core import StorageContext, load_index_from_storage, Settings
+from llama_index.core import StorageContext, load_index_from_storage, Settings
 from llama_index.core.readers import SimpleDirectoryReader
-# from llama_index.core.indices.vector_store import VectorStoreIndex
+from llama_index.core.indices.vector_store import VectorStoreIndex
 from llama_index.core.memory import ChatMemoryBuffer
 # from llama_index.core.settings import Settings
 from llama_index.readers.web import SimpleWebPageReader
@@ -135,8 +135,6 @@ def get_llm(mode='openai',model_name=None, system_prompt=None):
     file_path = os.path.join(base_dir, 'system_prompt.txt')
     if system_prompt == None:
         system_prompt = open(file_path, 'r').read()
-
-    # system_prompt += '\n You MUST ALWAYS call a function to answer any question. DO NOT respond directly. You have no knowledge or memory outside what you retrieve using the provided tools.\n'
 
     # if model_name != None:
     if mode == 'openai':
@@ -353,8 +351,8 @@ def build_index():
         user_experiences = SimpleDirectoryReader(str(Path(DATA_DIR) / "uploaded_experiences/text")).load_data()
         documents += user_experiences
 
-    # index = VectorStoreIndex.from_documents(documents)
-    # index.storage_context.persist(persist_dir=STORAGE_DIR)
+    vector_index = VectorStoreIndex.from_documents(documents)
+    vector_index.storage_context.persist(persist_dir=STORAGE_DIR)
 
 
     context = '\n'.join([doc.text for doc in documents])
@@ -362,95 +360,81 @@ def build_index():
 
     pickle.dump(text_index, open(STORAGE_DIR+'/text_index.pkl','wb'))
     pickle.dump(chunks, open(STORAGE_DIR+'/chunks.pkl','wb'))
-    index = text_index
+    # index = text_index
 
 
     print('Done')
 
-    return index, chunks
+    return vector_index, text_index, chunks
 
 
 
 def build_or_load_index(refresh=False):
-    # Settings.embed_model = AzureOpenAIEmbedding(
-    #     model="text-embedding-3-large",
-    #     deployment_name="text-embedding-3-large",
-    #     api_key=AZURE_KEY,
-    #     azure_endpoint=AZURE_BASE,
-    #     api_version=AZURE_VERSION,
-    # )
-
-    # Settings.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-
-    # GWDGEmbedding(
-    #     api_key=API_KEY,
-    #     api_base=API_BASE,
-    #     model="e5-mistral-7b-instruct"
-    # )
-
-    # index_ready = (
-    #     os.path.exists(STORAGE_DIR)
-    #     and os.path.exists(os.path.join(STORAGE_DIR, "docstore.json"))
-    #     and os.path.exists(os.path.join(STORAGE_DIR, "index_store.json"))
-    # )
+    Settings.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
     index_ready = (
         os.path.exists(STORAGE_DIR)
+
+        #Vector index
+        and os.path.exists(os.path.join(STORAGE_DIR, "docstore.json"))
+        and os.path.exists(os.path.join(STORAGE_DIR, "index_store.json"))
+
+        #Text index
         and os.path.exists(os.path.join(STORAGE_DIR, "text_index.pkl"))
         and os.path.exists(os.path.join(STORAGE_DIR, "chunks.pkl"))
     )
 
     if index_ready and not refresh:
         print('Loading index from storage...')
-        # storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
-        # return load_index_from_storage(storage_context)
+        storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
+        vector_index = load_index_from_storage(storage_context)
 
-        index = pickle.load(open(STORAGE_DIR+'/text_index.pkl','rb'))
+        text_index = pickle.load(open(STORAGE_DIR+'/text_index.pkl','rb'))
         chunks = pickle.load(open(STORAGE_DIR+'/chunks.pkl','rb'))
-        return index, chunks
+        return vector_index, text_index, chunks
 
     #Index needs to be built and loaded
-    index, chunks = build_index()
+    vector_index, text_index, chunks = build_index()
     
-    return index, chunks
+    return vector_index, text_index, chunks
 
 
-def main():
-    console = Console()
-    console.print("[bold cyan]Lahn River AI Avatar[/bold cyan]\n")
+# def main():
+#     console = Console()
+#     console.print("[bold cyan]Lahn River AI Avatar[/bold cyan]\n")
 
-    refresh = input("Refresh Knowledge Base and System Prompt from Google Drive? (y/n): ").strip().lower() == "y"
+#     refresh = input("Refresh Knowledge Base and System Prompt from Google Drive? (y/n): ").strip().lower() == "y"
 
-    if refresh:
-        fetch_system_prompt_from_gdoc()
+#     if refresh:
+#         fetch_system_prompt_from_gdoc()
 
-    model_name = select_model()
-    llm = get_llm(model_name)
+#     model_name = select_model()
+#     llm = get_llm(model_name)
 
-    console.print("\U0001F4DA Preparing vector index...")
-    index = build_or_load_index(llm, refresh=refresh)
+#     console.print("\U0001F4DA Preparing vector index...")
+#     index = build_or_load_index(llm, refresh=refresh)
 
-    memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
-    chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
+#     memory = ChatMemoryBuffer.from_defaults(token_limit=2000)
+#     chat_engine = index.as_chat_engine(chat_mode="context", memory=memory)
 
-    console.print("✅ Ready to chat!\n")
-    console.print(f"[bold green]Lahn River (Model: {model_name})[/bold green]")
-    console.print("Type 'exit' to quit.\n")
+#     console.print("✅ Ready to chat!\n")
+#     console.print(f"[bold green]Lahn River (Model: {model_name})[/bold green]")
+#     console.print("Type 'exit' to quit.\n")
 
-    log_file = create_session_log()
+#     log_file = create_session_log()
 
-    while True:
-        user_input = input("[You]: ")
-        if user_input.lower() in ["exit", "quit"]:
-            break
+#     while True:
+#         user_input = input("[You]: ")
+#         if user_input.lower() in ["exit", "quit"]:
+#             break
 
-        response = chat_engine.chat(user_input)
-        console.print(f"[Lahn River]: {response.response}")
-        log_file.write(f"You: {user_input}\nLahn River: {response.response}\n\n")
+#         response = chat_engine.chat(user_input)
+#         console.print(f"[Lahn River]: {response.response}")
+#         log_file.write(f"You: {user_input}\nLahn River: {response.response}\n\n")
 
-    log_file.close()
-    console.print("\U0001F4C1 Chat session saved.")
+#     log_file.close()
+#     console.print("\U0001F4C1 Chat session saved.")
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

@@ -21,15 +21,16 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # === Load LLM once at startup ===
 llm_choice = "gemma-3-27b-it" #"hrz-chat-small" #"gemma-3-27b-it" #"mistral-large-instruct" #"hrz-chat-small"
+llm_second_choice = "hrz-chat-small"
 
 llm, system_prompt = get_llm('openai', llm_choice)
-query_llm_, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. It\'s a one-shot question, so it should request the complete information needed, not just part of it (like there\'s going to be a follow up question). Keep your question focused on essential keywords, for easy retrieval from the database. That is where your job stops. Reply only with the question and nothing else. : ')
+text_query_llm, _ = get_llm('gwdg', 'hrz-chat-small', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Craft a question (to be queried in the database) that aims to extract the needed context. Your job is not to predict what any party will say, but to craft a concise question capable of extracting information relevant for them to make their decision. It\'s a one-shot question, so it should request the complete information needed, not just part of it (like there\'s going to be a follow up question). Keep your question focused on essential keywords, for easy retrieval from the database. That is where your job stops. Reply only with the question and nothing else. : ')
 
 # print('LLM metadata model name: ', llm.metadata.model_name)
 
 # agent=True
-sensor_query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations. Always include the following setup **before any resampling or time-based operations**: df[\'created_at\'] = pd.to_datetime(df[\'created_at\'])  df = df.set_index(\'created_at\') :')
-query_llm, _ = get_llm('gwdg', "hrz-chat-small", system_prompt= 'Provide an accurate response to the given query:')
+sensor_query_llm, _ = get_llm('gwdg', llm_choice, system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations. Always include the following setup **before any resampling or time-based operations**: df[\'created_at\'] = pd.to_datetime(df[\'created_at\'])  df = df.set_index(\'created_at\') :')
+vector_query_llm, _ = get_llm('gwdg', llm_choice, system_prompt= 'Provide an accurate response to the given query:')
 
 api_tool = QueryEngineTool.from_defaults(
         query_engine=LahnSensorsTool(sensor_query_llm),
@@ -41,19 +42,19 @@ api_tool = QueryEngineTool.from_defaults(
 def prepare_query_engine(refresh=False):
     global query_llm
     if refresh==True:
-        index, chunks = build_index()
+        vector_index, text_index, chunks = build_index()
     else:
-        index, chunks = build_or_load_index()
+        vector_index, text_index, chunks = build_or_load_index()
 
     # query_llm = get_llm('gwdg', "mistral-large-instruct", system_prompt= 'Provide an accurate response to the given query:')
 
-    # index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
-    index_query_engine = search_text_index
+    vector_index_query_engine = index.as_query_engine(llm=query_llm,similarity_top_k=10, verbose=True)
+    text_index_query_engine = search_text_index
 
-    return index_query_engine, index, chunks
+    return vector_index_query_engine, text_index_query_engine, index, chunks
 
 
-query_engine, index, chunks = prepare_query_engine()
+vector_index_query_engine, text_query_engine, index, chunks = prepare_query_engine()
 
 debate_summary_llm, _= get_llm('gwdg', "mistral-large-instruct", system_prompt= '')
 print('LLM initialized.')
@@ -75,7 +76,7 @@ def refresh_prompt():
 def refresh_embeddings():
     global query_engine, index
     print('Refresh embeddings request received.')
-    query_engine, index, chunks = prepare_query_engine(refresh=True)
+    vector_index_query_engine, text_query_engine, index, chunks = prepare_query_engine(refresh=True)
     return 'Done'
 
 debate_general_prompt = "Right now you are on a deliberation-centered platform, debating with the user the topic of '{topic}'. In this mode you should always consider the best interests of the Lahn River. You must decide what the Lahn’s best interests are based on all of your context information. You are the Lahn’s advocate right now. Below is a brief description of the topic, which both you and the user have access to. You can present your position to the user as you answer questions they might have on the topic. '{description}'"
@@ -106,17 +107,11 @@ def chat():
 
     chat_history = []
 
-    # if prompt == "__INIT__":
-    #     prompt = "Hallo"
-    #     # chat_history=[{'role':'user', 'content':prompt}]
-
-    # else:
     chat_history = [
         {'role':"user" if m["sender"] == "user" else "assistant", 'content':m["text"]}
         for m in conversation
         ]
 
-    # chat_history.insert(0, {'role':'user', 'content':'Hallo'})
     chat_history.insert(0, {'role':'system', 'content':system_prompt_})
 
     # print('Chat history: ', chat_history)
@@ -127,29 +122,27 @@ def chat():
 
     results = ''
 
-    # if 'get_relevant_Lahn_context' in response:
     print('Obtaining information for the LLM...')
-    # response = response[response.find('user_query="')+12:]
-    # query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
+    query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
+    context_from_vector_index = vector_index_query_engine.query(query).response
+    print('Context from vector index: ', context_from_vector_index)
+
+
+
     query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) + '\nUser: '+prompt #response[:response.find('")')]
     print('Query prompt: ', query_prompt)
-    # chat_completion = query_llm_.complete(query_prompt)
-      #     messages=chat_history+[{'role':'system', 'content':query_prompt}],
-      #     model= 'hrz-chat-small',
-      #     temperature = 0.4,
-      #     # top_p=0.8
-      # )
 
-    query = str(query_llm_.complete(query_prompt)) #chat_completion.choices[0].message.content
+    query = str(query_llm_.complete(query_prompt))
     print('Crafted Query: ', query)
-    # context = query_engine.query(query).response
-    context = query_engine(index, chunks, query)
-    print('Context: ', context)
-    context = '\n'.join(context)
+    context_from_text_index = text_index_query_engine(index, chunks, query)
+    print('Context from text index: ', context_from_text_index)
+    context_from_text_index = '\n'.join(context_from_text_index)
+
+    total_context = 'Context from text-based retrieval: \n' +context_from_text_index + '\n------------\nContext from vector-based retrieval: \n' + context_from_vector_index
     # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
 
     chat_completion = llm.chat.completions.create(
-          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
+          messages=chat_history+[{'role':'system', 'content':'Here is relevant information about the Lahn: '+total_context + ' . You can call analyze_sensor_data() if environmental data readings are relevant to the user\'s query.'}],
           model= 'hrz-chat-small',
           top_p=0.8
       )
