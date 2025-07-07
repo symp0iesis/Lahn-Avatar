@@ -253,33 +253,41 @@ def prepare_text_index(RAW_TEXT):
 # 3. Dual-language search
 # ------------------------------------------------------------------
 def search_text_index(bm25, chunks, query:str, k_each:int=5):
+    keyword_list = query.split(', ')
+    query = ' '.join(keyword_list[:3])
+    trans_q = ' '.join(keyword_list[3:])
+
     lang_orig  = "de" if detect(query) == "de" else "en"
     lang_trans = "en" if lang_orig == "de" else "de"
 
     # --- original language pass -----------------------------------
     q_tokens_o = tokenize(normalise(query), lang_orig)
     print('Query recieved by Text Index searcher: ', query)
-    print('Tokens to search with BM25: ', q_tokens_o)
+    print('Keywords group 1: ', ', '.join(keyword_list))
+    print('Keywords group 2: ', trans_q)
+
+    print('Group 1 tokens to search with BM25: ', q_tokens_o)
     scores_o   = bm25.get_scores(q_tokens_o)
     top_o      = scores_o.argsort()[-k_each:][::-1]
 
     # --- translated pass ------------------------------------------
     # trans_q    = translate(query, lang_trans)
-    # print('Translated query: ',trans_q)
-    # q_tokens_t = tokenize(normalise(trans_q), lang_trans)
-    # scores_t   = bm25.get_scores(q_tokens_t)
-    # top_t      = scores_t.argsort()[-k_each:][::-1]
+    print('Translated query: ',trans_q)
+    q_tokens_t = tokenize(normalise(trans_q), lang_trans)
+    print('Group 2 tokens to search with BM25: ', q_tokens_t)
+    scores_t   = bm25.get_scores(q_tokens_t)
+    top_t      = scores_t.argsort()[-k_each:][::-1]
 
     # --- merge, preferring best score if overlap ------------------
     seen, results = {}, []
     for idx in top_o:
         seen[idx] = ("orig", float(scores_o[idx]))
-    # for idx in top_t:
-    #     if idx in seen:
-    #         # keep the better score
-    #         seen[idx] = ("orig+trans", max(seen[idx][1], float(scores_t[idx])))
-    #     else:
-    #         seen[idx] = ("trans", float(scores_t[idx]))
+    for idx in top_t:
+        if idx in seen:
+            # keep the better score
+            seen[idx] = ("orig+trans", max(seen[idx][1], float(scores_t[idx])))
+        else:
+            seen[idx] = ("trans", float(scores_t[idx]))
 
     # sort by score descending and trim to k_each*2
     merged = sorted(seen.items(), key=lambda kv: kv[1][1], reverse=True)[: 2*k_each]
