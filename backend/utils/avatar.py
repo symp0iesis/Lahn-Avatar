@@ -304,8 +304,16 @@ def search_text_index(bm25, chunks, query:str, k_each:int=5):
 
 
 def build_index():
-    cmd = f"shopt -s extglob; rm -rf data/!(uploaded_experiences)"
-    subprocess.run(cmd, shell=True)
+    # cmd = f"shopt -s extglob; rm -rf data/!(uploaded_experiences)"
+    # subprocess.run(cmd, shell=True) #
+
+    subprocess.run(
+        "find data -mindepth 1 -not -name 'uploaded_experiences' -exec rm -rf {} +",
+        shell=True,
+        check=True
+    )
+
+
     print('Just cleared data/ . Contents: ', os.listdir('data'))
 
 
