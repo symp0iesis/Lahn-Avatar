@@ -74,7 +74,16 @@ export default function LahnAvatarChat() {
             }
           );
           const { summary } = await resp.json();
-          setDebateSummary(summary);
+
+          const formatted = summary
+            // insert an <hr/> + newline right before the “You:” section
+            .replace(/\nYou:/, '\n<hr/>\nYou:')
+            // wrap each whole word Lahn, You, Pro or Con in <b>…</b>
+            .replace(/\b(Lahn|You|Pro|Con)\b/g, '<b>$1</b>');
+
+          setDebateSummary(formatted);
+
+          // setDebateSummary(summary);
         } catch (error) {
           console.error(error);
         }
@@ -258,8 +267,10 @@ export default function LahnAvatarChat() {
           {isDebateMode && (
             <div className="w-full md:w-1/3 bg-white rounded-2xl shadow p-4 h-[60vh] overflow-y-auto">
               <h4 className="font-poetic text-lg font-bold mb-2">Debate Summary</h4>
-              <div className="text-sm text-stone-700 whitespace-pre-wrap">
-                {(debateSummary || '').split('\n').map((line, i) => {
+              <div className="text-sm text-stone-700 whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{ __html: debateSummary }}
+                />
+                {/*{(debateSummary || '').split('\n').map((line, i) => {
                   const trimmed = line.trim();
                   const isHeader = /^(Lahn:|You:|Pro:|Con:)$/i.test(trimmed);
                   return (
@@ -267,15 +278,15 @@ export default function LahnAvatarChat() {
                       {line}
                     </div>
                   );
-                })}
-              </div>
+                })}*/}
+              {/*</div>*/}
             </div>
           )}
         </div>
       </motion.div>
 
 
-      <Link to="/experience" className="text-amber-700 underline text-sm mt-4 hover:text-amber-900">✍️ Share Your Experience with the Lahn</Link>
+      {/*<Link to="/experience" className="text-amber-700 underline text-sm mt-4 hover:text-amber-900">✍️ Share Your Experience with the Lahn</Link>*/}
     </div>
   );
 }

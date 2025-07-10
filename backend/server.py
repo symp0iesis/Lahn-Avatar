@@ -10,7 +10,8 @@ from llama_index.core.tools.query_engine import QueryEngineTool
 from utils.avatar import get_llm, build_index, build_or_load_index, fetch_system_prompt_from_gdoc, search_text_index
 from utils.utils import whisper_processor, whisper_model, transcribe_audio, LahnSensorsTool, format_history_as_string #, azure_speech_response_func,
 
-import os
+import os,threading
+from concurrent.futures import ThreadPoolExecutor, wait
 
 # === Initialize Flask ===
 app = Flask(__name__)
@@ -26,10 +27,7 @@ llm_second_choice = "hrz-chat-small"
 llm, system_prompt = get_llm('openai', llm_choice)
 text_query_llm, _ = get_llm('gwdg', 'mistral-large-instruct', system_prompt= 'Context is needed to address the most recent message in this conversation (Or maybe not. Look through the given conversation and determine. If not, your query could just be "General information about the Lahn"). Return a one-line string containing 6 total keywords, each separated by a comma and space: 3 relevant keywords  (to be queried in the database) that aim to extract the needed context, and another 3 keywords corresponding to the translations (into German or English, depending on the source language) of the earlier keywords. Your job is not to predict what any party will say, but to return these keywords, so they can be used to extract information relevant for the concerned party to make their decision. That is where your job stops. Reply only with the keywords and nothing else (not even "keywords:"). The keywords should be only relevant to the most recent message, since that is what context is needed on. Double-check that your response is in the format "keyword1, keyword2, keyword3, keyword1translation, keyword2translation, keyword3translation", with the keywords being only relevant to the last message: ')
 
-# print('LLM metadata model name: ', llm.metadata.model_name) #.
-
-# agent=True
-sensor_query_llm, _ = get_llm('gwdg', 'mistral-large-instruct', system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations. Always include the following setup **before any resampling or time-based operations**: df[\'created_at\'] = pd.to_datetime(df[\'created_at\'])  df = df.set_index(\'created_at\') :')
+sensor_query_llm, _ = get_llm('gwdg', 'mistral-large-instruct', system_prompt= 'Provide an accurate response to the given query. Only perform calculations. Do not generate any plots or visualizations. Always include the following setup **before any resampling or time-based operations**: df[\'created_at\'] = pd.to_datetime(df[\'created_at\'])  df = df.set_index(\'created_at\') . When calculating the variation of a quantity over an interval, use the largest of [seconds, minutes, hours,days, weeks,months,years] which is smaller than the range you\'re calculating over. For example, \'How has X varied over the past week?\' should be based on a daily interval. \'How has Yvaried over the past year?\' on a monthly interval etc. :')
 vector_query_llm, _ = get_llm('gwdg', llm_choice, system_prompt= 'Provide an accurate response to the given query.:')
 
 api_tool = QueryEngineTool.from_defaults(
@@ -87,6 +85,20 @@ topic_descriptions = {
     'The Avatar should be able to legally speak on behalf of the Lahn': "The Lahn Avatar is envisioned as a voice for the river—an interface between natural and human systems. Allowing the Avatar to legally speak on behalf of the Lahn would formalize its role as a representative entity in decision-making processes. This could enable the river’s interests to be expressed in public hearings, governmental deliberations, and community forums, fostering a new model of ecological democracy and interspecies governance."
   }
 
+
+def fetch_text_index_context(conversation, text_query_llm, text_index_query_engine):
+    query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
+    print('Query prompt: ', query_prompt)
+
+    query = str(text_query_llm.complete(query_prompt))
+    print('Crafted Query: ', query)
+    context_from_text_index = text_index_query_engine(text_index, chunks, query)
+    print('\n\nContext from text index: ', context_from_text_index)
+    context_from_text_index = '\n'.join(context_from_text_index)
+
+    return context_from_text_index
+
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     global llm, llm_choice, system_prompt
@@ -125,19 +137,21 @@ def chat():
     print('Obtaining information for the LLM...')
     print('Fetching context from vector index...')
     query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
-    context_from_vector_index = vector_index_query_engine.query(query).response
+    
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        thread_0 = executor.submit(vector_index_query_engine.query, query)
+        thread_1 = executor.submit(fetch_text_index_context, conversation, text_query_llm, text_index_query_engine)
+
+        wait([thread_0,thread_1])
+
+        # context_from_text_index = thread_0
+        context_from_vector_index =  thread_0.result()
+        context_from_text_index = thread_1.result()
+
     print('\n\nContext from vector index: ', context_from_vector_index)
 
 
 
-    query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
-    print('Query prompt: ', query_prompt)
-
-    query = str(text_query_llm.complete(query_prompt))
-    print('Crafted Query: ', query)
-    context_from_text_index = text_index_query_engine(text_index, chunks, query)
-    print('\n\nContext from text index: ', context_from_text_index)
-    context_from_text_index = '\n'.join(context_from_text_index)
 
     total_context = '\nContext from text-based retrieval: \n' +context_from_text_index + '\n------------\nContext from vector-based retrieval: \n' + context_from_vector_index
     # results += '\nHere is the output of get_relevant_Lahn_context(): '+context
@@ -279,7 +293,11 @@ def experience_upload():
             except Exception as e:
                 print("❌ Failed to transcribe:", e)
                 return jsonify({"status": "error", "message": "Audio saved, but transcription failed."}), 500
+    print('Upload done...')
 
+    refresh_embeddings_thread = threading.Thread(target=refresh_embeddings)
+    print('Refreshing embeddings...')
+    refresh_embeddings_thread.start()
     return jsonify({"status": "success", "message": "Experience saved."})
 
 
