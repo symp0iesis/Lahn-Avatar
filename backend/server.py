@@ -72,7 +72,7 @@ def refresh_prompt():
 
 @app.route("/api/refresh-embeddings", methods=["POST"])
 def refresh_embeddings():
-    global vector_index_query_engine, text_index_query_engine, text_index
+    global vector_index_query_engine, text_index_query_engine, text_index, chunks
     print('Refresh embeddings request received.')
     vector_index_query_engine, text_index_query_engine, text_index, chunks = prepare_query_engine(refresh=True)
     return 'Done'
