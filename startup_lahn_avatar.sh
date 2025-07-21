@@ -1,8 +1,5 @@
 #!/bin/bash
 
-
-sleep 20
-
 # Backend
 screen -L -Logfile ~/backend-logs.0 -dmS backend bash -c 'cd ~/Lahn-Avatar && source lahn_env/bin/activate && cd backend && python server.py; exec bash'
 
