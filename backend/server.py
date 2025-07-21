@@ -87,16 +87,29 @@ topic_descriptions = {
 
 
 def fetch_text_index_context(conversation, text_query_llm, text_index_query_engine):
+    print('Fetching context from text index...')
     query_prompt = 'Here is the conversation: ' + format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
-    print('Query prompt: ', query_prompt)
+    # print('Query prompt: ', query_prompt)
 
     query = str(text_query_llm.complete(query_prompt))
-    print('Crafted Query: ', query)
+    # print('Crafted Query: ', query)
     context_from_text_index = text_index_query_engine(text_index, chunks, query)
-    print('\n\nContext from text index: ', context_from_text_index)
+    # print('\n\nContext from text index: ', context_from_text_index)
     context_from_text_index = '\n'.join(context_from_text_index)
 
+    print('Done fetching context from text index...')
+
     return context_from_text_index
+
+
+def fetch_vector_index_context(query):
+    print('Fetching context from vector index...')
+    response =  vector_index_query_engine.query(query)
+    # print('\n\nContext from vector index: ', response)
+
+    print('Done fetching context from vector index...')
+    return response
+
 
 
 @app.route("/api/chat", methods=["POST"])
@@ -115,7 +128,7 @@ def chat():
     else:
         system_prompt_ = system_prompt
 
-    print('\nSystem prompt: ', system_prompt_[-300:])
+    # print('\nSystem prompt: ', system_prompt_[-300:])
 
     chat_history = []
 
@@ -135,11 +148,11 @@ def chat():
     results = ''
 
     print('Obtaining information for the LLM...')
-    print('Fetching context from vector index...')
+    # print('Fetching context from indexes...')
     query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
     
     with ThreadPoolExecutor(max_workers=2) as executor:
-        thread_0 = executor.submit(vector_index_query_engine.query, query)
+        thread_0 = executor.submit(fetch_vector_index_contex, query)
         thread_1 = executor.submit(fetch_text_index_context, conversation, text_query_llm, text_index_query_engine)
 
         wait([thread_0,thread_1])
@@ -147,8 +160,6 @@ def chat():
         # context_from_text_index = thread_0
         context_from_vector_index =  thread_0.result().response
         context_from_text_index = thread_1.result()
-
-    print('\n\nContext from vector index: ', context_from_vector_index)
 
 
 
