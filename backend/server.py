@@ -94,7 +94,7 @@ def fetch_text_index_context(conversation, text_query_llm, text_index_query_engi
     query = str(text_query_llm.complete(query_prompt))
     # print('Crafted Query: ', query)
     context_from_text_index = text_index_query_engine(text_index, chunks, query)
-    # print('\n\nContext from text index: ', context_from_text_index)
+    print('\n\nContext from text index: ', context_from_text_index)
     context_from_text_index = '\n'.join(context_from_text_index)
 
     print('Done fetching context from text index...')
@@ -105,7 +105,7 @@ def fetch_text_index_context(conversation, text_query_llm, text_index_query_engi
 def fetch_vector_index_context(query):
     print('Fetching context from vector index...')
     response =  vector_index_query_engine.query(query)
-    # print('\n\nContext from vector index: ', response)
+    print('\n\nContext from vector index: ', response)
 
     print('Done fetching context from vector index...')
     return response
