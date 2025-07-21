@@ -152,7 +152,7 @@ def chat():
     query = 'Provide context needed to address the most recent message in this conversation. Your job is not to predict what any party will say, but to provide information from the context, which is relevant for them to make their decision. That is where your job stops. : '+ format_history_as_string(conversation) #+ '\nUser: '+prompt #response[:response.find('")')]
     
     with ThreadPoolExecutor(max_workers=2) as executor:
-        thread_0 = executor.submit(fetch_vector_index_contex, query)
+        thread_0 = executor.submit(fetch_vector_index_context, query)
         thread_1 = executor.submit(fetch_text_index_context, conversation, text_query_llm, text_index_query_engine)
 
         wait([thread_0,thread_1])
