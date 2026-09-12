@@ -877,7 +877,7 @@ export default function MultiAvatarChat() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        Avatar Lab: Conversations with Many Voices.
+        Avatar Garden: Conversations with Many Voices.
       </motion.h1>
       <motion.h3
         className="text-base md:text-xl font-poetic text-amber-700 italic mb-4 text-center px-2"

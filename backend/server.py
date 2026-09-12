@@ -958,7 +958,7 @@ def chat():
     # Reject requests for models known to be offline
     for role, model in [("chat", user_chat_model), ("text query", text_query_model), ("sensor", sensor_model)]:
         if _model_health_cache.get(model) == "offline":
-            return jsonify({"error": f"The {role} model '{model}' is currently offline. Please select a different model in Avatar Lab."}), 503
+            return jsonify({"error": f"The {role} model '{model}' is currently offline. Please select a different model in Avatar Garden."}), 503
 
     # Log resolved parameters with sources
     print("\n=== LLM Parameters (resolved) ===")
@@ -1870,7 +1870,7 @@ threading.Thread(target=_auto_refresh_models, daemon=True).start()
 
 
 # ═══════════════════════════════════════════════════════════
-# Voice Avatar Lab — Agora Conversational AI integration
+Voice Avatar Garden — Agora Conversational AI integration
 # ═══════════════════════════════════════════════════════════
 import uuid as _uuid
 import base64 as _base64
@@ -2071,7 +2071,7 @@ def stop_voice_agent():
 
 @voice_bp.route("/api/voice/tts-voices", methods=["GET"])
 def list_tts_voices():
-    """List available Cartesia voices (id, name, language) for the Avatar Lab voice picker."""
+    """List available Cartesia voices (id, name, language) for the AvatarGarden voice picker."""
     try:
         resp = requests.get(
             "https://api.cartesia.ai/voices/?limit=100",
