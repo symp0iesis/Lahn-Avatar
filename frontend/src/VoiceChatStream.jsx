@@ -526,7 +526,7 @@ export default function VoiceChatStream() {
       <div className="mt-4">
         <Button
           className="bg-emerald-700 hover:bg-emerald-800 text-white border-emerald-800"
-          onClick={() => window.open("https://lahn-avatar.uni-giessen.de/", "_blank")}
+          onClick={() => window.open("https://avatars.sympoiesis.xyz/", "_blank")}
         >
           💬 Open Text Chat Avatar
         </Button>
@@ -588,12 +588,12 @@ export default function VoiceChatStream() {
 
             <p>
               <a
-                href="https://lahn-avatar.uni-giessen.de/"
+                href="https://avatars.sympoiesis.xyz/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-amber-700 underline hover:text-amber-800"
               >
-                https://lahn-avatar.uni-giessen.de
+                https://avatars.sympoiesis.xyz
               </a>
             </p>
 

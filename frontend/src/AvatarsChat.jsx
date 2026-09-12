@@ -1472,7 +1472,7 @@ export default function MultiAvatarChat() {
               <div><span className="font-semibold">Context:</span> {selectedAvatar.contextDocsUrl || "—"}</div>
               <div><span className="font-semibold">Sensors:</span> {selectedAvatar.sensorApiUrl || "—"}</div>
               <div><span className="font-semibold">Languages in context documents:</span> {Array.isArray(selectedAvatar.ragLanguages) ? selectedAvatar.ragLanguages.join(", ") : (selectedAvatar.ragLanguages || "—")}</div>
-              <div><span className="font-semibold">API:</span> https://lahn-avatar.uni-giessen.de/api/chat?avatar={selectedAvatar.id}</div>
+              <div><span className="font-semibold">API:</span> https://avatars.sympoiesis.xyz/api/chat?avatar={selectedAvatar.id}</div>
             </div>
           )}
           {!selectedAvatar && (
