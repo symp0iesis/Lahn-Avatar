@@ -36,3 +36,6 @@ backend/constraints.txt
 backend/llm_health_cache.json
 backend/debug/
 backend/avatars_history/
+
+# Editor/agent backup files (*.bak-<tag>-<timestamp>)
+*.bak-*

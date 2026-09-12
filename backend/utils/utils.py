@@ -347,7 +347,22 @@ def prepare_text_index(RAW_TEXT):
     # 2. Build your BM-25 index (assumes you already have 'chunks')
     # ------------------------------------------------------------------
     #   chunks = ["..."]    # list of cleaned 200-word blocks
-    token_lists = [tokenize(c, detect(c)) for c in chunks]
+    # Skip chunks that crash langdetect ("No features in text") or produce
+    # zero tokens: BM25Okapi raises ValueError on empty token lists.
+    token_lists = []
+    clean_chunks = []
+    for c in chunks:
+        try:
+            t = tokenize(c, detect(c))
+            if len(t) > 0:
+                clean_chunks.append(c)
+                token_lists.append(t)
+        except Exception:
+            continue
+    if not token_lists:
+        print("WARNING: all chunks empty after tokenization — returning empty text index.")
+        return None, []
+    chunks = clean_chunks
     bm25 = BM25Okapi(token_lists)
     return bm25, chunks
 
@@ -913,6 +928,20 @@ def build_index(avatar_id, drive_folder_id):
             print(os.path.join(root, name))
 
     print("\nRefreshing from Google Drive...")
+    # Sync semantics: files removed from the Drive folder must also be removed
+    # locally, otherwise removed docs keep being indexed forever. Only the
+    # generated-output subfolders (fed by other pipelines) survive the wipe.
+    KEEP_DIRS = {"General_News", "uploaded_experiences"}
+    if os.path.isdir(data_dir):
+        for entry in os.listdir(data_dir):
+            if entry in KEEP_DIRS:
+                continue
+            p = os.path.join(data_dir, entry)
+            if os.path.isdir(p):
+                shutil.rmtree(p, ignore_errors=True)
+            else:
+                os.remove(p)
+        print("data_dir cleaned before Drive sync")
     download_drive_folder(drive_folder_id, data_dir)
     convert_docx_to_txt_and_cleanup(data_dir)
 
@@ -1355,9 +1384,13 @@ def web_search(query: str, count: int = 5, api_key: str = None) -> str:
         "X-Subscription-Token": api_key
     }
 
+    # Default freshness=past month: the avatar's web search is for RECENT
+    # info (news, events) — historical content comes from the knowledge base.
+    # Override with freshness="pd"/"pw"/"pm"/"py"/date_range if needed.
     params = {
         "q": query,
-        "count": count
+        "count": count,
+        "freshness": "pm"
     }
 
     try:

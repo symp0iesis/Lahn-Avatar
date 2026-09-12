@@ -55,6 +55,7 @@ export default function MultiAvatarChat() {
   const [llmOptions, setLlmOptions] = useState({});
   const [llmOptionsLastRefreshed, setLlmOptionsLastRefreshed] = useState(null);
   const [llmConfigExpanded, setLlmConfigExpanded] = useState(false);
+  const [webSearchOn, setWebSearchOn] = useState(null);
   const [hasLlmDefaults, setHasLlmDefaults] = useState(false);
   const [adminDefaultModels, setAdminDefaultModels] = useState({ chat: null, textQuery: null, sensor: null, voiceChat: null });
 
@@ -113,7 +114,13 @@ export default function MultiAvatarChat() {
         setAvatars(data || []);
         if (data && data.length > 0) {
           setSelectedAvatarId(data[0].id);
-        }
+
+    if (data.length > 0) {
+      fetch(`/api/voice/web-search-status?avatar=${data[0].id}`)
+        .then(r => r.json())
+        .then(d => setWebSearchOn(d.webSearchEnabled))
+        .catch(() => setWebSearchOn(null));
+    }        }
       } catch (err) {
         console.error("Error loading avatars:", err);
       }
@@ -944,6 +951,27 @@ export default function MultiAvatarChat() {
 
           {llmConfigExpanded && (
             <div className="mt-2 space-y-3">
+              {/* Web search toggle */}
+              <div className="flex items-center justify-between p-2 rounded-lg border bg-stone-50/60">
+                <span className="font-poetic text-sm text-stone-600">Web search (internet access)</span>
+                <button
+                  className={"relative w-12 h-6 rounded-full transition-colors duration-200 " + (webSearchOn ? "bg-emerald-500" : "bg-stone-300")}
+                  onClick={async () => {
+                    const newState = !webSearchOn;
+                    setWebSearchOn(newState);
+                    try {
+                      await fetch("/api/voice/web-search-toggle", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ avatar_id: selectedAvatarId, enabled: newState }),
+                      });
+                    } catch (e) { setWebSearchOn(!newState); }
+                  }}
+                  disabled={webSearchOn === null}
+                >
+                  <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 " + (webSearchOn ? "translate-x-6" : "translate-x-0")} />
+                </button>
+              </div>
               {/* ── Text ── */}
               <p className="font-poetic text-stone-400 text-xs font-semibold uppercase tracking-wider pt-1">Text</p>
 

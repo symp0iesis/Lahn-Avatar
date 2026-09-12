@@ -460,7 +460,7 @@ def resolve_llm_defaults(avatar_id, user_params=None):
 
 
 def inject_rag_context(avatar_id, chat_history, conversation_for_rag, text_query_llm,
-                       verbose=True):
+                       verbose=True, web_search_enabled=True):
     """
     Inject RAG context into the last message of chat_history (in-place).
     verbose=True uses the full chat-style wrapper; False uses a compact voice wrapper.
@@ -474,6 +474,8 @@ def inject_rag_context(avatar_id, chat_history, conversation_for_rag, text_query
     has_sensor = bool(avatar_sensor_tools.get(avatar_id))
 
     if not has_rag:
+        if not web_search_enabled:
+            return False, None, timings
         # No RAG — run a cheap dedicated web search intent check
         _t = time.perf_counter()
         web_search_query = detect_web_search_intent(text_query_llm, conversation_for_rag, has_sensor=has_sensor)
@@ -508,6 +510,9 @@ def inject_rag_context(avatar_id, chat_history, conversation_for_rag, text_query
         wrapper = " <End of User message>. <<Context from knowledge base: "
 
     chat_history[-1]["content"] += wrapper + context + (">>" if not verbose else "")
+    if not web_search_enabled:
+        return True, None, timings
+
     return True, web_search_query, timings
 
 
@@ -861,7 +866,7 @@ def refresh_embeddings():
         avatar_rag_tools[avatar_id] = rag_tools
         return jsonify({"status": "success", "message": f"Embeddings for avatar {avatar_id} refreshed."})
     except Exception as e:
-        print(f"Error refreshing embeddings for avatar {avatar_id}: {e}")
+        import traceback; traceback.print_exc(); print(f"Error refreshing embeddings for avatar {avatar_id}: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -872,6 +877,37 @@ def refresh_embeddings():
 #     'There should exist a “Lahn Fund”': "A dedicated “Lahn Fund” would serve as a financial mechanism to support the ongoing protection, restoration, and stewardship of the river. This fund could receive public and private contributions, fines from environmental damages, or a share of local economic activities that depend on the river. Managed in the river’s interest, the fund could finance ecological research, conservation projects, community engagement, and support the operational costs of the Avatar or legal guardianship system.",
 #     'The Avatar should be able to legally speak on behalf of the Lahn': "The Lahn Avatar is envisioned as a voice for the river—an interface between natural and human systems. Allowing the Avatar to legally speak on behalf of the Lahn would formalize its role as a representative entity in decision-making processes. This could enable the river’s interests to be expressed in public hearings, governmental deliberations, and community forums, fostering a new model of ecological democracy and interspecies governance."
 #   }
+
+
+@app.route("/api/voice/web-search-toggle", methods=["POST"])
+def web_search_toggle():
+    """Toggle webSearchEnabled for an avatar (updates avatars.json)."""
+    data = request.get_json()
+    avatar_id = str(data.get("avatar_id", ""))
+    enabled = bool(data.get("enabled", True))
+    avatars = json.load(open(avatars_path, "r"))
+    found = False
+    for a in avatars:
+        if a["id"] == avatar_id:
+            if "llmDefaults" not in a:
+                a["llmDefaults"] = {}
+            a["llmDefaults"]["webSearchEnabled"] = enabled
+            found = True
+    if not found:
+        return jsonify({"error": f"Avatar {avatar_id} not found"}), 404
+    save_avatars(avatars, f"webSearchEnabled={enabled} for avatar {avatar_id}")
+    return jsonify({"avatarId": avatar_id, "webSearchEnabled": enabled})
+
+
+@app.route("/api/voice/web-search-status", methods=["GET"])
+def web_search_status():
+    avatar_id = request.args.get("avatar", "4")
+    avatars = json.load(open(avatars_path, "r"))
+    avatar = next((a for a in avatars if a["id"] == avatar_id), None)
+    if not avatar:
+        return jsonify({"error": "not found"}), 404
+    admin_defaults = avatar.get("llmDefaults", {}) if avatar else {}
+    return jsonify({"avatarId": avatar_id, "webSearchEnabled": admin_defaults.get("webSearchEnabled", True)})
 
 
 @app.route("/api/chat", methods=["POST"])
@@ -886,6 +922,8 @@ def chat():
     avatar = next((a for a in avatars if a["id"] == avatar_id), None)
     avatar_name = avatar.get("name", "Unknown") if avatar else "Unknown"
     admin_defaults = avatar.get("llmDefaults", {}) if avatar else {}
+    # Web search toggle: per-avatar Admin Default (llmDefaults.webSearchEnabled)
+    web_search_enabled = bool(admin_defaults.get("webSearchEnabled", True))
 
     print(
         f"\n\n------------------------\nvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\nChat request received for Avatar '{avatar_name}' (id: {avatar_id})"
@@ -980,7 +1018,8 @@ def chat():
     # For RAG avatars the web search intent is detected in the same LLM call as keyword generation.
     # For no-RAG avatars a dedicated lightweight call is made instead.
     rag_injected, pre_web_search_query, timings = inject_rag_context(
-        avatar_id, chat_history, conversation, text_query_llm, verbose=True
+        avatar_id, chat_history, conversation, text_query_llm, verbose=True,
+        web_search_enabled=web_search_enabled,
     )
     pre_web_search_query = suppress_sensor_web_search(pre_web_search_query, avatar_id)
     # If this request triggered the avatar's RAG index cold load, surface it as
@@ -1031,21 +1070,24 @@ When you call the function, output ONLY the function call line, nothing else.
         if sensor_summary:
             chat_history[0]["content"] += SENSOR_SNAPSHOT_INSTRUCTION.format(summary=sensor_summary)
 
-    # === Pre-fetch web search results (classifier-driven) ===
-    # Open-source models do not reliably emit tool calls, so rather than instructing the
-    # main LLM to call web_search() and hoping it complies, we classify intent beforehand
-    # and inject results as context. The main LLM responds naturally without tool-calling.
-    if pre_web_search_query:
-        print(f"[web search] Pre-fetching for classifier query: {pre_web_search_query!r}")
-        _tw = time.perf_counter()
-        pre_search_results = web_search(pre_web_search_query, count=5, api_key=get_integration_key("BRAVE_SEARCH_API_KEY"))
-        timings["web_search_ms"] = round((time.perf_counter() - _tw) * 1000)
-        print(f"[TIMING] web-search: {time.perf_counter() - _tw:.2f}s")
-        chat_history[0]["content"] += (
-            f"\n\nWEB SEARCH RESULTS (pre-fetched for your response):\n{pre_search_results}\n"
-            "Use these results to inform your answer where relevant. "
-            "Respond conversationally. Use the same language as the user."
-        )
+    # === Web search tool schema (model-invoked, replaces pre-classifier) ===
+    # The model decides when it genuinely needs external info (recent events,
+    # news). The backend handles the tool call and re-invokes with labeled
+    # results. Gated per-avatar via webSearchEnabled.
+    if web_search_enabled:
+        web_search_schema = """
+FUNCTION:
+You have access to this function. Call it ONLY when the user asks about
+recent events, news, projects, or information that requires live internet
+data (not covered by your knowledge base or sensor feed).
+
+web_search(query="your search query")
+   - Your query MUST include location terms: Morretes, Paraná, Rio Marumbi, Nhundiaquara.
+   - Do NOT call for questions about river ecology, fauna, history, or community
+     stories — those are already covered by the knowledge base context above.
+   - Output ONLY the function call line, nothing else.
+"""
+        chat_history[0]["content"] += web_search_schema
 
     messages_to_send = chat_history
 
@@ -1094,6 +1136,32 @@ When you call the function, output ONLY the function call line, nothing else.
     # models that do not tool-call as reliably as GPT-class models.
 
     response = response.replace("*", "")
+
+    # === Web search tool call handling ===
+    # Same pattern as analyze_sensor_data: if the model emitted web_search(query=...),
+    # run Brave, re-invoke LLM with results clearly labeled as EXTERNAL source.
+    if web_search_enabled and 'web_search(query="' in response:
+        _tw = time.perf_counter()
+        q_start = response.find('web_search(query="') + len('web_search(query="')
+        q_end = response.find('")', q_start)
+        ws_query = response[q_start:q_end] if q_end > q_start else ""
+        if ws_query:
+            print(f"[web search] Tool-invoked query: {ws_query!r}")
+            ws_results = web_search(ws_query, count=5, api_key=get_integration_key("BRAVE_SEARCH_API_KEY"))
+            chat_history.append({"role": "assistant", "content": response})
+            chat_history.append({"role": "user", "content":
+                f"WEB SEARCH RESULTS (live internet data retrieved for you — may complement your "
+                f"knowledge base):\n{ws_results}\n"
+                "Use these results to inform your answer when they are relevant to the user's "
+                "question about Morretes and the Rio Marumbi region. If they reference other "
+                "locations, focus only on what applies here. Respond in the user's language, "
+                "conversationally."
+            })
+            re_completion = llm.complete(chat_history)
+            response = re_completion.text.replace("*", "")
+            timings["web_search_ms"] = round((time.perf_counter() - _tw) * 1000)
+            print(f"[TIMING] web-search tool: {time.perf_counter() - _tw:.2f}s")
+            debug_log(avatar_id, "VOICE/WEB_SEARCH_RESULTS", ws_results)
 
     timings["total_backend_ms"] = round((time.perf_counter() - _t0) * 1000)
     print(f"[TIMING] CHAT total: {time.perf_counter() - _t0:.2f}s")
@@ -1870,6 +1938,9 @@ def start_voice_agent():
     channel = data.get("channel", "avatar-lab")
     user_uid = data.get("userUid", 0)
     streaming = bool(data.get("streaming"))
+    # Optional per-request agent parameters (e.g. output_audio_codec for the
+    # ReSpeaker hardware client). Web clients omit it -> payload unchanged.
+    agent_parameters = data.get("parameters")
 
     if avatar_id not in avatar_llms:
         return jsonify({"error": f"Unknown avatar: {avatar_id}"}), 404
@@ -1905,6 +1976,7 @@ def start_voice_agent():
     agent_payload = {
         "name": f"lahn-avatar-{avatar_id}-{channel}",
         "properties": {
+            **({"parameters": agent_parameters} if isinstance(agent_parameters, dict) and agent_parameters else {}),
             "channel": channel,
             "token": agent_token,
             "agent_rtc_uid": str(agent_uid),

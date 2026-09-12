@@ -71,3 +71,8 @@
   height: 100%;
   overflow: hidden;
 }*/
+
+/* Avatar Lab — default typeface (overrides Tailwind default sans stack) */
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}

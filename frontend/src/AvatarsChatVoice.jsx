@@ -27,6 +27,7 @@ export default function AvatarsChatVoice() {
   const [error, setError] = useState(null);
 
   const [latencyExpanded, setLatencyExpanded] = useState(false);
+  const [webSearchOn, setWebSearchOn] = useState(null);
   const [lastLatency, setLastLatency] = useState(null); // { perceivedMs, timings }
   // Experimental: stream LLM sentences to Agora (TTS starts sooner). Off by
   // default — Agora-side chunk handling still being ironed out (ISSUES.md 14).
@@ -311,6 +312,26 @@ export default function AvatarsChatVoice() {
         </label>
       )}
 
+      {/* Web search toggle */}
+      <div className="w-full max-w-lg flex items-center justify-between p-2 rounded-lg border bg-white/40">
+        <span className="font-poetic text-sm text-stone-600">Web search</span>
+        <button
+          className={"relative w-12 h-6 rounded-full transition-colors duration-200 " + (webSearchOn ? "bg-emerald-500" : "bg-stone-300")}
+          onClick={async () => {
+            const newState = !webSearchOn;
+            setWebSearchOn(newState);
+            await fetch("/api/voice/web-search-toggle", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ avatar_id: selectedAvatarId, enabled: newState }),
+            });
+          }}
+          disabled={webSearchOn === null}
+        >
+          <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 " + (webSearchOn ? "translate-x-6" : "translate-x-0")} />
+        </button>
+      </div>
+
       {/* Latency Analysis — directly under the avatar selection */}
       <div className="w-full max-w-lg">
         <button
@@ -334,19 +355,27 @@ export default function AvatarsChatVoice() {
               </p>
             ) : (() => {
                 const t = lastLatency.timings;
+                // Streaming turns expose llm_first_token_ms; the panel must then
+                // measure up to the FIRST token (matching the first-audio moment).
+                // main_llm_ms covers the entire stream and would overstate latency.
+                const isStreaming = (t.llm_first_token_ms || 0) > 0;
                 const segments = [
                   { label: "Loading RAG index into RAM", ms: t.index_load_ms || 0, color: "#e879f9" },
                   { label: "Keyword generation (LLM)", ms: t.keyword_gen_ms || 0, color: "#f59e0b" },
                   { label: "Knowledge retrieval (RAG)", ms: t.rag_retrieval_ms || 0, color: "#22d3ee" },
                   { label: "Sensor snapshot", ms: t.sensor_snapshot_ms || 0, color: "#34d399" },
-                  { label: "Avatar response (LLM)", ms: t.main_llm_ms || 0, color: "#60a5fa" },
+                  isStreaming
+                    ? { label: "LLM time to first token (streaming)", ms: t.llm_first_token_ms, color: "#60a5fa" }
+                    : { label: "Avatar response (LLM)", ms: t.main_llm_ms || 0, color: "#60a5fa" },
                   { label: "Sensor analysis tool", ms: t.sensor_tool_ms || 0, color: "#fb923c" },
                 ];
                 const attributed = segments.reduce((acc, s) => acc + s.ms, 0);
-                const backendOther = Math.max((t.total_backend_ms || 0) - attributed, 0);
-                if (backendOther > 0) segments.push({ label: "Backend overhead", ms: backendOther, color: "#d6d3d1" });
-                const agora = Math.max(lastLatency.perceivedMs - (t.total_backend_ms || 0), 0);
-                if (agora > 0) segments.push({ label: "Agora pipeline (ASR + TTS + transport)", ms: agora, color: "#a8a29e" });
+                if (!isStreaming) {
+                  const backendOther = Math.max((t.total_backend_ms || 0) - attributed, 0);
+                  if (backendOther > 0) segments.push({ label: "Backend overhead", ms: backendOther, color: "#d6d3d1" });
+                }
+                const agora = Math.max(lastLatency.perceivedMs - attributed, 0);
+                if (agora > 0) segments.push({ label: isStreaming ? "TTS streaming + Agora pipeline (rest of reply)" : "Agora pipeline (ASR + TTS + transport)", ms: agora, color: "#a8a29e" });
                 return (
                   <>
                     <LatencyBreakdown segments={segments} totalMs={lastLatency.perceivedMs} />
