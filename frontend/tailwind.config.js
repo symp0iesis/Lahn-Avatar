@@ -9,8 +9,8 @@ module.exports = {
   theme: {
   	extend: {
   		  fontFamily: {
-            poetic: ['Newsreader', 'Georgia', 'serif'],
-            display: ['Gloock', 'Newsreader', 'serif'],
+            poetic: ['"Public Sans"', 'Inter', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+            display: ['"Public Sans"', 'Inter', 'sans-serif'],
             data: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
   		  },
         textShadow: {
