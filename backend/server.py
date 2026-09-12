@@ -561,6 +561,62 @@ def handle_sensor_tool_call(response_text, avatar_id, sensor_provider, sensor_mo
     return final.replace("*", ""), True
 
 
+VOICE_WEB_SEARCH_SCHEMA = """
+FUNCTION:
+You have access to this function. Call it ONLY when the user asks about recent
+events, news, projects, or information that requires live internet data (not
+covered by your knowledge base or sensor feed).
+
+web_search(query="your search query")
+   - Your query MUST include location/context terms that identify your
+     bioregion (river name, region, municipality).
+   - Do NOT call for questions about ecology, fauna, history, or community
+     stories — those are already covered by the knowledge base context above.
+   - Output ONLY the function call line, nothing else.
+"""
+
+
+def handle_web_search_tool_call(response_text, avatar_id, llm, chat_history):
+    """
+    If response_text contains web_search(query=...), run Brave and re-invoke the
+    LLM with results labeled as an external source. Returns (final_response,
+    was_handled). Mirrors handle_sensor_tool_call; used by the voice callback
+    (buffered + streaming). The per-avatar webSearchEnabled flag gates injection.
+    """
+    if 'web_search(query="' not in response_text:
+        return response_text, False
+
+    q_start = response_text.find('web_search(query="') + len('web_search(query="')
+    q_end = response_text.find('")', q_start)
+    query = response_text[q_start:q_end] if q_end > q_start else ""
+    if not query:
+        return response_text, False
+
+    print(f"[web search] Voice tool-invoked query: {query!r}")
+    try:
+        ws_results = web_search(query, count=5, api_key=get_integration_key("BRAVE_SEARCH_API_KEY"))
+    except Exception as e:
+        print(f"[Voice] Web search failed (continuing with original response): {e}")
+        return response_text, False
+    debug_log(avatar_id, "VOICE/WEB_SEARCH_RESULTS", ws_results)
+
+    chat_history.append({"role": "assistant", "content": response_text})
+    chat_history.append({"role": "user", "content":
+        f"WEB SEARCH RESULTS (live internet data retrieved for you — external source, "
+        f"NOT from your knowledge base):\n{ws_results}\n"
+        "Use these results where they are relevant to the user's question; ignore "
+        "anything that does not apply to your bioregion. Respond conversationally in "
+        "the user's language. Do not return a function call."
+    })
+    final = llm.complete(chat_history).text
+
+    # Guard against recursive function calls
+    if 'web_search(query="' in final:
+        final = ws_results
+
+    return final.replace("*", ""), True
+
+
 def _build_model_checks(provider_ids_filter=None):
     """Build list of model checks, optionally filtered by provider IDs."""
     providers = json.load(open(LLM_PROVIDERS_PATH, "r"))
@@ -2162,7 +2218,8 @@ def voice_chat_completions():
     # Voice RAG: LLM-based keyword generation (same path as chat) — context-aware
     # across turns and robust on short/ambiguous utterances. The configured
     # text-query model should be small (e.g. 8B, ~1s) to fit Agora's timeout.
-    # The web-search intent from the same call is ignored: voice has no web search.
+    # The web-search intent field from this call is unused — voice web search
+    # is model-invoked (VOICE_WEB_SEARCH_SCHEMA) and gated by webSearchEnabled.
     try:
         if avatar_rag_tools.get(avatar_id):
             rag_languages = avatar_rag_tools[avatar_id][4] if len(avatar_rag_tools[avatar_id]) > 4 else ['en', 'de']
@@ -2206,6 +2263,17 @@ def voice_chat_completions():
                 "say you'll look it up and call: analyze_sensor_data(user_query=\"...\"). "
                 "Otherwise respond normally."
             )
+
+    # Web search (model-invoked tool) — governed by the same per-avatar flag as
+    # the text pipeline (llmDefaults.webSearchEnabled, toggled from the main
+    # AvatarGarden page). When enabled, the model may answer with
+    # web_search(query=...); the backend runs Brave and re-invokes with the
+    # results labeled as an external source.
+    avatars_cfg = json.load(open(avatars_path, "r"))
+    avatar_cfg = next((a for a in avatars_cfg if str(a.get("id")) == avatar_id), None)
+    web_search_enabled = bool((avatar_cfg or {}).get("llmDefaults", {}).get("webSearchEnabled", True))
+    if web_search_enabled:
+        chat_history[0]["content"] += VOICE_WEB_SEARCH_SCHEMA
 
     # Main LLM call
     llm = create_llm_instance(chat_provider, chat_model, system_prompt,
@@ -2254,6 +2322,12 @@ def voice_chat_completions():
         if sensor_handled:
             vtimings["sensor_tool_ms"] = round((time.perf_counter() - _tst) * 1000)
             print("[Voice] Sensor analysis complete")
+        if web_search_enabled and 'web_search(query="' in text:
+            _tw = time.perf_counter()
+            text, ws_handled = handle_web_search_tool_call(text, avatar_id, llm, chat_history)
+            if ws_handled:
+                vtimings["web_search_ms"] = round((time.perf_counter() - _tw) * 1000)
+                print("[Voice] Web search complete")
         return sanitize_for_tts(text)
 
     def generate_buffered():
@@ -2273,6 +2347,7 @@ def voice_chat_completions():
         buf, full_parts = "", []
         head_checked = False
         sensor_mode = False
+        web_mode = False
         emitted = False
         try:
             for delta in llm.stream_deltas(chat_history):
@@ -2287,7 +2362,9 @@ def voice_chat_completions():
                     head_checked = True
                     if "analyze_sensor_data" in buf:
                         sensor_mode = True  # accumulate silently; tool needs the full call
-                if sensor_mode:
+                    elif web_search_enabled and 'web_search(query="' in buf:
+                        web_mode = True  # accumulate silently; search + re-invoke at the end
+                if sensor_mode or web_mode:
                     continue
 
                 # Flush complete sentences (Agora starts TTS per chunk)
@@ -2317,6 +2394,17 @@ def voice_chat_completions():
                 if handled:
                     vtimings["sensor_tool_ms"] = round((time.perf_counter() - _tst) * 1000)
                     print("[Voice] Sensor analysis complete")
+                response_text = sanitize_for_tts(response_text)
+                yield _sse(response_text)
+            elif web_mode or ('web_search(query="' in response_text and not emitted):
+                # Web search tool call — silent accumulation completed; run Brave
+                # and re-invoke, then emit the final response as one chunk.
+                _tw = time.perf_counter()
+                response_text, ws_handled = handle_web_search_tool_call(
+                    response_text, avatar_id, llm, chat_history)
+                if ws_handled:
+                    vtimings["web_search_ms"] = round((time.perf_counter() - _tw) * 1000)
+                    print("[Voice] Web search complete")
                 response_text = sanitize_for_tts(response_text)
                 yield _sse(response_text)
             else:

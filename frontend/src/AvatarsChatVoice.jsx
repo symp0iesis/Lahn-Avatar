@@ -342,6 +342,7 @@ export default function AvatarsChatVoice() {
                   { label: "Loading RAG index into RAM", ms: t.index_load_ms || 0, color: "#9333EA" },
                   { label: "Keyword generation (LLM)", ms: t.keyword_gen_ms || 0, color: "#CA8A04" },
                   { label: "Knowledge retrieval (RAG)", ms: t.rag_retrieval_ms || 0, color: "#0E7490" },
+                  { label: "Web search", ms: t.web_search_ms || 0, color: "#DB2777" },
                   { label: "Sensor snapshot", ms: t.sensor_snapshot_ms || 0, color: "#15803D" },
                   isStreaming
                     ? { label: "LLM time to first token (streaming)", ms: t.llm_first_token_ms, color: "#1D4ED8" }
