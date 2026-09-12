@@ -276,7 +276,7 @@ export default function AvatarsChatVoice() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 gap-6">
 
-      <h1 className="text-3xl font-display text-garden-ink">Voice Avatar Garden</h1>
+      <h1 className="text-2xl md:text-3xl font-poetic font-semibold tracking-tight text-garden-ink">Voice Avatar Garden</h1>
 
       {/* Avatar selector — only shown when not connected */}
       {!isConnected && avatars.length > 0 && (

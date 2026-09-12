@@ -869,7 +869,7 @@ export default function MultiAvatarChat() {
       className="min-h-screen p-4 flex flex-col items-center"
     >
       <motion.h1
-        className="text-3xl md:text-4xl font-display text-garden-ink mb-2"
+        className="text-2xl md:text-3xl font-poetic font-semibold tracking-tight text-garden-ink mb-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -877,7 +877,7 @@ export default function MultiAvatarChat() {
         Avatar Garden: Conversations with Many Voices.
       </motion.h1>
       <motion.h3
-        className="text-base md:text-xl font-literary text-garden-amber italic mb-4 text-center px-2"
+        className="text-base md:text-lg font-poetic text-garden-amber mb-4 text-center px-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
