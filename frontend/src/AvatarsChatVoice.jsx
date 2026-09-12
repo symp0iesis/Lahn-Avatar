@@ -274,16 +274,16 @@ export default function AvatarsChatVoice() {
   const selectedAvatar = avatars.find(a => a.id === selectedAvatarId);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-100 to-stone-100 flex flex-col items-center justify-center p-6 gap-6">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 gap-6">
 
-      <h1 className="text-3xl font-poetic text-amber-700">Voice Avatar Garden</h1>
+      <h1 className="text-3xl font-display text-garden-ink">Voice Avatar Garden</h1>
 
       {/* Avatar selector — only shown when not connected */}
       {!isConnected && avatars.length > 0 && (
         <div className="flex items-center gap-3">
-          <label className="font-poetic text-stone-600 text-sm">Avatar:</label>
+          <label className="font-poetic text-garden-inksoft text-sm">Avatar:</label>
           <select
-            className="p-2 rounded-md border bg-white font-poetic text-sm"
+            className="p-2 rounded-md border bg-garden-paper font-poetic text-sm"
             value={selectedAvatarId ?? ""}
             onChange={e => setSelectedAvatarId(e.target.value)}
           >
@@ -295,14 +295,14 @@ export default function AvatarsChatVoice() {
       )}
 
       {isConnected && selectedAvatar && (
-        <p className="font-poetic text-stone-500 text-sm">
-          Speaking with: <span className="text-stone-700 font-semibold">{selectedAvatar.name}</span>
+        <p className="font-poetic text-garden-inksoft text-sm">
+          Speaking with: <span className="text-garden-ink font-semibold">{selectedAvatar.name}</span>
         </p>
       )}
 
       {/* Streaming toggle — applies to the next conversation start */}
       {!isConnected && (
-        <label className="flex items-center gap-2 font-poetic text-stone-500 text-xs cursor-pointer">
+        <label className="flex items-center gap-2 font-poetic text-garden-inksoft text-xs cursor-pointer">
           <input
             type="checkbox"
             checked={streamingEnabled}
@@ -313,10 +313,10 @@ export default function AvatarsChatVoice() {
       )}
 
       {/* Web search toggle */}
-      <div className="w-full max-w-lg flex items-center justify-between p-2 rounded-lg border bg-white/40">
-        <span className="font-poetic text-sm text-stone-600">Web search</span>
+      <div className="w-full max-w-lg flex items-center justify-between p-2 rounded-lg border bg-garden-paper2">
+        <span className="font-poetic text-sm text-garden-inksoft">Web search</span>
         <button
-          className={"relative w-12 h-6 rounded-full transition-colors duration-200 " + (webSearchOn ? "bg-emerald-500" : "bg-stone-300")}
+          className={"relative w-12 h-6 rounded-full transition-colors duration-200 " + (webSearchOn ? "bg-garden-moss" : "bg-garden-line")}
           onClick={async () => {
             const newState = !webSearchOn;
             setWebSearchOn(newState);
@@ -328,29 +328,29 @@ export default function AvatarsChatVoice() {
           }}
           disabled={webSearchOn === null}
         >
-          <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 " + (webSearchOn ? "translate-x-6" : "translate-x-0")} />
+          <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-garden-paper rounded-full transition-transform duration-200 " + (webSearchOn ? "translate-x-6" : "translate-x-0")} />
         </button>
       </div>
 
       {/* Latency Analysis — directly under the avatar selection */}
       <div className="w-full max-w-lg">
         <button
-          className="flex items-center gap-2 font-poetic text-stone-700 cursor-pointer hover:text-stone-900"
+          className="flex items-center gap-2 font-poetic text-garden-inksoft cursor-pointer hover:text-garden-ink"
           onClick={() => setLatencyExpanded(!latencyExpanded)}
         >
           <span className="text-lg">{latencyExpanded ? '▼' : '▶'}</span>
           <span className="font-semibold">Latency Analysis</span>
           {lastLatency && (
-            <span className="text-xs text-stone-400 font-mono">
+            <span className="text-xs text-garden-inksoft font-data">
               {(lastLatency.perceivedMs / 1000).toFixed(2)}s
             </span>
           )}
         </button>
 
         {latencyExpanded && (
-          <div className="mt-2 p-3 rounded-lg border bg-white/60">
+          <div className="mt-2 p-3 rounded-lg border bg-garden-paper2">
             {!lastLatency ? (
-              <p className="font-poetic text-stone-500 text-sm">
+              <p className="font-poetic text-garden-inksoft text-sm">
                 Complete a voice exchange to see its latency breakdown.
               </p>
             ) : (() => {
@@ -379,7 +379,7 @@ export default function AvatarsChatVoice() {
                 return (
                   <>
                     <LatencyBreakdown segments={segments} totalMs={lastLatency.perceivedMs} />
-                    <p className="mt-2 text-[10px] text-stone-400 font-poetic">
+                    <p className="mt-2 text-[10px] text-garden-inksoft font-poetic">
                       Measured from end of your speech to first avatar audio. Agora pipeline time is derived, not directly measured.
                     </p>
                   </>
@@ -395,11 +395,11 @@ export default function AvatarsChatVoice() {
         {/* User mic ripple */}
         <div className="relative flex items-center justify-center w-32 h-32">
           <motion.div
-            className="absolute w-20 h-20 rounded-full bg-lime-300"
+            className="absolute w-20 h-20 rounded-full bg-garden-moss/50"
             animate={{ scale: isConnected ? userRippleScale : 1, opacity: isConnected ? 0.55 : 0.15 }}
             transition={{ duration: 0.08 }}
           />
-          <span className="relative z-10 text-xs font-poetic text-stone-600 text-center px-2">
+          <span className="relative z-10 text-xs font-poetic text-garden-inksoft text-center px-2">
             {isConnected ? "You" : ""}
           </span>
         </div>
@@ -407,21 +407,21 @@ export default function AvatarsChatVoice() {
         {/* Avatar audio ripple */}
         <div className="relative flex items-center justify-center w-48 h-48">
           <motion.div
-            className="absolute w-28 h-28 rounded-full bg-cyan-300"
+            className="absolute w-28 h-28 rounded-full bg-garden-water/50"
             animate={{
               scale: status === "speaking" ? avatarRippleScale : 1,
               opacity: status === "speaking" ? 0.55 : 0.1,
             }}
             transition={{ duration: 0.08 }}
           />
-          <span className="relative z-10 text-xs font-poetic text-stone-600 text-center px-4">
+          <span className="relative z-10 text-xs font-poetic text-garden-inksoft text-center px-4">
             {isConnected ? "Avatar" : ""}
           </span>
         </div>
       </div>
 
       {/* Status label */}
-      <p className="font-poetic text-stone-500 text-sm italic min-h-[1.25rem]">
+      <p className="font-poetic text-garden-inksoft text-sm italic min-h-[1.25rem]">
         {STATUS_LABEL[status] ?? ""}
       </p>
 
@@ -430,7 +430,7 @@ export default function AvatarsChatVoice() {
         <Button
           onClick={connect}
           disabled={status === "connecting" || !selectedAvatarId}
-          className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 py-3 text-base font-poetic"
+          className="bg-garden-moss hover:bg-garden-mossdeep text-garden-paper rounded-md px-8 py-3 text-base font-poetic"
         >
           {status === "connecting" ? "Connecting…" : "🎤 Start Conversation"}
         </Button>
@@ -438,7 +438,7 @@ export default function AvatarsChatVoice() {
         <Button
           onClick={() => disconnect()}
           disabled={isDisconnecting}
-          className="bg-red-600 hover:bg-red-700 text-white rounded-full px-8 py-3 text-base font-poetic disabled:opacity-60"
+          className="bg-garden-clay hover:bg-garden-clay/80 text-garden-paper rounded-md px-8 py-3 text-base font-poetic disabled:opacity-60"
         >
           {isDisconnecting ? "Ending…" : "End Conversation"}
         </Button>
@@ -446,48 +446,48 @@ export default function AvatarsChatVoice() {
 
       {/* Error display */}
       {error && (
-        <p className="text-sm text-red-600 max-w-sm text-center font-poetic">{error}</p>
+        <p className="text-sm text-garden-clay max-w-sm text-center font-poetic">{error}</p>
       )}
 
       {/* Device integration guide */}
       {!isConnected && (
         <details className="mt-4 max-w-lg w-full">
-          <summary className="text-xs text-stone-400 cursor-pointer font-poetic">
+          <summary className="text-xs text-garden-inksoft cursor-pointer font-poetic">
             Connecting a hardware device (Raspberry Pi / ReSpeaker)
           </summary>
-          <div className="mt-2 text-xs text-stone-500 space-y-3 font-mono">
-            <p className="font-poetic text-stone-600">Your device joins a shared voice channel. The avatar listens, thinks, and speaks back — your device only needs to handle audio input and output.</p>
-            <p className="font-poetic text-stone-500">
-              Base URL: <code className="bg-stone-100 rounded px-1">https://avatars.sympoiesis.xyz</code>
+          <div className="mt-2 text-xs text-garden-inksoft space-y-3 font-data">
+            <p className="font-poetic text-garden-inksoft">Your device joins a shared voice channel. The avatar listens, thinks, and speaks back — your device only needs to handle audio input and output.</p>
+            <p className="font-poetic text-garden-inksoft">
+              Base URL: <code className="bg-garden-paper2 rounded px-1">https://avatars.sympoiesis.xyz</code>
             </p>
 
-            <p className="font-poetic font-semibold text-stone-600">Requirements</p>
+            <p className="font-poetic font-semibold text-garden-inksoft">Requirements</p>
             <p className="font-poetic">Python 3.10 or newer. Linux or macOS (Raspberry Pi / arm64 supported, Windows is not).</p>
-            <pre className="bg-stone-100 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`# On Raspberry Pi, install system audio libraries first:
+            <pre className="bg-garden-paper2 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`# On Raspberry Pi, install system audio libraries first:
 sudo apt-get install python3-pyaudio portaudio19-dev
 
 # Then install Python packages:
 pip install agora-python-server-sdk pyaudio requests`}</pre>
 
-            <p className="font-poetic font-semibold text-stone-600">Step 0 — Find available avatars</p>
-            <pre className="bg-stone-100 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`GET /api/avatars
+            <p className="font-poetic font-semibold text-garden-inksoft">Step 0 — Find available avatars</p>
+            <pre className="bg-garden-paper2 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`GET /api/avatars
 ← [{ "id": "0", "name": "Lahn" }, { "id": "1", "name": "..." }, ...]`}</pre>
 
-            <p className="font-poetic font-semibold text-stone-600">Step 1 — Get a channel token</p>
+            <p className="font-poetic font-semibold text-garden-inksoft">Step 1 — Get a channel token</p>
             <p className="font-poetic">Choose a unique name for your device's channel and any numeric user ID.</p>
-            <pre className="bg-stone-100 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`GET /api/voice/token?channel=my-device&uid=1
+            <pre className="bg-garden-paper2 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`GET /api/voice/token?channel=my-device&uid=1
 ← { appId, channel, uid, token }`}</pre>
 
-            <p className="font-poetic font-semibold text-stone-600">Step 2 — Start the avatar</p>
-            <p className="font-poetic">Use the avatar <code className="bg-stone-100 rounded px-1">id</code> from Step 0 and the <code className="bg-stone-100 rounded px-1">channel</code> / <code className="bg-stone-100 rounded px-1">uid</code> from Step 1.</p>
-            <pre className="bg-stone-100 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`POST /api/voice/agent/start
+            <p className="font-poetic font-semibold text-garden-inksoft">Step 2 — Start the avatar</p>
+            <p className="font-poetic">Use the avatar <code className="bg-garden-paper2 rounded px-1">id</code> from Step 0 and the <code className="bg-garden-paper2 rounded px-1">channel</code> / <code className="bg-garden-paper2 rounded px-1">uid</code> from Step 1.</p>
+            <pre className="bg-garden-paper2 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`POST /api/voice/agent/start
 Content-Type: application/json
 { "avatarId": "0", "channel": "my-device", "userUid": 1 }
 ← { agentId, channel }`}</pre>
 
-            <p className="font-poetic font-semibold text-stone-600">Step 3 — Run the client script</p>
-            <p className="font-poetic">Save the script below as <code className="bg-stone-100 rounded px-1">avatar_client.py</code>. Edit the four constants at the top, then run it. It handles Steps 1 and 2 automatically, joins the channel, streams your mic to the avatar, and plays the avatar's voice through your speaker. Press Ctrl+C to end.</p>
-            <pre className="bg-stone-100 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`#!/usr/bin/env python3
+            <p className="font-poetic font-semibold text-garden-inksoft">Step 3 — Run the client script</p>
+            <p className="font-poetic">Save the script below as <code className="bg-garden-paper2 rounded px-1">avatar_client.py</code>. Edit the four constants at the top, then run it. It handles Steps 1 and 2 automatically, joins the channel, streams your mic to the avatar, and plays the avatar's voice through your speaker. Press Ctrl+C to end.</p>
+            <pre className="bg-garden-paper2 rounded p-2 overflow-x-auto whitespace-pre-wrap">{`#!/usr/bin/env python3
 import asyncio, pyaudio, requests
 from agora.rtc.agora_service import AgoraService, AgoraServiceConfig
 from agora.rtc.rtc_connection import RTCConnConfig, RtcConnectionPublishConfig

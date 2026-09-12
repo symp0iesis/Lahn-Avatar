@@ -1,9 +1,14 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 
-export function Card({ children }) {
+export function Card({ children, className }) {
   return (
-    <div className="rounded-2xl bg-white/10 p-4 shadow-lg 
-backdrop-blur-md">
+    <div
+      className={cn(
+        "rounded-xl border border-garden-line bg-card p-4 shadow-sm",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -12,4 +17,3 @@ backdrop-blur-md">
 export function CardContent({ children }) {
   return <div className="p-4">{children}</div>;
 }
-

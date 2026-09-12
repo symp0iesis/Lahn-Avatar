@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import LatencyBreakdown from "./LatencyBreakdown";
 
-import "@fontsource/chakra-petch";
-
 export default function MultiAvatarChat() {
   // const [refreshPromptState, setRefreshPromptState] = useState("idle");
   // const [refreshEmbeddingsState, setRefreshEmbeddingsState] = useState("idle");
@@ -868,11 +866,10 @@ export default function MultiAvatarChat() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-blue-100 via-sky-100 to-indigo-100 p-4 flex flex-col items-center"
-      style={{ fontFamily: "'Chakra Petch', sans-serif" }}
+      className="min-h-screen p-4 flex flex-col items-center"
     >
       <motion.h1
-        className="text-2xl md:text-3xl font-poetic text-amber-700 mb-2"
+        className="text-3xl md:text-4xl font-display text-garden-ink mb-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -880,7 +877,7 @@ export default function MultiAvatarChat() {
         Avatar Garden: Conversations with Many Voices.
       </motion.h1>
       <motion.h3
-        className="text-base md:text-xl font-poetic text-amber-700 italic mb-4 text-center px-2"
+        className="text-base md:text-xl font-poetic text-garden-amber italic mb-4 text-center px-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -892,12 +889,12 @@ export default function MultiAvatarChat() {
       <div className="w-full max-w-5xl flex flex-col gap-4 mb-4 px-4">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           <div className="flex-1">
-            <label className="block mb-1 font-poetic text-stone-800">
+            <label className="block mb-1 font-poetic text-garden-ink">
               Active avatar
             </label>
             <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
               <select
-                className="flex-1 p-2 rounded-md border bg-white font-poetic"
+                className="flex-1 p-2 rounded-md border bg-garden-paper font-poetic"
                 value={selectedAvatarId}
                 onChange={e => setSelectedAvatarId(e.target.value)}
               >
@@ -931,18 +928,18 @@ export default function MultiAvatarChat() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Switch checked={isDebateMode} onCheckedChange={setIsDebateMode} />
-              <span className="font-poetic text-stone-700">Debate Mode</span>
+              <span className="font-poetic text-garden-inksoft">Debate Mode</span>
             </div>
           </div>
         </div>
 
         {/* Horizontal separator */}
-        <hr className="w-full border-stone-300" />
+        <hr className="w-full border-garden-line border-dashed" />
 
         {/* Collapsible LLM Config Section */}
         <div className="w-full">
           <button
-            className="flex items-center gap-2 font-poetic text-stone-700 cursor-pointer hover:text-stone-900"
+            className="flex items-center gap-2 font-poetic text-garden-inksoft cursor-pointer hover:text-garden-ink"
             onClick={() => setLlmConfigExpanded(!llmConfigExpanded)}
           >
             <span className="text-lg">{llmConfigExpanded ? '▼' : '▶'}</span>
@@ -952,10 +949,10 @@ export default function MultiAvatarChat() {
           {llmConfigExpanded && (
             <div className="mt-2 space-y-3">
               {/* Web search toggle */}
-              <div className="flex items-center justify-between p-2 rounded-lg border bg-stone-50/60">
-                <span className="font-poetic text-sm text-stone-600">Web search (internet access)</span>
+              <div className="flex items-center justify-between p-2 rounded-lg border bg-garden-paper2">
+                <span className="font-poetic text-sm text-garden-inksoft">Web search (internet access)</span>
                 <button
-                  className={"relative w-12 h-6 rounded-full transition-colors duration-200 " + (webSearchOn ? "bg-emerald-500" : "bg-stone-300")}
+                  className={"relative w-12 h-6 rounded-full transition-colors duration-200 " + (webSearchOn ? "bg-garden-moss" : "bg-garden-line")}
                   onClick={async () => {
                     const newState = !webSearchOn;
                     setWebSearchOn(newState);
@@ -969,18 +966,18 @@ export default function MultiAvatarChat() {
                   }}
                   disabled={webSearchOn === null}
                 >
-                  <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 " + (webSearchOn ? "translate-x-6" : "translate-x-0")} />
+                  <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-garden-paper rounded-full shadow transition-transform duration-200 " + (webSearchOn ? "translate-x-6" : "translate-x-0")} />
                 </button>
               </div>
               {/* ── Text ── */}
-              <p className="font-poetic text-stone-400 text-xs font-semibold uppercase tracking-wider pt-1">Text</p>
+              <p className="font-poetic text-garden-inksoft text-xs font-semibold uppercase tracking-wider pt-1">Text</p>
 
               {/* Text chat provider and model */}
-              <div className="p-3 rounded-lg border bg-stone-50/60 space-y-2">
-                  <label className="block font-poetic text-stone-800 font-semibold text-sm">Text Chat</label>
+              <div className="p-3 rounded-lg border bg-garden-paper2 space-y-2">
+                  <label className="block font-poetic text-garden-ink font-semibold text-sm">Text Chat</label>
                   <div className="flex flex-wrap items-center gap-2">
                       <select
-                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={currentUserChatProvider}
                           onChange={e => {
                               setCurrentUserChatProvider(e.target.value);
@@ -992,7 +989,7 @@ export default function MultiAvatarChat() {
                           ))}
                       </select>
                       <select
-                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={currentUserChatModel}
                           onChange={e => setCurrentUserChatModel(e.target.value)}
                       >
@@ -1011,7 +1008,7 @@ export default function MultiAvatarChat() {
                   </div>
                   <div className="flex flex-wrap items-center gap-4">
                       <div className="flex items-center gap-2">
-                          <label className="font-poetic text-stone-700 text-sm whitespace-nowrap">Temp:</label>
+                          <label className="font-poetic text-garden-inksoft text-sm whitespace-nowrap">Temp:</label>
                           <input
                               type="range"
                               min="0"
@@ -1021,10 +1018,10 @@ export default function MultiAvatarChat() {
                               onChange={e => setCurrentUserTemperature(parseFloat(e.target.value))}
                               className="w-20"
                           />
-                          <span className="text-xs text-stone-600 w-6">{currentUserTemperature}</span>
+                          <span className="text-xs text-garden-inksoft w-6">{currentUserTemperature}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                          <label className={`font-poetic text-sm whitespace-nowrap ${currentUserChatProvider === 'openai' ? 'text-stone-400' : 'text-stone-700'}`}>Top K:</label>
+                          <label className={`font-poetic text-sm whitespace-nowrap ${currentUserChatProvider === 'openai' ? 'text-garden-inksoft' : 'text-garden-inksoft'}`}>Top K:</label>
                           <input
                               type="range"
                               min="1"
@@ -1035,10 +1032,10 @@ export default function MultiAvatarChat() {
                               className="w-20"
                               disabled={currentUserChatProvider === 'openai'}
                           />
-                          <span className={`text-xs w-6 ${currentUserChatProvider === 'openai' ? 'text-stone-400' : 'text-stone-600'}`}>{currentUserChatProvider === 'openai' ? '—' : currentUserTopK}</span>
+                          <span className={`text-xs w-6 ${currentUserChatProvider === 'openai' ? 'text-garden-inksoft' : 'text-garden-inksoft'}`}>{currentUserChatProvider === 'openai' ? '—' : currentUserTopK}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                          <label className="font-poetic text-stone-700 text-sm whitespace-nowrap">Top P:</label>
+                          <label className="font-poetic text-garden-inksoft text-sm whitespace-nowrap">Top P:</label>
                           <input
                               type="range"
                               min="0"
@@ -1048,23 +1045,23 @@ export default function MultiAvatarChat() {
                               onChange={e => setCurrentUserTopP(parseFloat(e.target.value))}
                               className="w-20"
                           />
-                          <span className="text-xs text-stone-600 w-8">{currentUserTopP}</span>
+                          <span className="text-xs text-garden-inksoft w-8">{currentUserTopP}</span>
                       </div>
                   </div>
               </div>
 
               {/* ── Voice ── */}
-              <p className="font-poetic text-stone-400 text-xs font-semibold uppercase tracking-wider pt-2">Voice</p>
+              <p className="font-poetic text-garden-inksoft text-xs font-semibold uppercase tracking-wider pt-2">Voice</p>
 
               {/* Voice Chat provider and model — response generation for voice sessions */}
-              <div className="p-3 rounded-lg border bg-stone-50/60">
-                  <label className="block font-poetic text-stone-800 font-semibold text-sm mb-2">Voice Chat</label>
-                  <p className="font-poetic text-stone-500 text-xs mb-2">
+              <div className="p-3 rounded-lg border bg-garden-paper2">
+                  <label className="block font-poetic text-garden-ink font-semibold text-sm mb-2">Voice Chat</label>
+                  <p className="font-poetic text-garden-inksoft text-xs mb-2">
                     Response model for voice sessions. Voice is latency-critical (speech can't start until the reply finishes) — prefer fast models with low variance.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                       <select
-                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={currentUserVoiceChatProvider}
                           onChange={e => {
                               setCurrentUserVoiceChatProvider(e.target.value);
@@ -1076,7 +1073,7 @@ export default function MultiAvatarChat() {
                           ))}
                       </select>
                       <select
-                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={currentUserVoiceChatModel}
                           onChange={e => setCurrentUserVoiceChatModel(e.target.value)}
                       >
@@ -1096,14 +1093,14 @@ export default function MultiAvatarChat() {
               </div>
 
               {/* Voice (Cartesia TTS) — per-avatar voice + synthesis language */}
-              <div className="p-3 rounded-lg border bg-stone-50/60">
-                  <label className="block font-poetic text-stone-800 font-semibold text-sm mb-2">Voice (Cartesia)</label>
-                  <p className="font-poetic text-stone-500 text-xs mb-2">
+              <div className="p-3 rounded-lg border bg-garden-paper2">
+                  <label className="block font-poetic text-garden-ink font-semibold text-sm mb-2">Voice (Cartesia)</label>
+                  <p className="font-poetic text-garden-inksoft text-xs mb-2">
                     Voices are accent-native — pick one matching the avatar's primary language. Applies to new voice sessions.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                       <select
-                          className="flex-1 min-w-[160px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[160px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={ttsVoiceSel}
                           onChange={e => setTtsVoiceSel(e.target.value)}
                       >
@@ -1113,7 +1110,7 @@ export default function MultiAvatarChat() {
                           ))}
                       </select>
                       <input
-                          className="w-24 p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="w-24 p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           placeholder="lang (pt)"
                           value={ttsLangSel}
                           onChange={e => setTtsLangSel(e.target.value)}
@@ -1127,21 +1124,21 @@ export default function MultiAvatarChat() {
                           {ttsSaving ? "Saving..." : "Save voice"}
                       </Button>
                   </div>
-                  {ttsMsg && <p className="mt-1 text-xs text-stone-600">{ttsMsg}</p>}
+                  {ttsMsg && <p className="mt-1 text-xs text-garden-inksoft">{ttsMsg}</p>}
               </div>
 
               {/* ── Shared (both labs) ── */}
-              <p className="font-poetic text-stone-400 text-xs font-semibold uppercase tracking-wider pt-2">Shared (text + voice)</p>
+              <p className="font-poetic text-garden-inksoft text-xs font-semibold uppercase tracking-wider pt-2">Shared (text + voice)</p>
 
               {/* Text Query provider and model */}
-              <div className="p-3 rounded-lg border bg-stone-50/60">
-                  <label className="block font-poetic text-stone-800 font-semibold text-sm mb-2">Text Query</label>
-                  <p className="font-poetic text-stone-500 text-xs mb-2">
+              <div className="p-3 rounded-lg border bg-garden-paper2">
+                  <label className="block font-poetic text-garden-ink font-semibold text-sm mb-2">Text Query</label>
+                  <p className="font-poetic text-garden-inksoft text-xs mb-2">
                     Smaller models are faster — this model only generates retrieval keywords, so a small model (e.g. 8B) keeps responses quick.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                       <select
-                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={currentUserTextQueryProvider}
                           onChange={e => {
                               setCurrentUserTextQueryProvider(e.target.value);
@@ -1153,7 +1150,7 @@ export default function MultiAvatarChat() {
                           ))}
                       </select>
                       <select
-                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={currentUserTextQueryModel}
                           onChange={e => setCurrentUserTextQueryModel(e.target.value)}
                       >
@@ -1173,11 +1170,11 @@ export default function MultiAvatarChat() {
               </div>
 
               {/* Sensor provider and model */}
-              <div className="p-3 rounded-lg border bg-stone-50/60">
-                  <label className="block font-poetic text-stone-800 font-semibold text-sm mb-2">Sensor</label>
+              <div className="p-3 rounded-lg border bg-garden-paper2">
+                  <label className="block font-poetic text-garden-ink font-semibold text-sm mb-2">Sensor</label>
                   <div className="flex flex-wrap items-center gap-2">
                       <select
-                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={currentUserSensorProvider}
                           onChange={e => {
                               setCurrentUserSensorProvider(e.target.value);
@@ -1189,7 +1186,7 @@ export default function MultiAvatarChat() {
                           ))}
                       </select>
                       <select
-                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-white font-poetic text-sm"
+                          className="flex-1 min-w-[120px] p-2 rounded-md border bg-garden-paper font-poetic text-sm"
                           value={currentUserSensorModel}
                           onChange={e => setCurrentUserSensorModel(e.target.value)}
                       >
@@ -1209,16 +1206,16 @@ export default function MultiAvatarChat() {
               </div>
 
               {/* Knowledge (RAG) memory pinning */}
-              <div className="p-3 rounded-lg border bg-stone-50/60">
-                  <label className="block font-poetic text-stone-800 font-semibold text-sm mb-2">Knowledge (RAG)</label>
+              <div className="p-3 rounded-lg border bg-garden-paper2">
+                  <label className="block font-poetic text-garden-ink font-semibold text-sm mb-2">Knowledge (RAG)</label>
                   <div className="flex items-center gap-3">
                       <Switch
                           checked={!!selectedAvatar?.ragPinned}
                           disabled={ragPinSaving || !selectedAvatarId}
                           onCheckedChange={handleToggleRagPinned}
-                          className="data-[state=checked]:bg-green-600"
+                          className="data-[state=checked]:bg-garden-moss"
                       />
-                      <span className="font-poetic text-stone-600 text-xs">
+                      <span className="font-poetic text-garden-inksoft text-xs">
                         Keep knowledge in memory — removes the first-request delay after idle
                         periods. For high-traffic avatars; uses server RAM.
                       </span>
@@ -1227,7 +1224,7 @@ export default function MultiAvatarChat() {
 
               {/* Admin defaults toggle */}
               <div className="flex items-center justify-center space-x-2 mt-2">
-                  <label className="font-poetic text-stone-700 text-sm">Admin Defaults:</label>
+                  <label className="font-poetic text-garden-inksoft text-sm">Admin Defaults:</label>
                   <Switch
                       checked={hasLlmDefaults}
                       onCheckedChange={(checked) => {
@@ -1237,17 +1234,17 @@ export default function MultiAvatarChat() {
                               handleClearLlmDefaults();
                           }
                       }}
-                      className="data-[state=checked]:bg-green-600"
+                      className="data-[state=checked]:bg-garden-moss"
                   />
-                  <span className="text-xs text-stone-500">
+                  <span className="text-xs text-garden-inksoft">
                       {hasLlmDefaults ? 'Saved as Admin default' : 'Not saved'}
                   </span>
               </div>
 
               {/* Model list freshness */}
-              <p className="text-xs text-stone-400 text-center mt-1">
+              <p className="text-xs text-garden-inksoft text-center mt-1">
                 {llmOptionsLastRefreshed
-                  ? <>Model list last refreshed: <span className="text-stone-500">{new Date(llmOptionsLastRefreshed).toLocaleString()}</span></>
+                  ? <>Model list last refreshed: <span className="text-garden-inksoft">{new Date(llmOptionsLastRefreshed).toLocaleString()}</span></>
                   : 'Model list: not yet refreshed this session'}
               </p>
 
@@ -1256,12 +1253,12 @@ export default function MultiAvatarChat() {
         </div>
 
         {/* Horizontal separator */}
-        <hr className="w-full border-stone-300" />
+        <hr className="w-full border-garden-line border-dashed" />
 
         {/* Collapsible API Keys Section */}
         <div className="w-full">
           <button
-            className="flex items-center gap-2 font-poetic text-stone-700 cursor-pointer hover:text-stone-900"
+            className="flex items-center gap-2 font-poetic text-garden-inksoft cursor-pointer hover:text-garden-ink"
             onClick={() => setIntegrationsExpanded(!integrationsExpanded)}
           >
             <span className="text-lg">{integrationsExpanded ? '▼' : '▶'}</span>
@@ -1272,19 +1269,19 @@ export default function MultiAvatarChat() {
             <div className="mt-2 space-y-3">
               {/* LLM Providers group */}
               {llmProvidersList.filter(p => !p.hidden).length > 0 && (
-                <div className="p-3 rounded-lg border bg-stone-50/60 space-y-2">
-                  <label className="block font-poetic text-stone-800 font-semibold text-sm">LLM Providers</label>
+                <div className="p-3 rounded-lg border bg-garden-paper2 space-y-2">
+                  <label className="block font-poetic text-garden-ink font-semibold text-sm">LLM Providers</label>
                   {llmProvidersList.filter(p => !p.hidden).map(p => (
                     <div key={p.id} className="flex flex-wrap items-center gap-2">
-                      <span className="font-poetic text-stone-700 text-xs w-40 shrink-0">{p.name}</span>
+                      <span className="font-poetic text-garden-inksoft text-xs w-40 shrink-0">{p.name}</span>
                       <span className="text-xs">
                         {p.key_set
-                          ? <span className="text-green-600">set (••••{p.key_last4})</span>
-                          : <span className="text-amber-600">no key</span>}
+                          ? <span className="text-garden-moss">set (••••{p.key_last4})</span>
+                          : <span className="text-garden-amber">no key</span>}
                       </span>
                       <input
                         type="password"
-                        className="flex-1 min-w-[160px] p-1 rounded border bg-white font-mono text-xs"
+                        className="flex-1 min-w-[160px] p-1 rounded border bg-garden-paper font-data text-xs"
                         placeholder="Enter new key to update"
                         value={providerKeyEdits[p.id] || ""}
                         onChange={e => setProviderKeyEdits(prev => ({ ...prev, [p.id]: e.target.value }))}
@@ -1295,23 +1292,23 @@ export default function MultiAvatarChat() {
               )}
 
               {/* Web Search group */}
-              <div className="p-3 rounded-lg border bg-stone-50/60 space-y-2">
-                <label className="block font-poetic text-stone-800 font-semibold text-sm">Web Search</label>
+              <div className="p-3 rounded-lg border bg-garden-paper2 space-y-2">
+                <label className="block font-poetic text-garden-ink font-semibold text-sm">Web Search</label>
                 {[
                   { key: "BRAVE_SEARCH_API_KEY", label: "Brave Search API key" },
                 ].map(({ key, label }) => {
                   const info = integrations[key] || {};
                   return (
                     <div key={key} className="flex flex-wrap items-center gap-2">
-                      <span className="font-poetic text-stone-700 text-xs w-40 shrink-0">{label}</span>
+                      <span className="font-poetic text-garden-inksoft text-xs w-40 shrink-0">{label}</span>
                       <span className="text-xs">
                         {info.set
-                          ? <span className="text-green-600">set (••••{info.last4})</span>
-                          : <span className="text-red-500">not set</span>}
+                          ? <span className="text-garden-moss">set (••••{info.last4})</span>
+                          : <span className="text-garden-clay">not set</span>}
                       </span>
                       <input
                         type="password"
-                        className="flex-1 min-w-[160px] p-1 rounded border bg-white font-mono text-xs"
+                        className="flex-1 min-w-[160px] p-1 rounded border bg-garden-paper font-data text-xs"
                         placeholder="Enter new value to update"
                         value={integrationEdits[key] || ""}
                         onChange={e => setIntegrationEdits(prev => ({ ...prev, [key]: e.target.value }))}
@@ -1322,8 +1319,8 @@ export default function MultiAvatarChat() {
               </div>
 
               {/* Voice Lab group */}
-              <div className="p-3 rounded-lg border bg-stone-50/60 space-y-2">
-                <label className="block font-poetic text-stone-800 font-semibold text-sm">Voice Lab</label>
+              <div className="p-3 rounded-lg border bg-garden-paper2 space-y-2">
+                <label className="block font-poetic text-garden-ink font-semibold text-sm">Voice Lab</label>
                 {[
                   { key: "AGORA_APP_ID", label: "Agora App ID" },
                   { key: "AGORA_APP_CERTIFICATE", label: "Agora App Certificate" },
@@ -1335,15 +1332,15 @@ export default function MultiAvatarChat() {
                   const info = integrations[key] || {};
                   return (
                     <div key={key} className="flex flex-wrap items-center gap-2">
-                      <span className="font-poetic text-stone-700 text-xs w-40 shrink-0">{label}</span>
+                      <span className="font-poetic text-garden-inksoft text-xs w-40 shrink-0">{label}</span>
                       <span className="text-xs">
                         {info.set
-                          ? <span className="text-green-600">set (••••{info.last4})</span>
-                          : <span className="text-red-500">not set</span>}
+                          ? <span className="text-garden-moss">set (••••{info.last4})</span>
+                          : <span className="text-garden-clay">not set</span>}
                       </span>
                       <input
                         type="password"
-                        className="flex-1 min-w-[160px] p-1 rounded border bg-white font-mono text-xs"
+                        className="flex-1 min-w-[160px] p-1 rounded border bg-garden-paper font-data text-xs"
                         placeholder="Enter new value to update"
                         value={integrationEdits[key] || ""}
                         onChange={e => setIntegrationEdits(prev => ({ ...prev, [key]: e.target.value }))}
@@ -1363,7 +1360,7 @@ export default function MultiAvatarChat() {
                   {integrationSaving ? "Saving..." : "Save all changes"}
                 </Button>
                 {integrationMsg && (
-                  <span className="text-xs text-stone-600">{integrationMsg}</span>
+                  <span className="text-xs text-garden-inksoft">{integrationMsg}</span>
                 )}
               </div>
             </div>
@@ -1371,27 +1368,27 @@ export default function MultiAvatarChat() {
         </div>
 
         {/* Horizontal separator */}
-        <hr className="w-full border-stone-300" />
+        <hr className="w-full border-garden-line border-dashed" />
 
         {/* Collapsible Latency Analysis */}
         <div className="w-full">
           <button
-            className="flex items-center gap-2 font-poetic text-stone-700 cursor-pointer hover:text-stone-900"
+            className="flex items-center gap-2 font-poetic text-garden-inksoft cursor-pointer hover:text-garden-ink"
             onClick={() => setLatencyExpanded(!latencyExpanded)}
           >
             <span className="text-lg">{latencyExpanded ? '▼' : '▶'}</span>
             <span className="font-semibold">Latency Analysis</span>
             {lastLatency && (
-              <span className="text-xs text-stone-400 font-mono">
+              <span className="text-xs text-garden-inksoft font-data">
                 {(lastLatency.roundTripMs / 1000).toFixed(2)}s
               </span>
             )}
           </button>
 
           {latencyExpanded && (
-            <div className="mt-2 p-3 rounded-lg border bg-stone-50/60">
+            <div className="mt-2 p-3 rounded-lg border bg-garden-paper2">
               {!lastLatency ? (
-                <p className="font-poetic text-stone-500 text-sm">
+                <p className="font-poetic text-garden-inksoft text-sm">
                   Send a message to see its latency breakdown.
                 </p>
               ) : (() => {
@@ -1417,12 +1414,12 @@ export default function MultiAvatarChat() {
         </div>
 
         {/* Horizontal separator */}
-        <hr className="w-full border-stone-300" />
+        <hr className="w-full border-garden-line border-dashed" />
 
         {/* Collapsible Backend Log */}
         <div className="w-full">
           <button
-            className="flex items-center gap-2 font-poetic text-stone-700 cursor-pointer hover:text-stone-900"
+            className="flex items-center gap-2 font-poetic text-garden-inksoft cursor-pointer hover:text-garden-ink"
             onClick={() => setLogExpanded(!logExpanded)}
           >
             <span className="text-lg">{logExpanded ? '▼' : '▶'}</span>
@@ -1431,11 +1428,11 @@ export default function MultiAvatarChat() {
 
           {logExpanded && (
             <div className="mt-2">
-              <Card className="bg-zinc-100 border border-zinc-300 overflow-hidden">
+              <Card className="bg-garden-ink border-garden-ink overflow-hidden">
                 <pre
                   ref={backendLogPreRef}
-                  className="overflow-y-auto px-3 md:px-4 py-3 text-stone-900 text-xs leading-relaxed"
-                  style={{ fontFamily: "monospace", maxHeight: "50vh", whiteSpace: "pre-wrap", wordBreak: "break-all" }}
+                  className="overflow-y-auto px-3 md:px-4 py-3 text-[#EDE7DA] text-xs leading-relaxed"
+                  style={{ fontFamily: "'IBM Plex Mono', monospace", maxHeight: "50vh", whiteSpace: "pre-wrap", wordBreak: "break-all" }}
                 >
                   {backendLog || "Loading..."}
                   <div ref={backendLogRef} />
@@ -1446,7 +1443,7 @@ export default function MultiAvatarChat() {
         </div>
 
         {/* Horizontal separator */}
-        <hr className="w-full border-stone-300" />
+        <hr className="w-full border-garden-line border-dashed" />
 
         {selectedAvatar && (
             <div className="flex gap-2 items-center justify-center mt-2">
@@ -1470,7 +1467,7 @@ export default function MultiAvatarChat() {
           )}
 
           {selectedAvatar && (
-            <div className="mt-4 text-xs md:text-sm text-stone-700 space-y-1 break-all">
+            <div className="mt-4 text-xs md:text-sm text-garden-inksoft space-y-1 break-all">
               <div><span className="font-semibold">Prompt:</span> {selectedAvatar.systemPromptUrl || "—"}</div>
               <div><span className="font-semibold">Context:</span> {selectedAvatar.contextDocsUrl || "—"}</div>
               <div><span className="font-semibold">Sensors:</span> {selectedAvatar.sensorApiUrl || "—"}</div>
@@ -1479,7 +1476,7 @@ export default function MultiAvatarChat() {
             </div>
           )}
           {!selectedAvatar && (
-            <div className="mt-2 text-xs text-red-700">
+            <div className="mt-2 text-xs text-garden-clay">
               Please select or create an avatar to start chatting.
             </div>
           )}
@@ -1487,9 +1484,9 @@ export default function MultiAvatarChat() {
 
       {isDebateMode && (
         <div className="w-full max-w-5xl mb-4 px-4">
-          <label className="block mb-1 font-poetic text-stone-800">Choose a topic:</label>
+          <label className="block mb-1 font-poetic text-garden-ink">Choose a topic:</label>
           <select
-            className="w-full p-2 rounded-md border bg-white font-poetic"
+            className="w-full p-2 rounded-md border bg-garden-paper font-poetic"
             value={selectedTopic}
             onChange={e => { setSelectedTopic(e.target.value); }}
           >
@@ -1499,7 +1496,7 @@ export default function MultiAvatarChat() {
             ))}
           </select>
           {selectedTopic && (
-            <div className="mt-2 p-2 md:p-3 bg-white rounded-md border text-sm md:text-base text-stone-700 font-poetic">
+            <div className="mt-2 p-2 md:p-3 bg-garden-paper rounded-md border text-sm md:text-base text-garden-inksoft font-poetic">
               {topicDescriptions[selectedTopic]}
             </div>
           )}
@@ -1509,7 +1506,7 @@ export default function MultiAvatarChat() {
       <motion.div className="px-2 md:px-4 w-full max-w-5xl mx-auto flex-1 overflow-visible">
         <div className={`flex flex-col md:flex-row ${isDebateMode ? 'md:space-x-4' : ''} min-h-0`}>
           <div className={`${isDebateMode ? 'md:flex-1' : 'w-full'} min-h-0 rounded-2xl mb-4 md:mb-0`}>
-            <Card className="flex flex-col h-full min-h-0 shadow-lg bg-white/90">
+            <Card className="flex flex-col h-full min-h-0 shadow-lg bg-card">
               {/* scrollable messages */}
               <div
                 onWheel={e => e.stopPropagation()}
@@ -1524,10 +1521,10 @@ export default function MultiAvatarChat() {
                     className={`flex ${msg.sender === 'avatar' ? 'justify-start' : 'justify-end'} mb-4`}
                   >
                     <div
-                      className={`max-w-xs md:max-w-lg px-4 py-3 rounded-xl shadow text-sm md:text-lg whitespace-pre-wrap ${
+                      className={`max-w-xs md:max-w-lg px-4 py-3 rounded-lg text-sm md:text-lg whitespace-pre-wrap leading-relaxed ${
                         msg.sender === 'avatar'
-                          ? 'bg-lime-100 text-stone-900'
-                          : 'bg-white text-stone-800'
+                          ? 'bg-garden-mosstint text-garden-ink border border-garden-line'
+                          : 'bg-card text-garden-ink border border-garden-line'
                       }`}
                     >
                       {msg.text}
@@ -1537,7 +1534,7 @@ export default function MultiAvatarChat() {
 
                 {isThinking && (
                   <motion.div
-                    className="text-lime-700 italic self-start mb-4"
+                    className="text-garden-moss italic self-start mb-4"
                     animate={{ opacity: [0.3, 1, 0.3], x: [0, 2, -2, 0] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                   >
@@ -1550,13 +1547,13 @@ export default function MultiAvatarChat() {
 
               {/* offline model warning */}
               {offlineBlockers.length > 0 && (
-                <div className="px-3 md:px-6 py-2 bg-red-50 border-t border-red-200 text-red-700 text-xs font-poetic">
+                <div className="px-3 md:px-6 py-2 bg-garden-clay/10 border-t border-garden-clay/30 text-garden-clay text-xs font-poetic">
                   ⚠️ {offlineBlockers.map(b => `${b.role} model "${b.model}"`).join(' and ')} {offlineBlockers.length > 1 ? 'are' : 'is'} offline. Open LLM Config to select an active model.
                 </div>
               )}
 
               {/* input bar */}
-              <div className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-4 border-t bg-stone-50">
+              <div className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-4 border-t bg-garden-paper2">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -1564,8 +1561,8 @@ export default function MultiAvatarChat() {
                   className="flex-1"
                 >
                   <Input
-                    className="w-full rounded-full font-poetic bg-white text-stone-900"
-                    style={{ color: '#1c1917' }}
+                    className="w-full rounded-full font-poetic bg-garden-paper text-garden-ink"
+                    style={{ color: '#2B2B24' }}
                     placeholder={!selectedAvatar ? "Select or create an avatar to begin..." : "Speak with the avatar..."}
                     value={input}
                     onChange={e => setInput(e.target.value)}
@@ -1580,7 +1577,7 @@ export default function MultiAvatarChat() {
                 >
                   <Button
                     onClick={handleSubmit}
-                    className="rounded-full px-6 py-2 font-poetic bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50"
+                    className="rounded-md px-6 py-2 font-poetic bg-garden-moss text-garden-paper hover:bg-garden-mossdeep disabled:opacity-50"
                     disabled={chatDisabled}
                   >
                     Flow
@@ -1591,10 +1588,10 @@ export default function MultiAvatarChat() {
           </div>
 
           {isDebateMode && (
-            <div className="w-full md:w-1/3 bg-white rounded-2xl shadow p-3 md:p-4 h-[40vh] md:h-[60vh] overflow-y-auto">
+            <div className="w-full md:w-1/3 bg-garden-paper rounded-xl border border-garden-line shadow-sm p-3 md:p-4 h-[40vh] md:h-[60vh] overflow-y-auto">
               <h4 className="font-poetic text-base md:text-lg font-bold mb-2">Debate Summary</h4>
               <div
-                className="text-xs md:text-sm text-stone-700 whitespace-pre-wrap"
+                className="text-xs md:text-sm text-garden-inksoft whitespace-pre-wrap"
                 dangerouslySetInnerHTML={{ __html: debateSummary }}
               />
             </div>
@@ -1605,7 +1602,7 @@ export default function MultiAvatarChat() {
       {/* Simple avatar create/edit panel (inline "modal") */}
       {avatarFormOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-40 p-2">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-4 md:p-6">
+          <div className="bg-garden-paper rounded-xl border border-garden-line shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-poetic mb-4">
               {avatarFormMode === "create" ? "Create New Avatar" : "Edit Avatar"}
             </h2>
@@ -1613,10 +1610,10 @@ export default function MultiAvatarChat() {
               <div>
                 <label className="block text-sm font-semibold mb-1">Avatar name</label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={avatarForm.name}
                   onChange={e => handleAvatarFormChange("name", e.target.value)}
@@ -1628,10 +1625,10 @@ export default function MultiAvatarChat() {
                   Link to system prompt
                 </label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={avatarForm.systemPromptUrl}
                   onChange={e => handleAvatarFormChange("systemPromptUrl", e.target.value)}
@@ -1643,10 +1640,10 @@ export default function MultiAvatarChat() {
                   Link to context documents
                 </label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={avatarForm.contextDocsUrl}
                   onChange={e => handleAvatarFormChange("contextDocsUrl", e.target.value)}
@@ -1658,10 +1655,10 @@ export default function MultiAvatarChat() {
                   Link to sensor data API
                 </label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={avatarForm.sensorApiUrl}
                   onChange={e => handleAvatarFormChange("sensorApiUrl", e.target.value)}
@@ -1673,10 +1670,10 @@ export default function MultiAvatarChat() {
                   Sensor data description
                 </label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={avatarForm.sensorDescription}
                   onChange={e => handleAvatarFormChange("sensorDescription", e.target.value)}
@@ -1688,22 +1685,22 @@ export default function MultiAvatarChat() {
                   What languages are your context documents in?
                 </label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={avatarForm.ragLanguages}
                   onChange={e => handleAvatarFormChange("ragLanguages", e.target.value)}
                   placeholder="en, de, fr, pt"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-garden-inksoft mt-1">
                   Enter language codes separated by commas. This helps optimize RAG queries for your document languages.
                 </p>
               </div>
 
               {avatarError && (
-                <div className="text-sm text-red-600">{avatarError}</div>
+                <div className="text-sm text-garden-clay">{avatarError}</div>
               )}
 
               <div className="flex justify-end gap-2 mt-4">
@@ -1733,7 +1730,7 @@ export default function MultiAvatarChat() {
       {/* LLM Provider create/edit panel */}
       {providerFormOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-40 p-2">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-4 md:p-6">
+          <div className="bg-garden-paper rounded-xl border border-garden-line shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-poetic mb-4">
               Add New LLM Provider
             </h2>
@@ -1741,10 +1738,10 @@ export default function MultiAvatarChat() {
               <div>
                 <label className="block text-sm font-semibold mb-1">Provider name</label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={providerForm.name}
                   onChange={e => handleProviderFormChange("name", e.target.value)}
@@ -1756,10 +1753,10 @@ export default function MultiAvatarChat() {
                   API base URL
                 </label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={providerForm.api_base}
                   onChange={e => handleProviderFormChange("api_base", e.target.value)}
@@ -1772,10 +1769,10 @@ export default function MultiAvatarChat() {
                 </label>
                 <Input
                   type="password"
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={providerForm.api_key}
                   onChange={e => handleProviderFormChange("api_key", e.target.value)}
@@ -1787,10 +1784,10 @@ export default function MultiAvatarChat() {
                   Models (comma-separated)
                 </label>
                 <Input
-                  className="border border-gray-300 rounded-md px-3 py-2 placeholder:text-gray-400"
+                  className="border border-garden-line rounded-md px-3 py-2 placeholder:text-garden-inksoft/60"
                   style={{
-                    backgroundColor: '#f9fafb',
-                    color: '#000000',
+                    backgroundColor: '#EDE7DA',
+                    color: "#2B2B24",
                   }}
                   value={providerForm.models}
                   onChange={e => handleProviderFormChange("models", e.target.value)}
@@ -1799,7 +1796,7 @@ export default function MultiAvatarChat() {
               </div>
 
               {providerError && (
-                <div className="text-sm text-red-600">{providerError}</div>
+                <div className="text-sm text-garden-clay">{providerError}</div>
               )}
 
               <div className="flex justify-end gap-2 mt-4">
