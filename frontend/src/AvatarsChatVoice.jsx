@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { Mic, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import LatencyBreakdown from "./LatencyBreakdown";
@@ -275,44 +276,60 @@ export default function AvatarsChatVoice() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 gap-6">
 
-      <h1 className="text-2xl md:text-3xl font-poetic font-semibold tracking-tight text-garden-ink">Voice Avatar Garden</h1>
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-2xl md:text-3xl font-poetic font-semibold tracking-tight text-garden-ink">Voice Avatar Garden</h1>
+        <p className="font-poetic text-garden-inksoft text-sm mt-1">Live voice conversations with nature avatars</p>
+      </div>
 
-      {/* Avatar selector — only shown when not connected */}
+      {/* Session setup — avatar + streaming, shown when not connected */}
       {!isConnected && avatars.length > 0 && (
-        <div className="flex items-center gap-3">
-          <label className="font-poetic text-garden-inksoft text-sm">Avatar:</label>
-          <select
-            className="p-2 rounded-md border bg-garden-paper font-poetic text-sm"
-            value={selectedAvatarId ?? ""}
-            onChange={e => setSelectedAvatarId(e.target.value)}
-          >
-            {avatars.map(a => (
-              <option key={a.id} value={a.id}>{a.name}</option>
-            ))}
-          </select>
+        <div className="w-full max-w-md rounded-xl border border-garden-line bg-card p-4 shadow-sm space-y-3">
+          <div>
+            <label className="block font-poetic text-garden-inksoft text-xs uppercase tracking-wider mb-1.5">Avatar</label>
+            <select
+              className="w-full p-2.5 rounded-md border border-garden-line bg-garden-paper font-poetic text-sm"
+              value={selectedAvatarId ?? ""}
+              onChange={e => setSelectedAvatarId(e.target.value)}
+            >
+              {avatars.map(a => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </select>
+          </div>
+          {/* Streaming toggle — applies to the next conversation start */}
+          <div className="flex items-center justify-between p-3 rounded-lg border border-garden-line bg-garden-paper2">
+            <div className="pr-3">
+              <p className="font-poetic text-garden-ink text-sm font-medium">Streaming responses</p>
+              <p className="font-poetic text-garden-inksoft text-xs mt-0.5">Experimental — speech starts sooner</p>
+            </div>
+            <button
+              role="switch"
+              aria-checked={streamingEnabled}
+              onClick={() => setStreamingEnabled(!streamingEnabled)}
+              className={"relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 " + (streamingEnabled ? "bg-garden-moss" : "bg-garden-line")}
+            >
+              <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-garden-paper rounded-full shadow transition-transform duration-200 " + (streamingEnabled ? "translate-x-5" : "translate-x-0")} />
+            </button>
+          </div>
         </div>
       )}
 
+      {/* Live session badge */}
       {isConnected && selectedAvatar && (
-        <p className="font-poetic text-garden-inksoft text-sm">
-          Speaking with: <span className="text-garden-ink font-semibold">{selectedAvatar.name}</span>
-        </p>
+        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-garden-line bg-card shadow-sm">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-garden-moss opacity-60"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-garden-moss"></span>
+          </span>
+          <span className="font-poetic text-sm text-garden-ink">
+            Live — speaking with <span className="font-semibold">{selectedAvatar.name}</span>
+          </span>
+        </div>
       )}
 
-      {/* Streaming toggle — applies to the next conversation start */}
-      {!isConnected && (
-        <label className="flex items-center gap-2 font-poetic text-garden-inksoft text-xs cursor-pointer">
-          <input
-            type="checkbox"
-            checked={streamingEnabled}
-            onChange={e => setStreamingEnabled(e.target.checked)}
-          />
-          Streaming responses (experimental — speech starts sooner)
-        </label>
-      )}
-
-      {/* Latency Analysis — directly under the avatar selection */}
-      <div className="w-full max-w-lg">
+      {/* Latency Analysis */}
+      <div className="w-full max-w-md">
         <button
           className="flex items-center gap-2 font-poetic text-garden-inksoft cursor-pointer hover:text-garden-ink"
           onClick={() => setLatencyExpanded(!latencyExpanded)}
@@ -369,41 +386,74 @@ export default function AvatarsChatVoice() {
         )}
       </div>
 
-      {/* Orbs — isolated in their own block, never overlap buttons below */}
-      <div className="flex flex-col items-center gap-16 my-4">
+      {/* Conversation orbs — side by side, flow connector between */}
+      <div className="flex items-center gap-4 md:gap-8 my-6">
 
-        {/* User mic ripple */}
-        <div className="relative flex items-center justify-center w-32 h-32">
-          <motion.div
-            className="absolute w-20 h-20 rounded-full bg-garden-moss/50"
-            animate={{ scale: isConnected ? userRippleScale : 1, opacity: isConnected ? 0.55 : 0.15 }}
-            transition={{ duration: 0.08 }}
-          />
-          <span className="relative z-10 text-xs font-poetic text-garden-inksoft text-center px-2">
-            {isConnected ? "You" : ""}
-          </span>
+        {/* You */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative flex items-center justify-center w-28 h-28 md:w-32 md:h-32">
+            <div className="absolute inset-0 rounded-full border border-garden-line bg-card/60" />
+            <motion.div
+              className="absolute w-24 h-24 rounded-full bg-garden-moss/50"
+              animate={{ scale: isConnected ? userRippleScale : 1, opacity: isConnected ? 0.55 : 0.12 }}
+              transition={{ duration: 0.08 }}
+            />
+            <div className={"relative w-10 h-10 rounded-full transition-colors " + (isConnected ? "bg-garden-moss" : "bg-garden-line")} />
+          </div>
+          <span className="font-poetic text-xs text-garden-inksoft">You</span>
         </div>
 
-        {/* Avatar audio ripple */}
-        <div className="relative flex items-center justify-center w-48 h-48">
-          <motion.div
-            className="absolute w-28 h-28 rounded-full bg-garden-water/50"
-            animate={{
-              scale: status === "speaking" ? avatarRippleScale : 1,
-              opacity: status === "speaking" ? 0.55 : 0.1,
-            }}
-            transition={{ duration: 0.08 }}
-          />
-          <span className="relative z-10 text-xs font-poetic text-garden-inksoft text-center px-4">
-            {isConnected ? "Avatar" : ""}
+        {/* Connector */}
+        <div className="flex items-center w-14 md:w-24">
+          {isConnected ? (
+            <div className="flex items-center justify-between w-full px-1">
+              {[0, 1, 2].map(i => (
+                <motion.span
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-garden-moss"
+                  animate={{ opacity: [0.15, 1, 0.15], scale: [0.8, 1.2, 0.8] }}
+                  transition={{ repeat: Infinity, duration: 1.4, delay: i * 0.25 }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="w-full border-t border-dashed border-garden-line" />
+          )}
+        </div>
+
+        {/* Avatar */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative flex items-center justify-center w-28 h-28 md:w-32 md:h-32">
+            <div className="absolute inset-0 rounded-full border border-garden-line bg-card/60" />
+            <motion.div
+              className="absolute w-24 h-24 rounded-full bg-garden-water/50"
+              animate={{
+                scale: status === "speaking" ? avatarRippleScale : 1,
+                opacity: status === "speaking" ? 0.55 : 0.12,
+              }}
+              transition={{ duration: 0.08 }}
+            />
+            <div className="relative w-10 h-10 rounded-full bg-garden-water/80" />
+          </div>
+          <span className="font-poetic text-xs text-garden-ink max-w-[10rem] truncate text-center">
+            {selectedAvatar?.name || "Avatar"}
           </span>
         </div>
       </div>
 
-      {/* Status label */}
-      <p className="font-poetic text-garden-inksoft text-sm min-h-[1.25rem]">
-        {STATUS_LABEL[status] ?? ""}
-      </p>
+      {/* Status */}
+      <div className="flex items-center gap-2 min-h-[1.5rem]">
+        <span className={"w-2 h-2 rounded-full " + (
+          status === "listening" ? "bg-garden-moss animate-pulse"
+          : status === "speaking" ? "bg-garden-water"
+          : status === "thinking" || status === "connecting" ? "bg-garden-amber animate-pulse"
+          : status === "error" ? "bg-garden-clay"
+          : "bg-garden-line"
+        )} />
+        <p className="font-poetic text-garden-inksoft text-sm">
+          {STATUS_LABEL[status] ?? ""}
+        </p>
+      </div>
 
       {/* Start / End button — always below the orbs */}
       {!isConnected ? (
@@ -412,7 +462,11 @@ export default function AvatarsChatVoice() {
           disabled={status === "connecting" || !selectedAvatarId}
           className="bg-garden-moss hover:bg-garden-mossdeep text-garden-paper rounded-md px-8 py-3 text-base font-poetic"
         >
-          {status === "connecting" ? "Connecting…" : "🎤 Start Conversation"}
+          {status === "connecting" ? (
+            "Connecting…"
+          ) : (
+            <span className="inline-flex items-center gap-2"><Mic size={18} /> Start Conversation</span>
+          )}
         </Button>
       ) : (
         <Button
@@ -420,7 +474,7 @@ export default function AvatarsChatVoice() {
           disabled={isDisconnecting}
           className="bg-garden-clay hover:bg-garden-clay/80 text-garden-paper rounded-md px-8 py-3 text-base font-poetic disabled:opacity-60"
         >
-          {isDisconnecting ? "Ending…" : "End Conversation"}
+          <span className="inline-flex items-center gap-2"><Square size={14} /> {isDisconnecting ? "Ending…" : "End Conversation"}</span>
         </Button>
       )}
 
