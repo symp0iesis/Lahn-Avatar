@@ -39,3 +39,7 @@ backend/avatars_history/
 
 # Editor/agent backup files (*.bak-<tag>-<timestamp>)
 *.bak-*
+
+# Runtime logs (contain secret-printing traces; never track)
+backend_log.*
+*.log

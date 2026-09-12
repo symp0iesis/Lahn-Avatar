@@ -1,47 +1,37 @@
 #!/bin/bash
 
-BACKEND=lahn-backend
-FRONTEND=lahn-frontend
+BACKEND=avatar-garden-backend
+FRONTEND_DIR=/root/AvatarGarden/frontend
+WEBROOT=/var/www/avatar-garden
 
 usage() {
   echo "Usage: avatars.sh [command]"
   echo ""
   echo "Commands:"
-  echo "  start      Start backend and frontend"
-  echo "  stop       Stop backend and frontend"
-  echo "  restart    Restart backend and frontend"
-  echo "  status     Show status of both services"
-  echo "  logs       Tail backend log (Ctrl+C to exit)"
-  echo "  -b start|stop|restart|status    Backend only"
-  echo "  -f start|stop|restart|status    Frontend only"
+  echo "  start|stop|restart    Backend service"
+  echo "  status                Show backend status"
+  echo "  logs                  Tail backend log (Ctrl+C to exit)"
+  echo "  deploy                Build frontend (mac mode) and deploy to $WEBROOT"
+  echo "  -h|--help             This help"
 }
 
 case "$1" in
-  start)
-    systemctl start $BACKEND $FRONTEND
-    systemctl status $BACKEND $FRONTEND --no-pager | grep -E "Active|●"
-    ;;
-  stop)
-    systemctl stop $BACKEND $FRONTEND
-    echo "Both services stopped."
-    ;;
-  restart)
-    systemctl restart $BACKEND $FRONTEND
-    systemctl status $BACKEND $FRONTEND --no-pager | grep -E "Active|●"
+  start|stop|restart)
+    systemctl $1 $BACKEND
+    [ "$1" != "stop" ] && systemctl status $BACKEND --no-pager | grep -E "Active|●|Main PID"
     ;;
   status)
-    systemctl status $BACKEND $FRONTEND --no-pager | grep -E "Active|●|Main PID"
+    systemctl status $BACKEND --no-pager | grep -E "Active|●|Main PID"
     ;;
   logs)
-    tail -f /root/backend_log.0
+    tail -f /root/AvatarGarden/backend_log.0
     ;;
-  -b)
-    systemctl $2 $BACKEND
-    [ "$2" = "status" ] && systemctl status $BACKEND --no-pager | grep -E "Active|●|Main PID"
-    ;;
-  -f)
-    systemctl $2 $FRONTEND
-    [ "$2" = "status" ] && systemctl status $FRONTEND --no-pager | grep -E "Active|●|Main PID"
+  deploy)
+    set -e
+    cd $FRONTEND_DIR
+    npm run build -- --mode mac
+    rsync -a --delete $FRONTEND_DIR/dist/ $WEBROOT/
+    echo "Deployed to $WEBROOT"
     ;;
   -h|--help)
     usage

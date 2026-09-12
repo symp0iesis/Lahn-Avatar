@@ -155,7 +155,7 @@ def _fetch_sensor_summary(avatar_id):
     # Fetch last 10 readings
     fetch_url = sensor_url if "results=" in sensor_url else sensor_url + ("&" if "?" in sensor_url else "?") + "results=10"
     try:
-        resp = requests.get(fetch_url, headers={"Accept": "application/json", "User-Agent": "Lahn-Avatar/1.0"}, timeout=8)
+        resp = requests.get(fetch_url, headers={"Accept": "application/json", "User-Agent": "AvatarGarden/1.0"}, timeout=8)
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
@@ -1870,7 +1870,7 @@ threading.Thread(target=_auto_refresh_models, daemon=True).start()
 
 
 # ═══════════════════════════════════════════════════════════
-Voice Avatar Garden — Agora Conversational AI integration
+# Voice Avatar Garden — Agora Conversational AI integration
 # ═══════════════════════════════════════════════════════════
 import uuid as _uuid
 import base64 as _base64
@@ -1974,7 +1974,7 @@ def start_voice_agent():
             print("[Voice] agora-token-builder not installed — agent token will be empty")
 
     agent_payload = {
-        "name": f"lahn-avatar-{avatar_id}-{channel}",
+        "name": f"avatargarden-avatar-{avatar_id}-{channel}",
         "properties": {
             **({"parameters": agent_parameters} if isinstance(agent_parameters, dict) and agent_parameters else {}),
             "channel": channel,

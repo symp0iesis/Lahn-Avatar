@@ -741,7 +741,7 @@ class SensorsTool:
         print(f"Fetching sensor data from {self.sensor_url}...")
         headers = {
             "Accept": "application/json",
-            "User-Agent": "Lahn-Avatar/1.0"
+            "User-Agent": "AvatarGarden/1.0"
         }
         resp = requests.get(self.sensor_url, headers=headers)
         resp.raise_for_status()
