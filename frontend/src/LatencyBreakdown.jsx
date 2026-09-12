@@ -15,7 +15,7 @@ export default function LatencyBreakdown({ segments, totalMs }) {
       </p>
 
       {/* Stacked bar */}
-      <div className="flex w-full h-4 rounded overflow-hidden border border-stone-300">
+      <div className="flex w-full h-4 rounded overflow-hidden border border-garden-line">
         {shown.map(s => (
           <div
             key={s.label}
@@ -38,7 +38,7 @@ export default function LatencyBreakdown({ segments, totalMs }) {
             />
             <span className="flex-1">{s.label}</span>
             <span className="font-mono">{s.ms} ms</span>
-            <span className="w-10 text-right text-stone-400">
+            <span className="w-10 text-right text-garden-inksoft">
               {((s.ms / total) * 100).toFixed(0)}%
             </span>
           </div>

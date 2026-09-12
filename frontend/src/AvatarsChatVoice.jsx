@@ -360,22 +360,22 @@ export default function AvatarsChatVoice() {
                 // main_llm_ms covers the entire stream and would overstate latency.
                 const isStreaming = (t.llm_first_token_ms || 0) > 0;
                 const segments = [
-                  { label: "Loading RAG index into RAM", ms: t.index_load_ms || 0, color: "#e879f9" },
-                  { label: "Keyword generation (LLM)", ms: t.keyword_gen_ms || 0, color: "#f59e0b" },
-                  { label: "Knowledge retrieval (RAG)", ms: t.rag_retrieval_ms || 0, color: "#22d3ee" },
-                  { label: "Sensor snapshot", ms: t.sensor_snapshot_ms || 0, color: "#34d399" },
+                  { label: "Loading RAG index into RAM", ms: t.index_load_ms || 0, color: "#9333EA" },
+                  { label: "Keyword generation (LLM)", ms: t.keyword_gen_ms || 0, color: "#CA8A04" },
+                  { label: "Knowledge retrieval (RAG)", ms: t.rag_retrieval_ms || 0, color: "#0E7490" },
+                  { label: "Sensor snapshot", ms: t.sensor_snapshot_ms || 0, color: "#15803D" },
                   isStreaming
-                    ? { label: "LLM time to first token (streaming)", ms: t.llm_first_token_ms, color: "#60a5fa" }
-                    : { label: "Avatar response (LLM)", ms: t.main_llm_ms || 0, color: "#60a5fa" },
-                  { label: "Sensor analysis tool", ms: t.sensor_tool_ms || 0, color: "#fb923c" },
+                    ? { label: "LLM time to first token (streaming)", ms: t.llm_first_token_ms, color: "#1D4ED8" }
+                    : { label: "Avatar response (LLM)", ms: t.main_llm_ms || 0, color: "#1D4ED8" },
+                  { label: "Sensor analysis tool", ms: t.sensor_tool_ms || 0, color: "#EA580C" },
                 ];
                 const attributed = segments.reduce((acc, s) => acc + s.ms, 0);
                 if (!isStreaming) {
                   const backendOther = Math.max((t.total_backend_ms || 0) - attributed, 0);
-                  if (backendOther > 0) segments.push({ label: "Backend overhead", ms: backendOther, color: "#d6d3d1" });
+                  if (backendOther > 0) segments.push({ label: "Backend overhead", ms: backendOther, color: "#A8A29E" });
                 }
                 const agora = Math.max(lastLatency.perceivedMs - attributed, 0);
-                if (agora > 0) segments.push({ label: isStreaming ? "TTS streaming + Agora pipeline (rest of reply)" : "Agora pipeline (ASR + TTS + transport)", ms: agora, color: "#a8a29e" });
+                if (agora > 0) segments.push({ label: isStreaming ? "TTS streaming + Agora pipeline (rest of reply)" : "Agora pipeline (ASR + TTS + transport)", ms: agora, color: "#475569" });
                 return (
                   <>
                     <LatencyBreakdown segments={segments} totalMs={lastLatency.perceivedMs} />

@@ -1400,19 +1400,19 @@ export default function MultiAvatarChat() {
               ) : (() => {
                 const t = lastLatency.timings;
                 const segments = [
-                  { label: "Loading RAG index into RAM", ms: t.index_load_ms || 0, color: "#e879f9" },
-                  { label: "Keyword generation (LLM)", ms: t.keyword_gen_ms || 0, color: "#f59e0b" },
-                  { label: "Knowledge retrieval (RAG)", ms: t.rag_retrieval_ms || 0, color: "#22d3ee" },
-                  { label: "Web search", ms: t.web_search_ms || 0, color: "#a78bfa" },
-                  { label: "Sensor snapshot", ms: t.sensor_snapshot_ms || 0, color: "#34d399" },
-                  { label: "Avatar response (LLM)", ms: t.main_llm_ms || 0, color: "#60a5fa" },
-                  { label: "Sensor analysis tool", ms: t.sensor_tool_ms || 0, color: "#fb923c" },
+                  { label: "Loading RAG index into RAM", ms: t.index_load_ms || 0, color: "#9333EA" },
+                  { label: "Keyword generation (LLM)", ms: t.keyword_gen_ms || 0, color: "#CA8A04" },
+                  { label: "Knowledge retrieval (RAG)", ms: t.rag_retrieval_ms || 0, color: "#0E7490" },
+                  { label: "Web search", ms: t.web_search_ms || 0, color: "#DB2777" },
+                  { label: "Sensor snapshot", ms: t.sensor_snapshot_ms || 0, color: "#15803D" },
+                  { label: "Avatar response (LLM)", ms: t.main_llm_ms || 0, color: "#1D4ED8" },
+                  { label: "Sensor analysis tool", ms: t.sensor_tool_ms || 0, color: "#EA580C" },
                 ];
                 const attributed = segments.reduce((acc, s) => acc + s.ms, 0);
                 const backendOther = Math.max((t.total_backend_ms || 0) - attributed, 0);
-                if (backendOther > 0) segments.push({ label: "Backend overhead", ms: backendOther, color: "#d6d3d1" });
+                if (backendOther > 0) segments.push({ label: "Backend overhead", ms: backendOther, color: "#A8A29E" });
                 const network = Math.max(lastLatency.roundTripMs - (t.total_backend_ms || 0), 0);
-                if (network > 0) segments.push({ label: "Network + transport", ms: network, color: "#a8a29e" });
+                if (network > 0) segments.push({ label: "Network + transport", ms: network, color: "#57534E" });
                 return <LatencyBreakdown segments={segments} totalMs={lastLatency.roundTripMs} />;
               })()}
             </div>
