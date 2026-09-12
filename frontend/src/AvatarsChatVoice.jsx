@@ -350,7 +350,7 @@ export default function AvatarsChatVoice() {
         {latencyExpanded && (
           <div className="mt-2 p-3 rounded-lg border bg-garden-paper2">
             {!lastLatency ? (
-              <p className="font-poetic text-garden-inksoft text-sm">
+              <p className="font-literary text-garden-inksoft text-sm">
                 Complete a voice exchange to see its latency breakdown.
               </p>
             ) : (() => {
@@ -421,7 +421,7 @@ export default function AvatarsChatVoice() {
       </div>
 
       {/* Status label */}
-      <p className="font-poetic text-garden-inksoft text-sm italic min-h-[1.25rem]">
+      <p className="font-literary text-garden-inksoft text-sm min-h-[1.25rem]">
         {STATUS_LABEL[status] ?? ""}
       </p>
 

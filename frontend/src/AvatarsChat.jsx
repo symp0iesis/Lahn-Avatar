@@ -877,7 +877,7 @@ export default function MultiAvatarChat() {
         Avatar Garden: Conversations with Many Voices.
       </motion.h1>
       <motion.h3
-        className="text-base md:text-xl font-poetic text-garden-amber italic mb-4 text-center px-2"
+        className="text-base md:text-xl font-literary text-garden-amber italic mb-4 text-center px-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -1388,8 +1388,8 @@ export default function MultiAvatarChat() {
           {latencyExpanded && (
             <div className="mt-2 p-3 rounded-lg border bg-garden-paper2">
               {!lastLatency ? (
-                <p className="font-poetic text-garden-inksoft text-sm">
-                  Send a message to see its latency breakdown.
+                <p className="font-literary text-garden-inksoft text-sm">
+                  Send a message to see its latency breakdown. its latency breakdown.
                 </p>
               ) : (() => {
                 const t = lastLatency.timings;
@@ -1534,7 +1534,7 @@ export default function MultiAvatarChat() {
 
                 {isThinking && (
                   <motion.div
-                    className="text-garden-moss italic self-start mb-4"
+                    className="font-literary text-garden-moss self-start mb-4"
                     animate={{ opacity: [0.3, 1, 0.3], x: [0, 2, -2, 0] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                   >

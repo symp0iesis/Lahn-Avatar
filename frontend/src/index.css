@@ -68,7 +68,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     /* faint paper grain */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
@@ -84,15 +84,20 @@
 }
 
 /* ── type utilities ─────────────────────────────────────────────
-   .font-display  Gloock        — specimen labels, page titles
-   .font-poetic   Newsreader    — prose voice (defined in tailwind.config)
-   .font-data     IBM Plex Mono — timings, configs, logs, values      */
+   .font-display   Gloock        — specimen labels, page titles
+   .font-poetic    Inter         — general UI voice (Helvetica vibe)
+   .font-literary  Newsreader i. — the avatar's poetic voice only
+   .font-data      IBM Plex Mono — timings, configs, logs, values      */
 
 @layer utilities {
   .font-display {
-    font-family: 'Gloock', 'Newsreader', serif;
+    font-family: 'Gloock', 'Inter', sans-serif;
     font-weight: 400;
     letter-spacing: 0.01em;
+  }
+  .font-literary {
+    font-family: 'Newsreader', Georgia, serif;
+    font-style: italic;
   }
   .font-data {
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
