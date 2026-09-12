@@ -1475,7 +1475,10 @@ def avatars_collection():
 
     if request.method == "GET":
         # Frontend expects: [{ id, name, systemPromptUrl, contextDocsUrl, sensorApiUrl }, ...]
-        return jsonify(avatars), 200
+        # The pinned-default avatar (defaultAvatar: true) leads the list — both
+        # the dropdown order and the avatar auto-selected on page load follow it.
+        ordered = sorted(avatars, key=lambda a: not bool(a.get("defaultAvatar")))
+        return jsonify(ordered), 200
 
     # POST
     data = request.get_json() or {}
@@ -1591,6 +1594,25 @@ def avatar_detail(avatar_id):
         if new_pinned and not old_pinned:
             avatar_rag_tools.warm_pinned()
     return jsonify(avatar), 200
+
+
+@avatars_bp.route("/api/avatars/<avatar_id>/set-default", methods=["POST"])
+def avatar_set_default(avatar_id):
+    """
+    POST /api/avatars/<avatar_id>/set-default -> pin this avatar as the default:
+    first in the dropdown and auto-selected on page load (survives refreshes).
+    Unpins any previously pinned avatar. Returns the reordered avatar list.
+    """
+    avatars = json.load(open(avatars_path, "r"))
+    avatar = next((a for a in avatars if a["id"] == avatar_id), None)
+    if avatar is None:
+        return jsonify({"error": "Avatar not found."}), 404
+
+    for a in avatars:
+        a["defaultAvatar"] = bool(a["id"] == avatar_id)
+    save_avatars(avatars, reason=f"set default avatar to {avatar_id}")
+    print(f"=== Default avatar set to '{avatar.get('name', avatar_id)}' (id: {avatar_id}) ===")
+    return jsonify(sorted(avatars, key=lambda a: not bool(a.get("defaultAvatar")))), 200
 
 
 @avatars_bp.route("/api/avatars/<avatar_id>/llm-defaults", methods=["POST", "DELETE"])

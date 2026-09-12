@@ -529,6 +529,21 @@ export default function MultiAvatarChat() {
     setAvatarFormOpen(true);
   };
 
+  const handleSetDefaultAvatar = async () => {
+    if (!selectedAvatarId) return;
+    try {
+      const resp = await fetch(`/api/avatars/${selectedAvatarId}/set-default`, {
+        method: "POST",
+      });
+      if (!resp.ok) throw new Error("Failed to set default avatar");
+      // Backend returns the reordered list — pinned default first. Page-load
+      // selection follows data[0], so the pinned avatar survives refreshes.
+      setAvatars(await resp.json());
+    } catch (e) {
+      console.error("Failed to set default avatar:", e);
+    }
+  };
+
   const handleAvatarFormChange = (field, value) => {
     setAvatarForm(prev => ({ ...prev, [field]: value }));
   };
@@ -919,6 +934,15 @@ export default function MultiAvatarChat() {
                 >
                   + New
                 </Button>
+                {selectedAvatar && (
+                  <Button
+                    variant="outline"
+                    className="font-poetic flex-1 sm:flex-none"
+                    onClick={handleSetDefaultAvatar}
+                  >
+                    {selectedAvatar.defaultAvatar ? "Default ✓" : "Pin as default"}
+                  </Button>
+                )}
                 {selectedAvatar && (
                   <Button
                     variant="outline"
