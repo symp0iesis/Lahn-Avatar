@@ -1552,7 +1552,14 @@ def avatar_llm_defaults(avatar_id):
         # Clear defaults
         avatar_name = avatar.get("name", avatar_id)
         if "llmDefaults" in avatar:
-            del avatar["llmDefaults"]
+            # webSearchEnabled is a capability flag, not a model default — it must
+            # survive clearing Admin defaults. (2026-09-11: wiping the whole dict
+            # re-enabled web search for avatars explicitly set to false.)
+            preserved = {k: v for k, v in avatar["llmDefaults"].items() if k == "webSearchEnabled"}
+            if preserved:
+                avatar["llmDefaults"] = preserved
+            else:
+                del avatar["llmDefaults"]
             print(f"\n=== Cleared Admin defaults for avatar '{avatar_name}' (id: {avatar_id}) ===\n")
         save_avatars(avatars, reason=f"clear llmDefaults for avatar {avatar_id}")
         return jsonify(avatar), 200

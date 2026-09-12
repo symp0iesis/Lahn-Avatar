@@ -112,13 +112,7 @@ export default function MultiAvatarChat() {
         setAvatars(data || []);
         if (data && data.length > 0) {
           setSelectedAvatarId(data[0].id);
-
-    if (data.length > 0) {
-      fetch(`/api/voice/web-search-status?avatar=${data[0].id}`)
-        .then(r => r.json())
-        .then(d => setWebSearchOn(d.webSearchEnabled))
-        .catch(() => setWebSearchOn(null));
-    }        }
+        }
       } catch (err) {
         console.error("Error loading avatars:", err);
       }
@@ -845,6 +839,18 @@ export default function MultiAvatarChat() {
 
     // Optional: prevent auto-scroll jump on this reset
     firstRender.current = true;
+  }, [selectedAvatarId]);
+
+  // === Web search state is per-avatar — refetch whenever the selection changes ===
+  useEffect(() => {
+    if (!selectedAvatarId) return;
+    let cancelled = false;
+    setWebSearchOn(null);
+    fetch(`/api/voice/web-search-status?avatar=${selectedAvatarId}`)
+      .then(r => r.json())
+      .then(d => { if (!cancelled) setWebSearchOn(d.webSearchEnabled); })
+      .catch(() => { if (!cancelled) setWebSearchOn(null); });
+    return () => { cancelled = true; };
   }, [selectedAvatarId]);
 
 
