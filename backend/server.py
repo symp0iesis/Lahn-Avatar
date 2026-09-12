@@ -1231,28 +1231,41 @@ web_search(query="your search query")
     # === Web search tool call handling ===
     # Same pattern as analyze_sensor_data: if the model emitted web_search(query=...),
     # run Brave, re-invoke LLM with results clearly labeled as EXTERNAL source.
-    if web_search_enabled and 'web_search(query="' in response:
+    # Bounded loop — a re-invoked answer may itself emit another tool call or
+    # planning meta-text ("We should call web_search again..."), which leaked raw
+    # to the user on 2026-09-12 (cutia conversation). Never display tool syntax.
+    ws_rounds = 0
+    while web_search_enabled and 'web_search(query="' in response and ws_rounds < 2:
+        ws_rounds += 1
         _tw = time.perf_counter()
         q_start = response.find('web_search(query="') + len('web_search(query="')
         q_end = response.find('")', q_start)
         ws_query = response[q_start:q_end] if q_end > q_start else ""
-        if ws_query:
-            print(f"[web search] Tool-invoked query: {ws_query!r}")
-            ws_results = web_search(ws_query, count=5, api_key=get_integration_key("BRAVE_SEARCH_API_KEY"))
-            chat_history.append({"role": "assistant", "content": response})
-            chat_history.append({"role": "user", "content":
-                f"WEB SEARCH RESULTS (live internet data retrieved for you — may complement your "
-                f"knowledge base):\n{ws_results}\n"
-                "Use these results to inform your answer when they are relevant to the user's "
-                "question about Morretes and the Rio Marumbi region. If they reference other "
-                "locations, focus only on what applies here. Respond in the user's language, "
-                "conversationally."
-            })
-            re_completion = llm.complete(chat_history)
-            response = re_completion.text.replace("*", "")
-            timings["web_search_ms"] = round((time.perf_counter() - _tw) * 1000)
-            print(f"[TIMING] web-search tool: {time.perf_counter() - _tw:.2f}s")
-            debug_log(avatar_id, "VOICE/WEB_SEARCH_RESULTS", ws_results)
+        if not ws_query:
+            break
+        print(f"[web search] Tool-invoked query: {ws_query!r}")
+        ws_results = web_search(ws_query, count=5, api_key=get_integration_key("BRAVE_SEARCH_API_KEY"))
+        chat_history.append({"role": "assistant", "content": response})
+        chat_history.append({"role": "user", "content":
+            f"WEB SEARCH RESULTS (live internet data retrieved for you — may complement your "
+            f"knowledge base):\n{ws_results}\n"
+            "Use these results to inform your answer when they are relevant to the user's "
+            "question about Morretes and the Rio Marumbi region. If they reference other "
+            "locations, focus only on what applies here. Respond in the user's language, "
+            "conversationally."
+            + (" Do NOT output any function call or planning text — reply directly to the "
+               "user now." if ws_rounds >= 2 else "")
+        })
+        re_completion = llm.complete(chat_history)
+        response = re_completion.text.replace("*", "")
+        timings["web_search_ms"] = round((time.perf_counter() - _tw) * 1000)
+        print(f"[TIMING] web-search tool: {time.perf_counter() - _tw:.2f}s")
+        debug_log(avatar_id, "VOICE/WEB_SEARCH_RESULTS", ws_results)
+    if 'web_search(query="' in response:
+        # Strip any surviving tool-call syntax so the user never sees it
+        response = "\n".join(
+            ln for ln in response.splitlines() if 'web_search(query="' not in ln
+        ).strip()
 
     timings["total_backend_ms"] = round((time.perf_counter() - _t0) * 1000)
     print(f"[TIMING] CHAT total: {time.perf_counter() - _t0:.2f}s")
