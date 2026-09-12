@@ -150,7 +150,7 @@ export default function VoiceChatSimple() {
       </div>
 
       {avatarThinking && (
-        <div className="text-lime-700 italic mt-4">the river contemplates…</div>
+        <div className="text-garden-moss mt-4">the river contemplates…</div>
       )}
 
 

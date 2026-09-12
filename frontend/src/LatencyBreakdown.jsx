@@ -9,7 +9,7 @@ export default function LatencyBreakdown({ segments, totalMs }) {
 
   return (
     <div className="space-y-2">
-      <p className="font-poetic text-stone-700 text-sm">
+      <p className="font-poetic text-garden-inksoft text-sm">
         Most recent request — total:{" "}
         <span className="font-semibold">{(total / 1000).toFixed(2)}s</span>
       </p>
@@ -31,7 +31,7 @@ export default function LatencyBreakdown({ segments, totalMs }) {
       {/* Legend */}
       <div className="space-y-1">
         {shown.map(s => (
-          <div key={s.label} className="flex items-center gap-2 text-xs font-poetic text-stone-600">
+          <div key={s.label} className="flex items-center gap-2 text-xs font-poetic text-garden-inksoft">
             <span
               className="w-3 h-3 rounded-sm shrink-0"
               style={{ backgroundColor: s.color }}

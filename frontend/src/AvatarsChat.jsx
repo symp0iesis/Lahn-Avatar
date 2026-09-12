@@ -1388,7 +1388,7 @@ export default function MultiAvatarChat() {
           {latencyExpanded && (
             <div className="mt-2 p-3 rounded-lg border bg-garden-paper2">
               {!lastLatency ? (
-                <p className="font-literary text-garden-inksoft text-sm">
+                <p className="font-poetic text-garden-inksoft text-sm">
                   Send a message to see its latency breakdown. its latency breakdown.
                 </p>
               ) : (() => {
@@ -1534,7 +1534,7 @@ export default function MultiAvatarChat() {
 
                 {isThinking && (
                   <motion.div
-                    className="font-literary text-garden-moss self-start mb-4"
+                    className="font-poetic text-garden-moss self-start mb-4"
                     animate={{ opacity: [0.3, 1, 0.3], x: [0, 2, -2, 0] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                   >
