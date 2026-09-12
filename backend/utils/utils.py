@@ -428,12 +428,20 @@ def translate_keywords_batch(keywords, source_lang="auto", target_lang="de"):
     joined = ". ".join([prefix + w for w in keywords])
     out = translator.translate(joined)
 
+    # Google's unofficial endpoint sometimes returns an HTML error page instead
+    # of raising — detect and raise so callers fall back to source keywords
+    # (2026-09-11: VPS got "Error 500 ... That's an error" page as translation).
+    if not out or "an error" in out.lower() or "<html" in out.lower() or "!<!1500" in out:
+        raise RuntimeError(f"translate_keywords_batch: upstream returned an error page for {target_lang}")
+
     # Extract translations after 'Wort:' or similar
     parts = [
         p.strip().replace(".", "")
         for p in out.replace("Wort:", "Word:").split("Word:")
         if p.strip()
     ]
+    if not parts:
+        raise RuntimeError(f"translate_keywords_batch: empty translation for {target_lang}")
     return parts
 
 

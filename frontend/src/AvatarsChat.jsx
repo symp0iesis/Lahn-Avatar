@@ -493,6 +493,23 @@ export default function MultiAvatarChat() {
   const setIsThinking = isDebateMode ? setDebateThinking : setDefaultThinking;
 
   const selectedAvatar = avatars.find(a => a.id === selectedAvatarId) || null;
+  const keywordLlmOn = selectedAvatar ? selectedAvatar.keywordMode !== "local" : true;
+
+  const handleToggleKeywordMode = async (checked) => {
+    if (!selectedAvatarId) return;
+    try {
+      const resp = await fetch(`/api/avatars/${selectedAvatarId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keywordMode: checked ? "llm" : "local" }),
+      });
+      if (!resp.ok) throw new Error((await resp.json()).error || "Save failed");
+      const updated = await fetch("/api/avatars").then(r => r.json());
+      setAvatars(updated);
+    } catch (e) {
+      console.error("Failed to toggle keyword mode:", e);
+    }
+  };
 
   const firstRender = useRef(true);
 
@@ -1248,6 +1265,19 @@ export default function MultiAvatarChat() {
                       <span className="font-poetic text-garden-inksoft text-xs">
                         Keep knowledge in memory — removes the first-request delay after idle
                         periods. For high-traffic avatars; uses server RAM.
+                      </span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-3 pt-3 border-t border-garden-line/60">
+                      <Switch
+                          checked={keywordLlmOn}
+                          disabled={!selectedAvatarId}
+                          onCheckedChange={handleToggleKeywordMode}
+                          className="data-[state=checked]:bg-garden-moss"
+                      />
+                      <span className="font-poetic text-garden-inksoft text-xs">
+                        Context-aware keywords (LLM) — off uses fast local extraction
+                        (~0.1s, best for monolingual corpus like pt-only; loses follow-up
+                        context resolution)
                       </span>
                   </div>
               </div>

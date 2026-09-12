@@ -36,6 +36,7 @@ from utils.utils import (
     RAG,
     build_or_load_index,
     detect_web_search_intent,
+    extract_keywords_multilingual,
     fetch_system_prompt_from_gdoc,
     fetch_text_index_query,
     generate_context_aware_keywords_for_multilingual_text_index_search,
@@ -459,6 +460,16 @@ def resolve_llm_defaults(avatar_id, user_params=None):
     return resolved, sources
 
 
+def _avatar_keyword_mode(avatar_id):
+    """Per-avatar keyword mode: 'llm' (context-aware, default) or 'local' (fast)."""
+    try:
+        avatars_cfg = json.load(open(avatars_path, "r"))
+        cfg = next((a for a in avatars_cfg if str(a.get("id")) == str(avatar_id)), None)
+        return str((cfg or {}).get("keywordMode", "llm")).lower()
+    except Exception:
+        return "llm"
+
+
 def inject_rag_context(avatar_id, chat_history, conversation_for_rag, text_query_llm,
                        verbose=True, web_search_enabled=True):
     """
@@ -485,9 +496,31 @@ def inject_rag_context(avatar_id, chat_history, conversation_for_rag, text_query
     rag_languages = tools[4] if len(tools) > 4 else ['en', 'de']
 
     _t = time.perf_counter()
-    keywords_by_lang, web_search_query = generate_context_aware_keywords_for_multilingual_text_index_search(
-        text_query_llm, conversation_for_rag, rag_languages, has_sensor=has_sensor
-    )
+    keyword_mode = _avatar_keyword_mode(avatar_id)
+    if keyword_mode == "local":
+        # Fast local path: spaCy POS extraction on the last user message, no LLM
+        # round trip (~50ms vs ~1s GWDG). Tradeoff: no conversation-aware context
+        # resolution for follow-ups. Best for monolingual corpus + interactions.
+        try:
+            last_user = next(
+                (m.get("text", "") for m in reversed(conversation_for_rag)
+                 if str(m.get("sender", "")).lower() == "user"),
+                "",
+            )
+            keywords_by_lang = extract_keywords_multilingual(last_user, rag_languages) if last_user.strip() else {}
+            web_search_query = None
+            if not any(keywords_by_lang.values()):
+                raise ValueError("local extraction produced no keywords")
+            print(f"[keywords] local extraction for avatar {avatar_id}")
+        except Exception as e:
+            print(f"[keywords] local extraction failed ({e}) — falling back to LLM mode")
+            keywords_by_lang, web_search_query = generate_context_aware_keywords_for_multilingual_text_index_search(
+                text_query_llm, conversation_for_rag, rag_languages, has_sensor=has_sensor
+            )
+    else:
+        keywords_by_lang, web_search_query = generate_context_aware_keywords_for_multilingual_text_index_search(
+            text_query_llm, conversation_for_rag, rag_languages, has_sensor=has_sensor
+        )
     timings["keyword_gen_ms"] = round((time.perf_counter() - _t) * 1000)
 
     _t = time.perf_counter()
@@ -1564,7 +1597,7 @@ def avatar_detail(avatar_id):
 
     # Only update fields present in request
     for field in ["name", "systemPromptUrl", "contextDocsUrl", "sensorApiUrl", "sensorDescription",
-                  "ttsVoiceId", "ttsLanguage", "ragPinned"]:
+                  "ttsVoiceId", "ttsLanguage", "ragPinned", "keywordMode"]:
         if field in data and data[field] is not None:
             avatar[field] = data[field]
 
@@ -2250,10 +2283,29 @@ def voice_chat_completions():
                 task_name="voice_text_query", providers=providers,
             )
             _tr = time.perf_counter()
-            keywords_by_lang, _web_q = generate_context_aware_keywords_for_multilingual_text_index_search(
-                text_query_llm, conversation_for_rag, rag_languages,
-                has_sensor=bool(avatar_sensor_tools.get(avatar_id)),
-            )
+            if _avatar_keyword_mode(avatar_id) == "local":
+                try:
+                    last_user = next(
+                        (m.get("text", "") for m in reversed(conversation_for_rag)
+                         if str(m.get("sender", "")).lower() == "user"),
+                        "",
+                    )
+                    keywords_by_lang = extract_keywords_multilingual(last_user, rag_languages) if last_user.strip() else {}
+                    _web_q = None
+                    if not any(keywords_by_lang.values()):
+                        raise ValueError("local extraction produced no keywords")
+                    print(f"[keywords] local extraction (voice) for avatar {avatar_id}")
+                except Exception as e:
+                    print(f"[keywords] local extraction failed ({e}) — falling back to LLM mode")
+                    keywords_by_lang, _web_q = generate_context_aware_keywords_for_multilingual_text_index_search(
+                        text_query_llm, conversation_for_rag, rag_languages,
+                        has_sensor=bool(avatar_sensor_tools.get(avatar_id)),
+                    )
+            else:
+                keywords_by_lang, _web_q = generate_context_aware_keywords_for_multilingual_text_index_search(
+                    text_query_llm, conversation_for_rag, rag_languages,
+                    has_sensor=bool(avatar_sensor_tools.get(avatar_id)),
+                )
             vtimings["keyword_gen_ms"] = round((time.perf_counter() - _tr) * 1000)
             _tr = time.perf_counter()
             rag_context = RAG(avatar_rag_tools[avatar_id], keywords_by_lang=keywords_by_lang)
