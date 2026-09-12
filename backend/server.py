@@ -461,11 +461,13 @@ def resolve_llm_defaults(avatar_id, user_params=None):
 
 
 def _avatar_keyword_mode(avatar_id):
-    """Per-avatar keyword mode: 'llm' (context-aware, default) or 'local' (fast)."""
+    """Per-avatar keyword mode: 'llm' (cloud GWDG, context-aware, default) or
+    'vps'/'local' (VPS keyword extraction — spaCy on this server, fast)."""
     try:
         avatars_cfg = json.load(open(avatars_path, "r"))
         cfg = next((a for a in avatars_cfg if str(a.get("id")) == str(avatar_id)), None)
-        return str((cfg or {}).get("keywordMode", "llm")).lower()
+        mode = str((cfg or {}).get("keywordMode", "llm")).lower()
+        return "local" if mode in ("local", "vps") else "llm"
     except Exception:
         return "llm"
 
@@ -498,7 +500,7 @@ def inject_rag_context(avatar_id, chat_history, conversation_for_rag, text_query
     _t = time.perf_counter()
     keyword_mode = _avatar_keyword_mode(avatar_id)
     if keyword_mode == "local":
-        # Fast local path: spaCy POS extraction on the last user message, no LLM
+        # VPS keyword extraction: spaCy POS extraction on the last user message, no LLM
         # round trip (~50ms vs ~1s GWDG). Tradeoff: no conversation-aware context
         # resolution for follow-ups. Best for monolingual corpus + interactions.
         try:
@@ -510,10 +512,10 @@ def inject_rag_context(avatar_id, chat_history, conversation_for_rag, text_query
             keywords_by_lang = extract_keywords_multilingual(last_user, rag_languages) if last_user.strip() else {}
             web_search_query = None
             if not any(keywords_by_lang.values()):
-                raise ValueError("local extraction produced no keywords")
-            print(f"[keywords] local extraction for avatar {avatar_id}")
+                raise ValueError("VPS keyword extraction produced no keywords")
+            print(f"[keywords] VPS keyword extraction for avatar {avatar_id}")
         except Exception as e:
-            print(f"[keywords] local extraction failed ({e}) — falling back to LLM mode")
+            print(f"[keywords] VPS extraction failed ({e}) — falling back to LLM mode")
             keywords_by_lang, web_search_query = generate_context_aware_keywords_for_multilingual_text_index_search(
                 text_query_llm, conversation_for_rag, rag_languages, has_sensor=has_sensor
             )
@@ -2293,10 +2295,10 @@ def voice_chat_completions():
                     keywords_by_lang = extract_keywords_multilingual(last_user, rag_languages) if last_user.strip() else {}
                     _web_q = None
                     if not any(keywords_by_lang.values()):
-                        raise ValueError("local extraction produced no keywords")
-                    print(f"[keywords] local extraction (voice) for avatar {avatar_id}")
+                        raise ValueError("VPS keyword extraction produced no keywords")
+                    print(f"[keywords] VPS keyword extraction (voice) for avatar {avatar_id}")
                 except Exception as e:
-                    print(f"[keywords] local extraction failed ({e}) — falling back to LLM mode")
+                    print(f"[keywords] VPS extraction failed ({e}) — falling back to LLM mode")
                     keywords_by_lang, _web_q = generate_context_aware_keywords_for_multilingual_text_index_search(
                         text_query_llm, conversation_for_rag, rag_languages,
                         has_sensor=bool(avatar_sensor_tools.get(avatar_id)),

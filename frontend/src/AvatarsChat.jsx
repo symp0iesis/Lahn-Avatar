@@ -493,7 +493,7 @@ export default function MultiAvatarChat() {
   const setIsThinking = isDebateMode ? setDebateThinking : setDefaultThinking;
 
   const selectedAvatar = avatars.find(a => a.id === selectedAvatarId) || null;
-  const keywordLlmOn = selectedAvatar ? selectedAvatar.keywordMode !== "local" : true;
+  const keywordLlmOn = selectedAvatar ? selectedAvatar.keywordMode === "llm" : true;
 
   const handleToggleKeywordMode = async (checked) => {
     if (!selectedAvatarId) return;
@@ -501,7 +501,7 @@ export default function MultiAvatarChat() {
       const resp = await fetch(`/api/avatars/${selectedAvatarId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keywordMode: checked ? "llm" : "local" }),
+        body: JSON.stringify({ keywordMode: checked ? "llm" : "vps" }),
       });
       if (!resp.ok) throw new Error((await resp.json()).error || "Save failed");
       const updated = await fetch("/api/avatars").then(r => r.json());
@@ -1274,11 +1274,17 @@ export default function MultiAvatarChat() {
                           onCheckedChange={handleToggleKeywordMode}
                           className="data-[state=checked]:bg-garden-moss"
                       />
-                      <span className="font-poetic text-garden-inksoft text-xs">
-                        Context-aware keywords (LLM) — off uses fast local extraction
-                        (~0.1s, best for monolingual corpus like pt-only; loses follow-up
-                        context resolution)
-                      </span>
+                      {keywordLlmOn ? (
+                        <span className="font-poetic text-garden-inksoft text-xs">
+                          Cloud keyword extraction (GWDG LLM) — context-aware, multilingual,
+                          ~1s per message
+                        </span>
+                      ) : (
+                        <span className="font-poetic text-garden-inksoft text-xs">
+                          VPS keyword extraction (spaCy on this server) — fast, no network;
+                          best for monolingual corpus (e.g. pt-only)
+                        </span>
+                      )}
                   </div>
               </div>
 
