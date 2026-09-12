@@ -27,7 +27,6 @@ export default function AvatarsChatVoice() {
   const [error, setError] = useState(null);
 
   const [latencyExpanded, setLatencyExpanded] = useState(false);
-  const [webSearchOn, setWebSearchOn] = useState(null);
   const [lastLatency, setLastLatency] = useState(null); // { perceivedMs, timings }
   // Experimental: stream LLM sentences to Agora (TTS starts sooner). Off by
   // default — Agora-side chunk handling still being ironed out (ISSUES.md 14).
@@ -311,26 +310,6 @@ export default function AvatarsChatVoice() {
           Streaming responses (experimental — speech starts sooner)
         </label>
       )}
-
-      {/* Web search toggle */}
-      <div className="w-full max-w-lg flex items-center justify-between p-2 rounded-lg border bg-garden-paper2">
-        <span className="font-poetic text-sm text-garden-inksoft">Web search</span>
-        <button
-          className={"relative w-12 h-6 rounded-full transition-colors duration-200 " + (webSearchOn ? "bg-garden-moss" : "bg-garden-line")}
-          onClick={async () => {
-            const newState = !webSearchOn;
-            setWebSearchOn(newState);
-            await fetch("/api/voice/web-search-toggle", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ avatar_id: selectedAvatarId, enabled: newState }),
-            });
-          }}
-          disabled={webSearchOn === null}
-        >
-          <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-garden-paper rounded-full transition-transform duration-200 " + (webSearchOn ? "translate-x-6" : "translate-x-0")} />
-        </button>
-      </div>
 
       {/* Latency Analysis — directly under the avatar selection */}
       <div className="w-full max-w-lg">
