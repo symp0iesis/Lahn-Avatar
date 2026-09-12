@@ -912,16 +912,8 @@ export default function MultiAvatarChat() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        Avatar Garden: Conversations with Many Voices.
+        Avatar Garden
       </motion.h1>
-      <motion.h3
-        className="text-base md:text-lg font-poetic text-garden-amber mb-4 text-center px-2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        Choose which avatar you want to speak with – or create your own.
-      </motion.h3>
 
       {/* Avatar and LLM selection + controls */}
       <div className="w-full max-w-5xl flex flex-col gap-4 mb-4 px-4">
